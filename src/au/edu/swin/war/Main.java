@@ -3,6 +3,8 @@ package au.edu.swin.war;
 import au.edu.swin.war.framework.WarPlugin;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.util.Manager;
+import au.edu.swin.war.util.Match;
+import au.edu.swin.war.util.modules.CommandUtility;
 
 /**
  * An extension to WarPlugin.
@@ -27,7 +29,9 @@ public class Main extends WarPlugin {
         log("War program has awoken!");
         // The Manager handles most of the module initialisations.
         supercontroller = new Manager(this);
-        main().match().preMatch(); // Start the pre-match procedures once everything is initialised.
+        registerCommandClass(CommandUtility.class); // Register the command class containing the @Commands.
+        registerCommands(); // Finalise the registration of  all the classes we chose.
+        ((Match) main().match()).firstMatch(); // Start the special first round procedure to kick off the cycle.
     }
 
     /**
@@ -35,7 +39,7 @@ public class Main extends WarPlugin {
      * Called when this program is shut down.
      */
     public void onDisable() {
-
+        main().world().restoreMap(main().match().getRoundID_() + "");
     }
 
     /**

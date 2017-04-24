@@ -3,6 +3,8 @@ package au.edu.swin.war.util;
 import au.edu.swin.war.Main;
 import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarManager;
+import au.edu.swin.war.util.modules.ConfigUtility;
+import au.edu.swin.war.util.modules.EntityUtility;
 import au.edu.swin.war.util.modules.RespawnUtility;
 import org.bukkit.entity.Player;
 
@@ -31,12 +33,16 @@ public class Manager extends WarManager {
         this.cacheutil = new Cache(this);
         this.matchutil = new Match(this);
         this.respawnutil = new RespawnUtility(this);
+        this.entiutil = new EntityUtility(this);
+        this.confutil = new ConfigUtility(this);
+        new Guard(this); // Guard does not need a reference so just initialize it.
     }
 
     private Match matchutil; // An instance of the match controller.
     private Cache cacheutil; // An instance of the cache.
     private RespawnUtility respawnutil; // An instance of the respawning utility.
-
+    private EntityUtility entiutil; // An instance of the entity utility.
+    private ConfigUtility confutil; // An instance of the configuration utility.
 
     /**
      * Returns a running instance of the extended Match manager.
@@ -66,12 +72,32 @@ public class Manager extends WarManager {
     }
 
     /**
+     * Returns a running instance of the entity utility.
+     *
+     * @return Entity utility.
+     */
+    public EntityUtility entity() {
+        return entiutil;
+    }
+
+    /**
+     * Returns a running instance of the configuration utility.
+     *
+     * @return Configuration utility.
+     */
+    public ConfigUtility conf() {
+        return confutil;
+    }
+
+    /**
      * Creates an instance of a WarPlayer for a player.
      *
      * @param target The target to base the WarPlayer object on.
      */
-    public void craftWarPlayer(Player target) {
-
+    public WarPlayer craftWarPlayer(Player target) {
+        WarPlayer result = new WarPlayer(target); // Create their instance.
+        getWarPlayers().put(target.getUniqueId(), result); // Put it in the key/value set!
+        return result;
     }
 
     /**

@@ -63,8 +63,15 @@ public class RespawnUtility extends WarModule implements Listener {
         pl.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 400, 1)); // Death effect.
         pl.getPlayer().getWorld().playEffect(pl.getPlayer().getLocation(), Effect.VOID_FOG, 0); // Another death effect.
 
-        DeathInfo inf = info.put(pl.getPlayer().getUniqueId(), new DeathInfo()); // Create their death information.
-        pl.getPlayer().sendMessage("You died! Respawning in " + inf.timeUntilRespawn + " second" + main().strings().plural(inf.timeUntilRespawn));
+        // Create and store their death information.
+        DeathInfo inf = new DeathInfo();
+        info.put(pl.getPlayer().getUniqueId(), inf);
+        pl.getPlayer().sendMessage("You died! Respawning in " + inf.timeUntilRespawn + " second" +
+                main().
+                        strings().
+                        plural(
+                                inf.
+                                        timeUntilRespawn));
 
     }
 
@@ -97,6 +104,16 @@ public class RespawnUtility extends WarModule implements Listener {
      */
     public void clear() {
         info.clear();
+    }
+
+    /**
+     * Clear respawning information for a player.
+     * This should be called when a player leaves.
+     *
+     * @param toClear The player to get their info removed.
+     */
+    public void clearFor(WarPlayer toClear) {
+        info.remove(toClear.getPlayer().getUniqueId());
     }
 
     @EventHandler

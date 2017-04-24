@@ -2,6 +2,13 @@ package au.edu.swin.war.util;
 
 import au.edu.swin.war.framework.util.WarCache;
 import au.edu.swin.war.framework.util.WarManager;
+import au.edu.swin.war.game.Gamemode;
+import au.edu.swin.war.game.Map;
+import au.edu.swin.war.game.modes.CTF;
+import au.edu.swin.war.game.modes.KoTH;
+import au.edu.swin.war.game.modes.TDM;
+import au.edu.swin.war.maps.TestMap1;
+import au.edu.swin.war.maps.TestMap2;
 
 /**
  * An extension to WarCache.
@@ -23,17 +30,53 @@ public class Cache extends WarCache {
      *
      * @param main The supercontroller.
      */
-    protected Cache(Manager main) {
+    Cache(Manager main) {
         super(main);
     }
 
     @Override
     public void loadGamemodes() {
-
+        loadGamemode(TDM.class);
+        loadGamemode(KoTH.class);
+        loadGamemode(CTF.class);
     }
 
     @Override
     public void loadMaps() {
+        loadMap(TestMap1.class);
+        loadMap(TestMap2.class);
+    }
 
+    /**
+     * Instantiates a map class and initialises it.
+     * Also puts into the map key/value set.
+     *
+     * @param toLoad The map to load.
+     */
+    private void loadMap(Class<? extends Map> toLoad) {
+        try {
+            Map result = toLoad.newInstance();
+            result.init(main());
+            maps.put(result.getMapName(), result);
+            main().plugin().log("Map initialised and stored: " + result.getMapName());
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Instantiates a gamemode class and initialises it.
+     * Also puts into the gamemode key/value set.
+     *
+     * @param toLoad The gamemode to load.
+     */
+    private void loadGamemode(Class<? extends Gamemode> toLoad) {
+        try {
+            Gamemode result = toLoad.newInstance();
+            result.init(main());
+            gamemodes.put(result.getFullName(), result);
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 }

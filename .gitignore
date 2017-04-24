@@ -1,3 +1,4 @@
 #maven and IntelliJ
 target/
 *.iml
+dependency-reduced-pom.xml

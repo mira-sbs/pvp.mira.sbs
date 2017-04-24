@@ -1,19 +1,25 @@
 package au.edu.swin.war.util;
 
+import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
  * This class listens for certain Spigot events in
- * certain scenarios and blocks them.
+ * certain scenarios and blocks/acts upon them.
  * <p>
  * Created by Josh on 20/04/2017.
  *
@@ -23,9 +29,41 @@ import org.bukkit.event.entity.EntityTargetEvent;
  */
 public class Guard extends WarModule implements Listener {
 
-    protected Guard(WarManager main) {
+    Guard(WarManager main) {
         super(main);
         main().plugin().getServer().getPluginManager().registerEvents(this, main().plugin());
+    }
+
+    /* All events below handle player connections/disconnections. */
+
+    @EventHandler(priority = EventPriority.HIGHEST) // Highest priority denoting this one needs to be executed first.
+    public void onJoin(PlayerJoinEvent event) {
+        Player target = event.getPlayer(); // Get the player who connected.
+        WarPlayer wp = main().craftWarPlayer(target); // Creates their needed WarPlayer record.
+
+        WarMatch.Status status = main().match().getStatus(); // Get the status of the match.
+        // Clear the player's inventory and give them the spectator kit.
+        main().items().clear(wp);
+        main().giveSpectatorKit(wp);
+
+        if (status == WarMatch.Status.STARTING || status == WarMatch.Status.PLAYING || status == WarMatch.Status.CYCLE)
+            target.teleport(main().cache().getCurrentMap().getSpectatorSpawn());
+        else if (status == WarMatch.Status.VOTING)
+            target.teleport(main().cache().getMap(main().match().getPreviousMap()).getSpectatorSpawn());
+        if (status != WarMatch.Status.PLAYING) {
+            event.getPlayer().setScoreboard(((Match) main().match()).s()); // Show the default scoreboard.
+            //TODO: Add them as spectators???
+            target.setGameMode(GameMode.CREATIVE);
+        } else {
+            event.getPlayer().setScoreboard(main().match().getCurrentMode().s()); // Show the gamemode's scoreboard.
+            target.setGameMode(GameMode.SPECTATOR);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        event.getPlayer().performCommand("leave"); // Act as if they were using the leave command.
+        main().destroyWarPlayer(event.getPlayer().getUniqueId()); // Remove their WarPlayer record.
     }
 
     /* All events below prevent damage/interaction out of play time. */
@@ -46,6 +84,9 @@ public class Guard extends WarModule implements Listener {
     public void onDamage(EntityDamageEvent event) {
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             event.setCancelled(true);
+        else if (event.getEntity() instanceof Player)
+            if (((Player) event.getEntity()).getGameMode() == GameMode.SPECTATOR)
+                event.setCancelled(true);
     }
 
     @EventHandler

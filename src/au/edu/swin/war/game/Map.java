@@ -19,7 +19,7 @@ import org.bukkit.event.HandlerList;
  */
 public abstract class Map extends WarMap {
 
-    private Gamemode.Mode[] modes;
+    private Gamemode.Mode[] modes; // The defined gamemodes for this map.
 
     /**
      * Defines the gamemodes that are allowed to
@@ -27,7 +27,7 @@ public abstract class Map extends WarMap {
      *
      * @see Gamemode.Mode
      */
-    public void setGamemodes(Gamemode.Mode[] modes){
+    protected void setGamemodes(Gamemode.Mode[] modes) {
         this.modes = modes;
     }
 
@@ -37,7 +37,7 @@ public abstract class Map extends WarMap {
      *
      * @return Available gamemodes.
      */
-    public Gamemode.Mode[] getGamemodes(){
+    public Gamemode.Mode[] getGamemodes() {
         return modes;
     }
 

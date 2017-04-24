@@ -1,0 +1,5 @@
+webstats:
+    enable: true
+    action: "www.somescript.com/dothis.php"
+    secret: "abcdef12345"
+    position: 0

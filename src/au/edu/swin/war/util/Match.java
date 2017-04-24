@@ -11,7 +11,10 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * An extension to WarMatch.
@@ -36,6 +39,7 @@ public class Match extends WarMatch {
         this.votes = new HashMap<>();
         this.voted = new ArrayList<>();
         this.previousID = 0; // Assign a default previous ID.
+        this.gScore = main.plugin().getServer().getScoreboardManager().getNewScoreboard();
     }
 
     private HashMap<Gamemode.Mode, Integer> votes; // Holds a key/value pair for a gamemode and the number of votes it has.
@@ -57,6 +61,45 @@ public class Match extends WarMatch {
      */
     private Map getRunningMap() {
         return (Map) main().cache().getCurrentMap();
+    }
+
+    /**
+     * This function returns the list of players
+     * who have voted, by their UUID. This should
+     * only be accessed during vote time to check
+     * who has voted or not.
+     *
+     * @return The list of players who have voted.
+     */
+    public ArrayList<UUID> getVoted() {
+        return voted;
+    }
+
+    /**
+     * This function returns the key/value set of
+     * gamemodes and the amount of votes they have
+     * received. This should only be accessed during
+     * vote time to increment the amount of votes
+     * for a player.
+     * <p>
+     * The rest is handled internally.
+     *
+     * @return The key/value set of gamemodes and their scores.
+     */
+    public HashMap<Gamemode.Mode, Integer> getVotes() {
+        return votes;
+    }
+
+    /**
+     * Returns an instance of the global scoreboard.
+     * Is used to give to the player in case there is
+     * no match running and a placeholder scoreboard
+     * is used instead.
+     *
+     * @return The global scoreboard.
+     */
+    Scoreboard s() {
+        return gScore;
     }
 
     @Override
@@ -82,7 +125,7 @@ public class Match extends WarMatch {
                 }
                 if (timer == 0) {
                     // Move the rotation pointer to the next map.
-                    if (rotationPoint == rotationList.size() - 1) rotationPoint = 0;
+                    if (rotationPoint == getRotationList().size() - 1) rotationPoint = 0;
                     else rotationPoint++;
 
                     // Back to the voting stage!
@@ -93,18 +136,38 @@ public class Match extends WarMatch {
         }.runTaskTimer(main().plugin(), 0L, 20L);
     }
 
+    /**
+     * The first match must be run differently
+     * to the rest of the matches. Some key values
+     * have not been set until a full match has
+     * have not been set until a full match has
+     * been played.
+     * <p>
+     * The vote is skipped and the match starts.
+     */
+    public void firstMatch() {
+        setStatus(Status.VOTING); // Change match cycle state.
+        setCurrentMap(getRotationList().get(rotationPoint)); // Get the next map on the rotation.
+        setRoundID(main().strings().generateID()); // Generates a new match world ID..
+        votes.put(getRunningMap().getGamemodes()[0], 1); // Give the map's first preferred gamemode 1 vote on startup.
+        continuePreMatch(); // Continue the pre-match cycle once the time is up.
+    }
+
     @Override
     public void preMatch() {
         setStatus(Status.VOTING); // Change match cycle state.
         previousID = getRoundID_(); // Archive reference for the match world ID.
-        setCurrentMap(rotationList.get(rotationPoint)); // Get the next map on the rotation.
+        setPreviousMap(getCurrentMap()); // Set the previous map's identifier.
+        setCurrentMap(getRotationList().get(rotationPoint)); // Get the next map on the rotation.
+        setRoundID(main().strings().generateID()); // Generates a new match world ID..
+        for (Gamemode.Mode mode : getRunningMap().getGamemodes()) // Give the votable modes a default score of zero.
+            votes.put(mode, 0);
         new BukkitRunnable() {
             int time = 26; // Timer starts at 26.
 
             public void run() {
                 if (time == 26)
-                    Bukkit.broadcastMessage("A vote is now being held.\nGamemodes: "
-                            + main().strings().sentenceFormat(Collections.singletonList(getRunningMap().getGamemodes()), ChatColor.WHITE));
+                    Bukkit.broadcastMessage("A vote is now being held.\nGamemodes: " + Gamemode.Mode.format(getRunningMap().getGamemodes()));
                 else if (time == 0) {
                     this.cancel();
                     continuePreMatch(); // Continue the pre-match cycle once the time is up.
@@ -228,10 +291,8 @@ public class Match extends WarMatch {
         // Fix everyone back up.
         for (WarPlayer pl : main().getWarPlayers().values()) {
             // Force respawn everyone using the Spigot entity API.
-            if (pl.getPlayer().isDead()) {
+            if (pl.getPlayer().isDead())
                 pl.getPlayer().spigot().respawn();
-                pl.getPlayer().spigot().setCollidesWithEntities(false);
-            }
 
             // Finalise match cycling for this player.
             pl.getPlayer().playSound(pl.getPlayer().getLocation(), Sound.ENTITY_WITHER_DEATH, 1L, 1L);
@@ -239,7 +300,7 @@ public class Match extends WarMatch {
             pl.getPlayer().setGameMode(GameMode.CREATIVE);
             main().items().clear(pl);
         }
-        Bukkit.getScheduler().runTaskLater(main().plugin(), (Runnable) () -> {
+        Bukkit.getScheduler().runTaskLater(main().plugin(), () -> {
             for (WarPlayer pl : main().getWarPlayers().values())
                 main().giveSpectatorKit(pl);
         }, 1L);
