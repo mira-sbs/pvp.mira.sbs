@@ -73,7 +73,7 @@ public abstract class Gamemode extends WarMode {
      *
      * @param toLog What to log.
      */
-    protected void logEvent(String toLog) {
+    public void logEvent(String toLog) {
         eventLog.add(ChatColor.GRAY + main.strings().getDigitalTime(getTimeElapsed()) + ChatColor.WHITE + " " + toLog);
     }
 
@@ -115,7 +115,10 @@ public abstract class Gamemode extends WarMode {
             stats.put("totalkills", totalKills);
             stats.put("totaldeaths", totalDeaths);
             stats.put("envdeaths", environmentalKills);
-            stats.put("kpm", new DecimalFormat("0.00").format((double) totalKills / (double) (getTimeElapsed() / 60)));
+            if (getTimeElapsed() < 60) // Prevent a divison by zero error.
+                stats.put("kpm", totalKills);
+            else
+                stats.put("kpm", new DecimalFormat("0.00").format((double) totalKills / (double) (getTimeElapsed() / 60)));
 
             // Team Information
             JSONObject teams = new JSONObject(); // JSON Object to store teams.

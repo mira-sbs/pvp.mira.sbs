@@ -66,12 +66,10 @@ public class RespawnUtility extends WarModule implements Listener {
         // Create and store their death information.
         DeathInfo inf = new DeathInfo();
         info.put(pl.getPlayer().getUniqueId(), inf);
-        pl.getPlayer().sendMessage("You died! Respawning in " + inf.timeUntilRespawn + " second" +
-                main().
-                        strings().
-                        plural(
-                                inf.
-                                        timeUntilRespawn));
+        if (!main().match().getCurrentMode().isPermaDeath())
+            pl.getPlayer().sendMessage("You died! Respawning in " + inf.timeUntilRespawn + " second" + main().strings().plural(inf.timeUntilRespawn));
+        else
+            pl.getPlayer().sendMessage("You have been ejected from the round.");
 
     }
 

@@ -17,7 +17,10 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Random;
 
 /**
  * An extension to gamemode to implement DDM.
@@ -46,7 +49,7 @@ public class DDM extends Gamemode {
         scores = new HashMap<>(); // Initialize key/value set for scores.
 
         for (WarTeam team : getTeams()) // For every team, assign their scores to 3 x the amount of players online.
-            scores.put(team.getDisplayName(), Bukkit.getOnlinePlayers().size() * 3);
+            scores.put(team.getTeamName(), Bukkit.getOnlinePlayers().size() * 3);
 
         // Keep a temporary list of people who have not being assigned to a team.
         ArrayList<WarPlayer> targets = new ArrayList<>(main.getWarPlayers().values());
@@ -159,7 +162,7 @@ public class DDM extends Gamemode {
         obj.getScore("  Captures Remaining").setScore(scores.size() + 1); // 'Points' denoter.
 
         Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
-        for (int i = 0; i < scores.size(); i++) { // Only iterate the number of teams needed.
+        for (int i = 0; i < getTeams().size(); i++) { // Only iterate the number of teams needed.
             // For each team, display their their points colored respectively.
             WarTeam target = iterator.next(); // Get the next team to be iterated.
             // Set the new score value.
@@ -184,12 +187,13 @@ public class DDM extends Gamemode {
      * killing enemy players, they must also
      * protect their territory from being entered.
      */
-    public class Territory implements Listener, Activatable {
+    public static class Territory implements Listener, Activatable {
         int x1, y1, z1;
         int x2, y2, z2;
         String belongsTo;
+        WarManager main;
 
-        public Territory(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam belongsTo) {
+        public Territory(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam belongsTo, WarManager main) {
             // Defines the bottom-left and top-right regions of this cuboid.
             this.x1 = Math.min(x1, x2);
             this.y1 = Math.min(y1, y2);
@@ -197,8 +201,8 @@ public class DDM extends Gamemode {
             this.x2 = Math.max(x1, x2);
             this.y2 = Math.max(y1, y2);
             this.z2 = Math.max(z1, z2);
-            this.belongsTo = belongsTo.getTeamName(); // Who does this territory belong to?
-
+            this.belongsTo = belongsTo.getDisplayName(); // Who does this territory belong to?
+            this.main = main;
         }
 
         /**
@@ -239,7 +243,7 @@ public class DDM extends Gamemode {
                 if (wp.getCurrentTeam() == null) return; // Cancel if they aren't on any team.
 
                 WarTeam target = wp.getCurrentTeam(); // Get their current team otherwise!
-                if (!target.getTeamName().equals(belongsTo)) { // Is this not their own territory?
+                if (!target.getDisplayName().equals(belongsTo)) { // Is this not their own territory?
                     DDM ddm = (DDM) main.cache().getGamemode("District Death Match"); // Get the running instance of DDM again.
                     for (WarPlayer wp2 : main.getWarPlayers().values()) { // Loop through each player.
                         if (wp2.getCurrentTeam() == null) continue; // Ignore if they're not on a team.
@@ -247,13 +251,15 @@ public class DDM extends Gamemode {
                             wp2.getPlayer().playSound(wp2.getPlayer().getLocation(), Sound.ENTITY_GHAST_SCREAM, 1F, 1F);
                         else // Play a good sound effect!
                             wp2.getPlayer().playSound(wp2.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 1F);
-                        Bukkit.broadcastMessage(wp.getTeamName() + " made it into " + belongsTo + "'s territory!");
-                        ddm.logEvent(wp.getTeamName() + " made it into " + belongsTo + "'s territory");
                     }
 
+                    // Broadcast that they got in.
+                    Bukkit.broadcastMessage(wp.getTeamName() + " infiltrated " + belongsTo + "");
+                    ddm.logEvent(wp.getTeamName() + " infiltrated " + belongsTo + "");
+
                     // Record their current captures remaining, and decrement it.
-                    int capsToGo = ddm.scores.get(target.getDisplayName());
-                    ddm.scores.put(target.getDisplayName(), capsToGo - 1);
+                    int capsToGo = ddm.scores.get(target.getTeamName());
+                    ddm.scores.put(target.getTeamName(), capsToGo - 1);
 
                     ddm.updateScoreboard(); // Update the scoreboard.
                     if (capsToGo == 1) // Is this their last capture?
@@ -261,7 +267,7 @@ public class DDM extends Gamemode {
                     else // Other teleport the player back to a random spawn.
                         event.setTo(ddm.map().getTeamSpawns(target.getTeamName()).get(new Random().nextInt(ddm
                                 .map().getTeamSpawns(target.getTeamName()).size())).toLocation(main.match().getCurrentWorld(), true));
-                } else if (target.getTeamName().equals(belongsTo)) {
+                } else {
                     event.getPlayer().sendMessage("You're supposed to stop the enemy from getting into here!");
                     event.setTo(event.getFrom());
                 }

@@ -4,6 +4,7 @@ import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
+import au.edu.swin.war.game.Map;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,11 +54,11 @@ public class Guard extends WarModule implements Listener {
         if (status == WarMatch.Status.STARTING || status == WarMatch.Status.PLAYING || status == WarMatch.Status.CYCLE)
             target.teleport(main().cache().getCurrentMap().getSpectatorSpawn()); // Spawn them in the current defined map.
         else if (status == WarMatch.Status.VOTING)
-            target.teleport(main().cache().getMap(main().match().getPreviousMap()).getSpectatorSpawn()); // Spawn them in the previous defined map.
-
+            target.teleport(((Map) main().cache().getMap(main().match().getPreviousMap())).getSpectatorSpawn_()); // Spawn them in the previous defined map.
 
         if (status != WarMatch.Status.PLAYING) {
             event.getPlayer().setScoreboard(((Match) main().match()).s()); // Show the default scoreboard.
+            ((Match) main().match()).s().getTeam("PostSpectators").addEntry(event.getPlayer().getName()); // Add them to this scoreboard.
             //TODO: Add them as spectators???
             target.setGameMode(GameMode.CREATIVE);
         } else {

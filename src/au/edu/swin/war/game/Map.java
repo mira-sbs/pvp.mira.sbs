@@ -2,6 +2,7 @@ package au.edu.swin.war.game;
 
 import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.stored.Activatable;
+import au.edu.swin.war.util.Match;
 import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
 
@@ -53,7 +54,7 @@ public abstract class Map extends WarMap {
         postStart(); // Calls postStart(), see documentation.
 
         // Activates map objectives.
-        for(Activatable obj : objectives())
+        for (Activatable obj : objectives())
             obj.activate();
     }
 
@@ -66,7 +67,7 @@ public abstract class Map extends WarMap {
         main.match().getCurrentMode().deactivate();
 
         // De-activates map objectives.
-        for(Activatable obj : objectives())
+        for (Activatable obj : objectives())
             obj.deactivate();
 
         setActive(false); // Sets the state of this map to inactive.
@@ -85,5 +86,18 @@ public abstract class Map extends WarMap {
     public Location getSpectatorSpawn() {
         // Convert the serialized location to a Spigot location.
         return specSpawn.toLocation(main.match().getCurrentWorld(), true);
+    }
+
+    /**
+     * This function is the same as above, except it
+     * crafts the location from the previous match's
+     * world.
+     *
+     * @return Spec spawn.
+     * @since 1.0
+     */
+    public Location getSpectatorSpawn_() {
+        // Convert the serialized location to a Spigot location.
+        return specSpawn.toLocation(((Match) main.match()).getPreviousWorld(), true);
     }
 }

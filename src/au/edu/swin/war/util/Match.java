@@ -64,6 +64,17 @@ public class Match extends WarMatch {
     }
 
     /**
+     * Returns the world of the map that was
+     * previously played. This should be used
+     * for late-vote joins.
+     *
+     * @return Previous world.
+     */
+    public World getPreviousWorld() {
+        return Bukkit.getWorld(previousID + "");
+    }
+
+    /**
      * This function returns the list of players
      * who have voted, by their UUID. This should
      * only be accessed during vote time to check
@@ -129,8 +140,8 @@ public class Match extends WarMatch {
                     else rotationPoint++;
 
                     // Back to the voting stage!
-                    preMatch();
                     this.cancel();
+                    preMatch();
                 }
             }
         }.runTaskTimer(main().plugin(), 0L, 20L);
@@ -151,6 +162,7 @@ public class Match extends WarMatch {
         setRoundID(main().strings().generateID()); // Generates a new match world ID..
         votes.put(getRunningMap().getGamemodes()[0], 1); // Give the map's first preferred gamemode 1 vote on startup.
         continuePreMatch(); // Continue the pre-match cycle once the time is up.
+        gScore.registerNewTeam("PostSpectators").setPrefix(ChatColor.LIGHT_PURPLE + ""); // Create a post-spectator scoreboard team.
     }
 
     @Override

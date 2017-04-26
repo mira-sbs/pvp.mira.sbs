@@ -87,15 +87,16 @@ public class FFA extends Gamemode {
         else
             kills.put(killer.getPlayer().getUniqueId(), 1); // Otherwise give them a starter count of 1.
         int cKills = kills.get(killer.getPlayer().getUniqueId());
-        if (cKills >= leadKills) {
+        if (cKills > leadKills) {
             leadKills = cKills; // This is now the highest amount of kills.
             if (!killer.getPlayer().getUniqueId().equals(leader)) { // Is this not the same leader?
                 leader = killer.getPlayer().getUniqueId(); // New leader!
                 // Broadcast and log that a new leader has taken over.
                 Bukkit.broadcastMessage(killer.getTeamName() + " is now the leader");
-                logEvent(killer.getTeamName() + "is now the leader");
+                logEvent(killer.getTeamName() + " is now the leader");
             }
         }
+        killer.sendMessage("You now have " + cKills + "/" + getFFAKills() + " kills");
         updateScoreboard();
         checkWin(killer.getPlayer().getUniqueId());
     }
@@ -147,7 +148,7 @@ public class FFA extends Gamemode {
     }
 
     public String getFullName() {
-        return "Free for All";
+        return "Free For All";
     }
 
     public String getName() {

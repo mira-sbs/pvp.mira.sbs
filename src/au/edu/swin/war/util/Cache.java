@@ -4,11 +4,8 @@ import au.edu.swin.war.framework.util.WarCache;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
-import au.edu.swin.war.game.modes.CTF;
-import au.edu.swin.war.game.modes.KoTH;
-import au.edu.swin.war.game.modes.TDM;
-import au.edu.swin.war.maps.TestMap1;
-import au.edu.swin.war.maps.TestMap2;
+import au.edu.swin.war.game.modes.*;
+import au.edu.swin.war.maps.*;
 
 /**
  * An extension to WarCache.
@@ -39,12 +36,19 @@ public class Cache extends WarCache {
         loadGamemode(TDM.class);
         loadGamemode(KoTH.class);
         loadGamemode(CTF.class);
+        loadGamemode(LMS.class);
+        loadGamemode(FFA.class);
+        loadGamemode(DDM.class);
+        loadGamemode(DTM.class);
     }
 
     @Override
     public void loadMaps() {
         loadMap(TestMap1.class);
         loadMap(TestMap2.class);
+        loadMap(TestMap3.class);
+        loadMap(TestMap4.class);
+        loadMap(TestMap5.class);
     }
 
     /**

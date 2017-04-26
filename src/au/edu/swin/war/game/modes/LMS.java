@@ -66,7 +66,6 @@ public class LMS extends Gamemode {
         for (WarTeam team : getTeams()) // Since this is LMS, allow friendly fire.
             team.getBukkitTeam().setAllowFriendlyFire(true);
 
-
         // Keep a temporary list of people who have not being assigned to a team.
         ArrayList<WarPlayer> targets = new ArrayList<>(main.getWarPlayers().values());
         while (targets.size() != 0) { // Keep looping until this array is empty.
@@ -78,6 +77,9 @@ public class LMS extends Gamemode {
                     // If, for some reason, they did not get put on a team, assume them as spectating.
                     target.getPlayer().setGameMode(GameMode.SPECTATOR);
                     main.giveSpectatorKit(target);
+                } else {
+                    alive.add(target.getPlayer().getUniqueId());
+                    participated.add(target.getPlayer().getUniqueId());
                 }
             } else {
                 // They don't want to play. Assume them as spectating.
@@ -120,12 +122,13 @@ public class LMS extends Gamemode {
         // Remove their state as 'alive'.
         alive.remove(dead.getPlayer().getUniqueId());
 
+        // Update scoreboard
+        updateScoreboard();
+
         // Kick them out of the match as this is permanent death.
         dead.setJoined(false);
         entryHandle(dead);
 
-        // Update scoreboard, and check if there's 1 player left!
-        updateScoreboard();
         checkWin();
     }
 
@@ -135,6 +138,7 @@ public class LMS extends Gamemode {
             if (winner != null) {
                 tempWinner = winner.getTeamName();
                 Bukkit.broadcastMessage(winner.getTeamName() + " is the last man standing!");
+                return;
             }
         }
         Bukkit.broadcastMessage("There was no winner this match!");
@@ -162,6 +166,10 @@ public class LMS extends Gamemode {
     }
 
     public void onLeave(WarPlayer left) {
+        // If they died, we should not re-remove them as this is pointless.
+        // They are forced to leave if they die.
+        if (!alive.contains(left.getPlayer().getUniqueId())) return;
+
         alive.remove(left.getPlayer().getUniqueId()); // They left, so they're no longer alive.
 
         // Do the usual stuff!
@@ -193,7 +201,7 @@ public class LMS extends Gamemode {
      * standing match.
      */
     private void checkWin() {
-        if (alive.size() <= 1)
+        if (alive.size() <= 1 && active)  // Make sure this can only be called once a true round ends.
             onEnd();
     }
 

@@ -113,6 +113,7 @@ public class CommandUtility extends WarModule {
     public void end(CommandContext args, CommandSender sender) {
         if (main().match().getStatus() == WarMatch.Status.PLAYING) {
             Bukkit.broadcastMessage(sender.getName() + " called an end to this match early");
+            ((Gamemode) main().match().getCurrentMode()).logEvent(sender.getName() + " ended this match early..");
             main().match().getCurrentMode().onEnd(); // Calls onEnd() forcibly.
         }
     }
