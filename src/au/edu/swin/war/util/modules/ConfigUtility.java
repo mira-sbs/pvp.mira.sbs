@@ -20,7 +20,7 @@ import org.bukkit.configuration.file.FileConfiguration;
  */
 public class ConfigUtility extends WarModule {
 
-    private FileConfiguration config; // The configuration of config.yml in YAML.
+    private final FileConfiguration config; // The configuration of config.yml in YAML.
 
     /**
      * Config utility constructor.

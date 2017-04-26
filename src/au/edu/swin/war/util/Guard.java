@@ -34,8 +34,12 @@ public class Guard extends WarModule implements Listener {
         main().plugin().getServer().getPluginManager().registerEvents(this, main().plugin());
     }
 
-    /* All events below handle player connections/disconnections. */
-
+    /**
+     * This event procedure handles high-priority logic
+     * when a player first connects to the server.
+     *
+     * @param event An event called by Spigot.
+     */
     @EventHandler(priority = EventPriority.HIGHEST) // Highest priority denoting this one needs to be executed first.
     public void onJoin(PlayerJoinEvent event) {
         Player target = event.getPlayer(); // Get the player who connected.
@@ -47,9 +51,11 @@ public class Guard extends WarModule implements Listener {
         main().giveSpectatorKit(wp);
 
         if (status == WarMatch.Status.STARTING || status == WarMatch.Status.PLAYING || status == WarMatch.Status.CYCLE)
-            target.teleport(main().cache().getCurrentMap().getSpectatorSpawn());
+            target.teleport(main().cache().getCurrentMap().getSpectatorSpawn()); // Spawn them in the current defined map.
         else if (status == WarMatch.Status.VOTING)
-            target.teleport(main().cache().getMap(main().match().getPreviousMap()).getSpectatorSpawn());
+            target.teleport(main().cache().getMap(main().match().getPreviousMap()).getSpectatorSpawn()); // Spawn them in the previous defined map.
+
+
         if (status != WarMatch.Status.PLAYING) {
             event.getPlayer().setScoreboard(((Match) main().match()).s()); // Show the default scoreboard.
             //TODO: Add them as spectators???
@@ -60,6 +66,12 @@ public class Guard extends WarModule implements Listener {
         }
     }
 
+    /**
+     * This event procedure correctly handles what
+     * happens when a player disconnects.
+     *
+     * @param event An event called by Spigot.
+     */
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         event.getPlayer().performCommand("leave"); // Act as if they were using the leave command.

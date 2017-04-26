@@ -377,8 +377,8 @@ public class CTF extends Gamemode {
      * -> The amount of flag steals they've made.
      */
     private class CTFInfo {
-        WarTeam target;
-        Location flag;
+        final WarTeam target;
+        final Location flag;
         String holder;
         int captures;
         int attempts;
@@ -425,10 +425,10 @@ public class CTF extends Gamemode {
     }
 
     @Override
-    public HashMap<String, Object> getExtraTeamData(String teamName) {
+    public HashMap<String, Object> getExtraTeamData(WarTeam team) {
         HashMap<String, Object> extra = new HashMap<>();
-        extra.put("Flag Captures", info.get(teamName).getCaptures());
-        extra.put("Flag Steals", info.get(teamName).getAttempts());
+        extra.put("Flag Captures", info.get(team.getTeamName()).getCaptures());
+        extra.put("Flag Steals", info.get(team.getTeamName()).getAttempts());
         return extra;
     }
 }

@@ -13,11 +13,12 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 
 /**
- * An extension to gamemode to implement TDM.
- * Team Death Match objectives have been defined
+ * An extension to gamemode to implement FFA.
+ * Free For All objectives have been defined
  * in my design brief, so I will assume you
  * know what you are expecting to look at here.
  *
@@ -25,21 +26,27 @@ import java.util.Iterator;
  * @version 1.0
  * @see WarManager
  * <p>
- * Created by Josh on 21/04/2017.
+ * Created by Josh on 26/04/2017.
  * @since 1.0
  */
-public class TDM extends Gamemode {
+public class FFA extends Gamemode {
 
-    private final HashMap<String, Integer> kills = new HashMap<>(); // Key/value set to hold teams' points.
+    private HashMap<UUID, Integer> kills;
+    private int leadKills;
+    private UUID leader;
 
     public void reset() {
-        // Clears the "kills" key/value set for next time a TDM is played.
         kills.clear();
+        kills = null;
     }
 
     public void initialize() {
-        for (WarTeam team : getTeams()) // Give every participating team a default score of zero.
-            kills.put(team.getTeamName(), 0);
+        kills = new HashMap<>();
+
+        for (WarTeam team : getTeams()) // Since this is FFA, allow friendly fire.
+            team.getBukkitTeam().setAllowFriendlyFire(true);
+
+        leadKills = 0; // Set the leader's kills to 0.
 
         // Keep a temporary list of people who have not being assigned to a team.
         ArrayList<WarPlayer> targets = new ArrayList<>(main.getWarPlayers().values());
@@ -75,38 +82,48 @@ public class TDM extends Gamemode {
     }
 
     public void onKill(WarPlayer killed, WarPlayer killer) {
-        // Increments the killer's team's points.
-        kills.put(killer.getCurrentTeam().getTeamName(), kills.get(killer.getCurrentTeam().getTeamName()) + 1);
-        updateScoreboard(); // Update the scoreboard to reflect the change.
+        if (kills.containsKey(killer.getPlayer().getUniqueId()))
+            kills.put(killer.getPlayer().getUniqueId(), kills.get(killer.getPlayer().getUniqueId()) + 1); // Increment their amount of kills.
+        else
+            kills.put(killer.getPlayer().getUniqueId(), 1); // Otherwise give them a starter count of 1.
+        int cKills = kills.get(killer.getPlayer().getUniqueId());
+        if (cKills >= leadKills) {
+            leadKills = cKills; // This is now the highest amount of kills.
+            if (!killer.getPlayer().getUniqueId().equals(leader)) { // Is this not the same leader?
+                leader = killer.getPlayer().getUniqueId(); // New leader!
+                // Broadcast and log that a new leader has taken over.
+                Bukkit.broadcastMessage(killer.getTeamName() + " is now the leader");
+                logEvent(killer.getTeamName() + "is now the leader");
+            }
+        }
+        updateScoreboard();
+        checkWin(killer.getPlayer().getUniqueId());
     }
 
-    public void onDeath(WarPlayer killed) {
-        // If the player kills themselves, award a point to every opposition team.
-        for (WarTeam awarded : getTeams()) {
-            if (!awarded.getTeamName().equals(killed.getCurrentTeam().getTeamName())) // Is this team not their team?
-                kills.put(awarded.getTeamName(), kills.get(awarded.getTeamName()) + 1); // Increment their points!
-        }
-        updateScoreboard(); // Update the scoreboard to reflect the change.
+    public void onDeath(WarPlayer dead) {
+        // Nothing happens when a player dies independent of a killer on FFA.
     }
 
     public void decideWinner() {
         int highest = -1; // Highest is lower than zero since teams start off as zero.
         ArrayList<String> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
-        for (WarTeam team : getTeams()) {
-            // For each team, check their kills.
-            int count = kills.get(team.getTeamName());
+        for (Map.Entry<UUID, Integer> entry : kills.entrySet()) {
+            WarPlayer found = main.getWarPlayer(entry.getKey()); // Get their WarPlayer implement.
+            if (found == null) continue; // If they're not online, they aren't counted here.
+            // For each player, check their kills.
+            int count = entry.getValue();
             if (count == highest)
                 // If they're equal to the current highest points, add them to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(found.getTeamName());
             else if (count > highest) {
                 // If they're above the current highest points,
                 // Set the new highst points,
                 highest = count;
-                // Clear the current list of winners as they have less points than this team,
+                // Clear the current list of winners as they have less points than this player,
                 winners.clear();
-                // Then add this team to the list of winners.
-                winners.add(team.getDisplayName());
+                // Then add this player to the list of winners.
+                winners.add(found.getTeamName());
             }
         }
 
@@ -116,35 +133,33 @@ public class TDM extends Gamemode {
             tempWinner = main.strings().sentenceFormat(winners);
         } else if (winners.size() == 1) {
             String winner = winners.get(0); // Get the singleton winner!
-            // ChatColor.stripColor() is used to remove the team's color from the String so it can be queried to get their points.
             Bukkit.broadcastMessage(winner + ChatColor.WHITE + " is the winner with " + highest + " points!");
             tempWinner = main.strings().sentenceFormat(winners);
         }
     }
 
     public String getOffensive() {
-        return "Kill players to score points!";
+        return "Kill players to score points for yourself!";
     }
 
     public String getDefensive() {
-        return "Don't let the enemy kill you! They will get points!";
-    }
-
-    public String getName() {
-        return "TDM";
+        return "Don't let other players kill you!";
     }
 
     public String getFullName() {
-        return "Team Death Match";
+        return "Free for All";
+    }
+
+    public String getName() {
+        return "FFA";
     }
 
     public String getGrammar() {
-        return "a";
+        return "an";
     }
 
     public void onLeave(WarPlayer left) {
-        //Nothing happens when a player leaves on TDM.
-        // Everything is handled automatically. Yay!
+        //Nothing happens when a player leaves on FFA.
     }
 
     public void updateScoreboard() {
@@ -157,26 +172,38 @@ public class TDM extends Gamemode {
         obj.setDisplayName(dp); // Set the title of the scoreboard.
         obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
 
-        // Format it pretty for the players.
-        obj.getScore(" ").setScore(kills.size() + 2); // Top spacer.
-        obj.getScore("  Points").setScore(kills.size() + 1); // 'Points' denoter.
-
-        Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
-        for (int i = 0; i < kills.size(); i++) { // Only iterate the number of teams needed.
-            // For each team, display their their points colored respectively.
-            WarTeam target = iterator.next(); // Get the next team to be iterated.
-            // Set the new score value.
-            obj.getScore(target.getTeamColor() + "    " + kills.get(target.getTeamName())).setScore(i + 1);
-            // Remove the old value from the board since it is not needed.
-            s().resetScores(target.getTeamColor() + "    " + (kills.get(target.getTeamName()) - 1));
-        }
+        obj.getScore(" ").setScore(3); // Top spacer.
+        obj.getScore("  Leader's Kills").setScore(2); // A label!
+        obj.getScore("    " + leadKills + "/" + getFFAKills()).setScore(1); // The leader's kills.
         obj.getScore("  ").setScore(0); // Bottom spacer.
+        s().resetScores("    " + (leadKills - 1) + "/" + getFFAKills()); // Reset old score.
+
+    }
+
+    /**
+     * If the player reaches the kill cap, this
+     * procedure will automatically end the round.
+     *
+     * @param player Player to check.
+     */
+    private void checkWin(UUID player) {
+        if (kills.get(player) >= getFFAKills())
+            onEnd();
+    }
+
+    /**
+     * Returns the map's defined score cap for FFA.
+     * By default, this score cap is set to 20.
+     *
+     * @return FFA score cap.
+     */
+    private Integer getFFAKills() {
+        return (Integer) map().attr().get("ffaKills");
     }
 
     @Override
     public HashMap<String, Object> getExtraTeamData(WarTeam team) {
-        HashMap<String, Object> extra = new HashMap<>();
-        extra.put("Points", kills.get(team.getTeamName()));
-        return extra;
+        // FFAs do not contain any additional team data to display.
+        return new HashMap<>();
     }
 }

@@ -30,7 +30,7 @@ import java.util.UUID;
  */
 public class RespawnUtility extends WarModule implements Listener {
 
-    private HashMap<UUID, DeathInfo> info;
+    private final HashMap<UUID, DeathInfo> info;
 
     /**
      * Most utilities do not need constructors,

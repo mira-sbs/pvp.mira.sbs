@@ -50,12 +50,12 @@ public abstract class Gamemode extends WarMode {
      * gamemode purposes and for assigning players to teams at
      * random.
      */
-    public Gamemode() {
+    protected Gamemode() {
         super();
         rng = new Random();
     }
 
-    protected Random rng;
+    protected final Random rng;
     protected String tempWinner; // The winner of the round, if any.
 
     /* Website Statistics Stuff */
@@ -87,6 +87,7 @@ public abstract class Gamemode extends WarMode {
     /**
      * This procedure also acts as a statistics pushing procdure.
      */
+    @SuppressWarnings("unchecked")
     public void resetCommon() {
         if (((Manager) main).conf().WEBSTATS_ENABLED) {
             ((Manager) main).conf().incrementPosition(); // Increment to the next match ID.
@@ -138,7 +139,7 @@ public abstract class Gamemode extends WarMode {
                 jteam.put("players", team.getBukkitTeam().getPlayers().size());
 
                 JSONObject extra = new JSONObject(); // Extra stuff.
-                for (Map.Entry<String, Object> data : getExtraTeamData(team.getTeamName()).entrySet()) // Assign all gamemode-specific data.
+                for (Map.Entry<String, Object> data : getExtraTeamData(team).entrySet()) // Assign all gamemode-specific data.
                     extra.put(data.getKey(), data.getValue());
                 jteam.put("extra", extra);
                 teams.put(team.getTeamName(), jteam); // Put this team into the teams array.
@@ -209,7 +210,7 @@ public abstract class Gamemode extends WarMode {
      *
      * @return The extra team data, if applicable.
      */
-    public abstract HashMap<String, Object> getExtraTeamData(String teamName);
+    protected abstract HashMap<String, Object> getExtraTeamData(WarTeam team);
 
     public void onJoin(WarPlayer joined) {
         logEvent(joined.getName() + " joined " + joined.getCurrentTeam().getTeamColor() + joined.getCurrentTeam().getTeamName());
@@ -234,7 +235,8 @@ public abstract class Gamemode extends WarMode {
         LP("Lifepool", "LP"),
         DTM("Destroy The Monument", "DTM");
 
-        String fullName, shortName;
+        final String fullName;
+        final String shortName;
 
         Mode(String fullName, String shortName) {
             this.fullName = fullName;
@@ -368,6 +370,20 @@ public abstract class Gamemode extends WarMode {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         event.getPlayer().setScoreboard(s());
+    }
+
+    /**
+     * Returns the amount of WarPlayers that are
+     * marked as joined. This is used by gamemodes
+     * that require a certain amount of players.
+     *
+     * @return Amount of players marked as joined.
+     */
+    protected int getJoined() {
+        int joined = 0;
+        for (WarPlayer pl : main.getWarPlayers().values())
+            if (pl.isJoined()) joined++;
+        return joined;
     }
 
     /**

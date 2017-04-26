@@ -26,8 +26,8 @@ public enum WoolColor {
     RED((byte) 14, ChatColor.RED),
     BLACK((byte) 15, ChatColor.BLACK);
 
-    private byte color;
-    private ChatColor chatColor;
+    private final byte color;
+    private final ChatColor chatColor;
 
     WoolColor(byte color, ChatColor chatColor) {
         this.color = color;
@@ -52,7 +52,7 @@ public enum WoolColor {
         return color;
     }
 
-    public ChatColor getChatColor() {
+    private ChatColor getChatColor() {
         return chatColor;
     }
 }

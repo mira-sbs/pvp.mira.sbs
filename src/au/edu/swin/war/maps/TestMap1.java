@@ -19,13 +19,13 @@ import java.util.UUID;
  */
 public class TestMap1 extends Map {
 
-    private UUID[] creators = {UUID.fromString("1cb02f9e-4eee-479e-8df8-b375276eb7f6"), UUID.fromString("a40cdbc0-ce09-4c56-a1a8-7732394b6ad4")};
-    private String mapName = "Test Map 1";
-    private Material[] disabledDrops = defaultDisabledDrops();
-    private Gamemode.Mode[] gamemodes = {Gamemode.Mode.KOTH, Gamemode.Mode.TDM};
+    private final UUID[] creators = {UUID.fromString("1cb02f9e-4eee-479e-8df8-b375276eb7f6"), UUID.fromString("a40cdbc0-ce09-4c56-a1a8-7732394b6ad4")};
+    private final String mapName = "Test Map 1";
+    private final Material[] disabledDrops = defaultDisabledDrops();
+    private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.KOTH, Gamemode.Mode.TDM};
 
-    private WarTeam team1 = new WarTeam("Blue Team", ChatColor.BLUE, 15);
-    private WarTeam team2 = new WarTeam("Red Team", ChatColor.RED, 15);
+    private final WarTeam team1 = new WarTeam("Blue Team", ChatColor.BLUE, 15);
+    private final WarTeam team2 = new WarTeam("Red Team", ChatColor.RED, 15);
 
     protected void readyAttributes() {
         setMapName(mapName);

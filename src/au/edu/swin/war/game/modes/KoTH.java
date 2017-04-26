@@ -263,10 +263,10 @@ public class KoTH extends Gamemode {
     }
 
     @Override
-    public HashMap<String, Object> getExtraTeamData(String teamName) {
+    public HashMap<String, Object> getExtraTeamData(WarTeam team) {
         HashMap<String, Object> extra = new HashMap<>();
-        extra.put("Capture Time", main.strings().getDigitalTime(captureTime.get(teamName)));
-        extra.put("Flag Captures", captures.get(teamName));
+        extra.put("Capture Time", main.strings().getDigitalTime(captureTime.get(team.getTeamName())));
+        extra.put("Flag Captures", captures.get(team.getTeamName()));
         return extra;
     }
 }

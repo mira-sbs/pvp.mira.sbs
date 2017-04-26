@@ -21,7 +21,7 @@ import org.bukkit.event.HandlerList;
 public class MatchPlayerRespawnEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private WarPlayer player;
+    private final WarPlayer player;
 
     public MatchPlayerRespawnEvent(WarPlayer player) {
         this.player = player;

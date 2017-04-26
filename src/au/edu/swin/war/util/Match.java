@@ -42,8 +42,8 @@ public class Match extends WarMatch {
         this.gScore = main.plugin().getServer().getScoreboardManager().getNewScoreboard();
     }
 
-    private HashMap<Gamemode.Mode, Integer> votes; // Holds a key/value pair for a gamemode and the number of votes it has.
-    private ArrayList<UUID> voted; // Players who have voted during a vote.
+    private final HashMap<Gamemode.Mode, Integer> votes; // Holds a key/value pair for a gamemode and the number of votes it has.
+    private final ArrayList<UUID> voted; // Players who have voted during a vote.
     private Scoreboard gScore; // A global, temporary scoreboard which is kept during the STARTING state.
 
     private long previousID; // Holds the world identifier of the previous match world.

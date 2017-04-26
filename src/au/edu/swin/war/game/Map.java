@@ -1,6 +1,7 @@
 package au.edu.swin.war.game;
 
 import au.edu.swin.war.framework.game.WarMap;
+import au.edu.swin.war.framework.stored.Activatable;
 import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
 
@@ -50,6 +51,10 @@ public abstract class Map extends WarMap {
 
         setActive(true); // Sets the state of this map to active.
         postStart(); // Calls postStart(), see documentation.
+
+        // Activates map objectives.
+        for(Activatable obj : objectives())
+            obj.activate();
     }
 
     @Override
@@ -59,6 +64,10 @@ public abstract class Map extends WarMap {
 
         // De-activates the gamemode and begins the cycle.
         main.match().getCurrentMode().deactivate();
+
+        // De-activates map objectives.
+        for(Activatable obj : objectives())
+            obj.deactivate();
 
         setActive(false); // Sets the state of this map to inactive.
         HandlerList.unregisterAll(this); // Unregister map-specific events.

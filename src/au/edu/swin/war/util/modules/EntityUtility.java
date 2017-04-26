@@ -39,7 +39,7 @@ public class EntityUtility extends WarModule {
         this.rng = new Random();
     }
 
-    private Random rng; // Provided random number generator.
+    private final Random rng; // Provided random number generator.
 
     /**
      * Spawns a firework with a random shape and random color.
