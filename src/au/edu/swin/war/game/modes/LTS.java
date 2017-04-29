@@ -14,11 +14,12 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.UUID;
 
 /**
- * An extension to gamemode to implement LMS.
- * Last Man Standing objectives have been defined
+ * An extension to gamemode to implement LTS.
+ * Last Team Standing objectives have been defined
  * in my design brief, so I will assume you
  * know what you are expecting to look at here.
  *
@@ -29,10 +30,10 @@ import java.util.UUID;
  * Created by Josh on 26/04/2017.
  * @since 1.0
  */
-public class LMS extends Gamemode {
+public class LTS extends Gamemode {
 
     private ArrayList<UUID> participated; // Keep a list of people who participated.
-    private ArrayList<UUID> alive; // Who is currently alive in the match?
+    private HashMap<String, Integer> original; // Keep a record of how many players originally played.
 
     public void reset() {
         if (participated != null)
@@ -43,28 +44,22 @@ public class LMS extends Gamemode {
                 participated.remove(participated.get(0)); // We can remove this player from the list now.
             }
         participated = null; // Remove instance of this list.
-
-        // Clear and reset the list of alive players.
-        if (alive != null)
-            alive.clear();
-        alive = null;
+        original.clear(); // Clear and remove instance of original participants.
+        original = null;
     }
 
     public void initialize() {
-        // Initialize array lists first!
-        alive = new ArrayList<>();
+        // Initialize the array and key/value set first!
         participated = new ArrayList<>();
+        original = new HashMap<>();
 
         if (getJoined() < 2) {
-            // LMS requires 2 players at the least to play.
+            // LTS requires 2 players at the least to play.
             Bukkit.broadcastMessage("There needs to be 2 or more participating players!");
             logEvent("Match cancelled as there was not enough players");
             onEnd();
             return;
         }
-
-        for (WarTeam team : getTeams()) // Since this is LMS, allow friendly fire.
-            team.getBukkitTeam().setAllowFriendlyFire(true);
 
         // Keep a temporary list of people who have not being assigned to a team.
         ArrayList<WarPlayer> targets = new ArrayList<>(main.getWarPlayers().values());
@@ -77,10 +72,8 @@ public class LMS extends Gamemode {
                     // If, for some reason, they did not get put on a team, assume them as spectating.
                     target.getPlayer().setGameMode(GameMode.SPECTATOR);
                     main.giveSpectatorKit(target);
-                } else {
-                    alive.add(target.getPlayer().getUniqueId());
+                } else
                     participated.add(target.getPlayer().getUniqueId());
-                }
             } else {
                 // They don't want to play. Assume them as spectating.
                 target.getPlayer().setGameMode(GameMode.SPECTATOR);
@@ -88,6 +81,9 @@ public class LMS extends Gamemode {
             }
             targets.remove(target);
         }
+
+        for (WarTeam team : getTeams()) // Record the original amount of participants.
+            original.put(team.getTeamName(), team.getBukkitTeam().getEntries().size());
 
         permaDeath = true; // Set permanent death to true for the duration of the match.
 
@@ -119,25 +115,16 @@ public class LMS extends Gamemode {
      * @param dead The player who died.
      */
     private void dead(WarPlayer dead) {
-        // Remove their state as 'alive'.
-        alive.remove(dead.getPlayer().getUniqueId());
-
-        // Update scoreboard
-        updateScoreboard();
-
         // Kick them out of the match as this is permanent death.
         dead.setJoined(false);
         entryHandle(dead);
-
-        checkWin();
     }
 
     public void decideWinner() {
-        if (alive.size() == 1) {
-            WarPlayer winner = main.getWarPlayer(alive.get(0)); // Get the only player in the array.
-            if (winner != null) {
-                tempWinner = winner.getTeamName();
-                Bukkit.broadcastMessage(winner.getTeamName() + " is the last man standing!");
+        for (WarTeam team : getTeams()) {
+            if (team.getBukkitTeam().getEntries().size() >= 1) {
+                Bukkit.broadcastMessage(team.getDisplayName() + " is the last team standing!");
+                tempWinner = team.getDisplayName();
                 return;
             }
         }
@@ -166,12 +153,6 @@ public class LMS extends Gamemode {
     }
 
     public void onLeave(WarPlayer left) {
-        // If they died, we should not re-remove them as this is pointless.
-        // They are forced to leave if they die.
-        if (!alive.contains(left.getPlayer().getUniqueId())) return;
-
-        alive.remove(left.getPlayer().getUniqueId()); // They left, so they're no longer alive.
-
         // Do the usual stuff!
         updateScoreboard();
         checkWin();
@@ -187,22 +168,34 @@ public class LMS extends Gamemode {
         obj.setDisplayName(dp); // Set the title of the scoreboard.
         obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
 
-        obj.getScore(" ").setScore(3); // Top spacer.
-        obj.getScore("  Still Standing").setScore(2); // A label!
-        obj.getScore("    " + alive.size() + "/" + participated.size()).setScore(1); // The amount of standing players!
+        Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
+        for (int i = 0; i < getTeams().size(); i++) { // Only iterate the number of teams needed.
+            // For each team, display their their player count colored respectively.
+            WarTeam target = iterator.next(); // Get the next team to be iterated.
+            // Set the new score value.
+            obj.getScore(target.getTeamColor() + "    " + target.getBukkitTeam().getEntries().size()).setScore(i + 1);
+            // Remove the old value from the board since it is not needed.
+            s().resetScores(target.getTeamColor() + "    " + (target.getBukkitTeam().getEntries().size() + 1));
+        }
+
         obj.getScore("  ").setScore(0); // Bottom spacer.
-        s().resetScores("    " + (alive.size() + 1) + "/" + participated.size()); // Reset old score.
 
     }
 
     /**
-     * If there is 1 or less players remaining,
-     * the match is over since it is a last man
-     * standing match.
+     * Check if there is 1 or less teams with 1
+     * or more players remaining. If that is the
+     * case, end the round.
      */
     private void checkWin() {
-        if (alive.size() <= 1 && active)  // Make sure this can only be called once a true round ends.
+        if (!active) return; // Don't execute this if the gamemode isn't active.
+        int remainingTeams = 0;
+        for (WarTeam team : getTeams())
+            if (team.getBukkitTeam().getEntries().size() >= 1) remainingTeams++; // This team is still alive.
+
+        if (remainingTeams <= 1) // Is there one or less remaining teams?
             onEnd();
+
     }
 
     /**
@@ -220,7 +213,7 @@ public class LMS extends Gamemode {
     @Override
     public HashMap<String, Object> getExtraTeamData(WarTeam team) {
         HashMap<String, Object> extra = new HashMap<>();
-        extra.put("Participants", participated.size());
+        extra.put("Participants", original.get(team.getTeamName()));
         return extra;
     }
 }

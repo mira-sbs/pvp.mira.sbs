@@ -160,7 +160,7 @@ public abstract class Gamemode extends WarMode {
                     URL url = new URL(((Manager) main).conf().WEBSTATS_ACTION);
                     URLConnection con = url.openConnection();
                     HttpURLConnection http = (HttpURLConnection) con;
-                    http.setRequestMethod("POST"); // PUT is another valid option
+                    http.setRequestMethod("POST");
                     http.setDoOutput(true);
 
                     Map<String, String> arguments = new HashMap<>();

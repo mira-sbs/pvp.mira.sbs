@@ -115,20 +115,20 @@ public class DDM extends Gamemode {
     }
 
     public void decideWinner() {
-        int highest = -1; // Highest is lower than zero since teams start off as zero.
+        int lowest = 999; // Lowest is higher than 80 x 3 since teams start off as 3 x the amount of players.
         ArrayList<String> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
         for (WarTeam team : getTeams()) {
-            // For each team, check their kills.
+            // For each team, check their scores.
             int count = scores.get(team.getTeamName());
-            if (count == highest)
-                // If they're equal to the current highest points, add them to the list of winners.
+            if (count == lowest)
+                // If they're equal to the current lowest points, add them to the list of winners.
                 winners.add(team.getDisplayName());
-            else if (count > highest) {
-                // If they're above the current highest points,
-                // Set the new highst points,
-                highest = count;
-                // Clear the current list of winners as they have less points than this team,
+            else if (count < lowest) {
+                // If they're below the current lowest points,
+                // lowezt the new lowest points,
+                lowest = count;
+                // Clear the current list of winners as they have more points than this team,
                 winners.clear();
                 // Then add this team to the list of winners.
                 winners.add(team.getDisplayName());
@@ -142,7 +142,7 @@ public class DDM extends Gamemode {
         } else if (winners.size() == 1) {
             String winner = winners.get(0); // Get the singleton winner!
             // ChatColor.stripColor() is used to remove the team's color from the String so it can be queried to get their points.
-            Bukkit.broadcastMessage(winner + " is the winner with " + highest + " captures!");
+            Bukkit.broadcastMessage(winner + " is the winner with " + lowest + " run-ins!");
             tempWinner = main.strings().sentenceFormat(winners);
         }
     }
@@ -159,7 +159,7 @@ public class DDM extends Gamemode {
 
         // Format it pretty for the players.
         obj.getScore(" ").setScore(scores.size() + 2); // Top spacer.
-        obj.getScore("  Captures Remaining").setScore(scores.size() + 1); // 'Points' denoter.
+        obj.getScore("  Run-ins Remaining").setScore(scores.size() + 1); // 'Points' denoter.
 
         Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
         for (int i = 0; i < getTeams().size(); i++) { // Only iterate the number of teams needed.
