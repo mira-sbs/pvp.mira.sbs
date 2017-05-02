@@ -90,7 +90,6 @@ public abstract class Gamemode extends WarMode {
     @SuppressWarnings("unchecked")
     public void resetCommon() {
         if (((Manager) main).conf().WEBSTATS_ENABLED) {
-            ((Manager) main).conf().incrementPosition(); // Increment to the next match ID.
             JSONObject stats = new JSONObject();
             if (getTimeElapsed() == 0)
                 setTimeElapsed(1); // Elapse at least one second to prevent a divison by zero error.
@@ -106,7 +105,7 @@ public abstract class Gamemode extends WarMode {
                 totalDeaths += death;
 
             // Global Match Information
-            stats.put("matchid", ((Manager) main).conf().WEBSTATS_POS);
+            stats.put("matchid", ((Manager) main).conf().WEBSTATS_POS + 1);
             stats.put("mapname", map().getMapName());
             stats.put("gamemode", getFullName());
             stats.put("duration", main.strings().getDigitalTime(getTimeElapsed()));
@@ -119,6 +118,13 @@ public abstract class Gamemode extends WarMode {
                 stats.put("kpm", totalKills);
             else
                 stats.put("kpm", new DecimalFormat("0.00").format((double) totalKills / (double) (getTimeElapsed() / 60)));
+
+            if (totalKills == 0 || getTimeElapsed() < 35) { // Too boring to record.
+                Bukkit.broadcastMessage("This match has not been recorded.");
+                return;
+            }
+
+            ((Manager) main).conf().incrementPosition(); // Increment to the next match ID.
 
             // Team Information
             JSONObject teams = new JSONObject(); // JSON Object to store teams.
@@ -186,6 +192,7 @@ public abstract class Gamemode extends WarMode {
                     }
                     // Log the response to the request to ensure it was successful.
                     main.plugin().log("Stats HTTP POST request successful: " + IOUtils.toString(http.getInputStream(), StandardCharsets.UTF_8.name()));
+                    Bukkit.broadcastMessage("Full Match statistics recorded @ " + ChatColor.UNDERLINE + "https://rpg.solar/match/" + ((Manager) main).conf().WEBSTATS_POS);
                 } catch (IOException e) {
                     // If anything goes wrong, just raw print the stats.
                     e.printStackTrace();

@@ -23,7 +23,7 @@ public class TestMap4 extends Map {
     private final UUID[] creators = {UUID.fromString("1cb02f9e-4eee-479e-8df8-b375276eb7f6"), UUID.fromString("a40cdbc0-ce09-4c56-a1a8-7732394b6ad4")};
     private final String mapName = "Test Map 4";
     private final Material[] disabledDrops = defaultDisabledDrops();
-    private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.TDM};
+    private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.TDM, Gamemode.Mode.LP, Gamemode.Mode.LTS};
 
     private final WarTeam team1 = new WarTeam("Blue Team", ChatColor.BLUE, 9);
     private final WarTeam team2 = new WarTeam("Red Team", ChatColor.RED, 9);

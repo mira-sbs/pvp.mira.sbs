@@ -141,11 +141,11 @@ public class LTS extends Gamemode {
     }
 
     public String getFullName() {
-        return "Last Man Standing";
+        return "Last Team Standing";
     }
 
     public String getName() {
-        return "LMS";
+        return "LTS";
     }
 
     public String getGrammar() {

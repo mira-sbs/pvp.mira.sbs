@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,16 +123,16 @@ public class Match extends WarMatch {
                 timer--;
                 if (timer % 3 == 0) {
                     // Make cool particles appear as a celebration for a good match.
-                    if (getCurrentWorld().getPlayers().size() == 0) return; // Skip if no one is online.
-
-                    // Spawn particles around a random player 8 times every 3 seconds.
-                    int count2 = 8;
-                    if (count2 > Bukkit.getOnlinePlayers().size()) count2 = Bukkit.getOnlinePlayers().size();
-                    while (count2 > 0) {
-                        //TODO: Make this better?
-                        getCurrentWorld().spawnParticle(Particle.HEART, getCurrentWorld().getPlayers().get(
-                                new Random().nextInt(getCurrentWorld().getPlayers().size())).getLocation(), 3);
-                        count2--;
+                    if (getCurrentWorld().getPlayers().size() > 0) { // If there's people online...
+                        // Spawn particles around a random player 8 times every 3 seconds.
+                        int count2 = 8;
+                        if (count2 > Bukkit.getOnlinePlayers().size()) count2 = Bukkit.getOnlinePlayers().size();
+                        while (count2 > 0) {
+                            //TODO: Make this better?
+                            getCurrentWorld().spawnParticle(Particle.HEART, getCurrentWorld().getPlayers().get(
+                                    new Random().nextInt(getCurrentWorld().getPlayers().size())).getLocation(), 3);
+                            count2--;
+                        }
                     }
                 }
                 if (timer == 0) {
@@ -211,8 +212,8 @@ public class Match extends WarMatch {
         // Announce, set and clean vote results.
         votes.clear();
         voted.clear();
-        Bukkit.broadcastMessage("The next match was " + winningVote.getFullName() + " at " + getCurrentMap() + "!");
         setCurrentMode(main().cache().getGamemode(winningVote.getFullName()));
+        Bukkit.broadcastMessage("The next match was " + getCurrentMode().getGrammar() + " " + getCurrentMode().getName() + " at " + getCurrentMap() + "!");
 
         // Set the state to starting and perform starting logic.
         main().world().loadMap(getCurrentMap(), getRoundID_());
@@ -287,9 +288,16 @@ public class Match extends WarMatch {
         temp.setAllowFriendlyFire(false);
         temp.setPrefix(ChatColor.LIGHT_PURPLE + "");
 
-        // Add all online players to the temporary spectator team.
-        for (WarPlayer pl : main().getWarPlayers().values())
+        // Remove everyone from the current teams.
+        for (Team team : gScore.getTeams())
+            for (String entry : team.getEntries())
+                team.removeEntry(entry);
+
+        // Add all online players to the post spectator team.
+        for (WarPlayer pl : main().getWarPlayers().values()) {
+            pl.getPlayer().setScoreboard(s()); // Let them see this scoreboard too!
             temp.addPlayer(pl.getPlayer());
+        }
 
         startCycle(); // Start the cycle.
     }

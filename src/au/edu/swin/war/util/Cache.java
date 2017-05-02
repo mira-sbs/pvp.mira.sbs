@@ -40,6 +40,8 @@ public class Cache extends WarCache {
         loadGamemode(FFA.class);
         loadGamemode(DDM.class);
         loadGamemode(DTM.class);
+        loadGamemode(LTS.class);
+        loadGamemode(LP.class);
     }
 
     @Override

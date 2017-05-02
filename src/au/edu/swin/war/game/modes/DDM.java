@@ -176,7 +176,7 @@ public class DDM extends Gamemode {
     @Override
     protected HashMap<String, Object> getExtraTeamData(WarTeam team) {
         HashMap<String, Object> extra = new HashMap<>();
-        extra.put("Remaining Score", scores.get(team.getDisplayName()));
+        extra.put("Remaining Score", scores.get(team.getTeamName()));
         return extra;
     }
 
