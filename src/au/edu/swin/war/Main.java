@@ -39,7 +39,7 @@ public class Main extends WarPlugin {
      * Called when this program is shut down.
      */
     public void onDisable() {
-        main().world().restoreMap(main().match().getRoundID_() + "");
+        main().world().restoreMap(main().match().getRoundID_() + ""); // Delete the current match world on shutdown.
     }
 
     /**

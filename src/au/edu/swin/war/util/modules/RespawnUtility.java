@@ -85,10 +85,10 @@ public class RespawnUtility extends WarModule implements Listener {
             HashMap<UUID, DeathInfo> inf = new HashMap<>(info);
             // Temporarily duplicate this key/value set to avoid concurrent errors.
             for (Map.Entry<UUID, DeathInfo> entry : inf.entrySet()) {
-                info.get(entry.getKey()).timeUntilRespawn--;
-                if (info.get(entry.getKey()).timeUntilRespawn == 0) {
+                info.get(entry.getKey()).timeUntilRespawn--; // Decrement the player's respawn time.
+                if (info.get(entry.getKey()).timeUntilRespawn == 0) { // Time to respawn?
                     info.remove(entry.getKey());
-                    if (main().match().getStatus() == WarMatch.Status.PLAYING)
+                    if (main().match().getStatus() == WarMatch.Status.PLAYING) // Respawn them if the match is still playnig.
                         Bukkit.getPluginManager().callEvent(new MatchPlayerRespawnEvent(main().getWarPlayer(entry.getKey())));
                     break;
                 }
@@ -110,7 +110,7 @@ public class RespawnUtility extends WarModule implements Listener {
      *
      * @param toClear The player to get their info removed.
      */
-    public void clearFor(WarPlayer toClear) {
+    void clearFor(WarPlayer toClear) {
         info.remove(toClear.getPlayer().getUniqueId());
     }
 

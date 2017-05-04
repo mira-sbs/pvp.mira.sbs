@@ -128,9 +128,10 @@ public class Match extends WarMatch {
                         int count2 = 8;
                         if (count2 > Bukkit.getOnlinePlayers().size()) count2 = Bukkit.getOnlinePlayers().size();
                         while (count2 > 0) {
-                            //TODO: Make this better?
-                            getCurrentWorld().spawnParticle(Particle.HEART, getCurrentWorld().getPlayers().get(
-                                    new Random().nextInt(getCurrentWorld().getPlayers().size())).getLocation(), 3);
+                            ((Manager) main()).entity().spawnFirework(getCurrentWorld().getPlayers().get(
+                                    new Random().nextInt(getCurrentWorld().getPlayers().size())).getLocation());
+                            // Spawn a random firework at 8 people's locations.
+                            // If there is less than 8 people online, then the amount of people online instead.
                             count2--;
                         }
                     }

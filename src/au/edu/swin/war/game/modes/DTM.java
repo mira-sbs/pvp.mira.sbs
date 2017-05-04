@@ -225,26 +225,30 @@ public class DTM extends Gamemode {
      * @since 1.0
      */
     public static class Monument implements Listener, Activatable {
-        int x1, y1, z1; // Bottom left applicable coordinates.
-        int x2, y2, z2; // Top right applicable coordinates.
-        Material composure; // What blocks are this monument made of?
-        String owner; // What team owns this monument?
-        List<Block> region = new ArrayList<>(); // The blocks associated with this monument.
+        final int x1;
+        final int y1;
+        final int z1; // Bottom left applicable coordinates.
+        final int x2;
+        final int y2;
+        final int z2; // Top right applicable coordinates.
+        final Material composure; // What blocks are this monument made of?
+        final String owner; // What team owns this monument?
+        final List<Block> region = new ArrayList<>(); // The blocks associated with this monument.
         int origSize; // The original size of the monument.
         int blocksBroken; // The amount of blocks broken off the monument.
         boolean destroyed = false; // Is this monument destroyed?
-        HashMap<UUID, Integer> footprint; // Track who's broken what amount of this monument.
-        WarManager main; // A running instance of the WarManager class.
+        final HashMap<UUID, Integer> footprint; // Track who's broken what amount of this monument.
+        final WarManager main; // A running instance of the WarManager class.
 
-        public Monument(int x1, int y1, int z1, int x2, int y2, int z2, Material composure, WarTeam owner, WarManager main) {
-            this.x1 = Math.min(x1, x2);
-            this.y1 = Math.min(y1, y2);
+        public Monument(int x1, int z1, int z2, WarTeam owner, WarManager main) {
+            this.x1 = Math.min(x1, 2);
+            this.y1 = Math.min(95, 98);
             this.z1 = Math.min(z1, z2);
-            this.x2 = Math.max(x1, x2);
-            this.y2 = Math.max(y1, y2);
+            this.x2 = Math.max(x1, 2);
+            this.y2 = Math.max(95, 98);
             this.z2 = Math.max(z1, z2);
             this.owner = owner.getDisplayName();
-            this.composure = composure;
+            this.composure = Material.MOSSY_COBBLESTONE;
             this.footprint = new HashMap<>();
             this.main = main;
         }

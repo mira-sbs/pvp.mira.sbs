@@ -27,10 +27,6 @@ public class MatchPlayerRespawnEvent extends Event {
         this.player = player;
     }
 
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
     @Override
     public HandlerList getHandlers() {
         return handlers;

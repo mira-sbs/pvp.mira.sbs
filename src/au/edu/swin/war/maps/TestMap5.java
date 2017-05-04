@@ -45,8 +45,8 @@ public class TestMap5 extends Map {
         addTeamSpawn(team2, new SerializedLocation(-12.5, 66, 8.5, 270, 0));
         setSpectatorSpawn(new SerializedLocation(-0.5, 87, 0.5, 0, 90));
 
-        objectives().add(new DDM.Territory(21, 65, -1, 23, 66, 1, team1, main));
-        objectives().add(new DDM.Territory(-23, 65, -1, -21, 66, 1, team2, main));
+        objectives().add(new DDM.Territory(21, -1, 23, team1, main));
+        objectives().add(new DDM.Territory(-23, -1, -21, team2, main));
     }
 
     @Override

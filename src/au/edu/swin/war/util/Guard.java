@@ -15,6 +15,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -83,18 +84,21 @@ public class Guard extends WarModule implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
+        // Stop blocks being broken when a match is not playing.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
+        // Stop blocks being placed when a match is not playing.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
+        // Block all damage if a match is not playing.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             event.setCancelled(true);
         else if (event.getEntity() instanceof Player)
@@ -103,13 +107,25 @@ public class Guard extends WarModule implements Listener {
     }
 
     @EventHandler
+    public void onClick(InventoryClickEvent event) {
+        // Disable inventory modification if a match is not playing.
+        if (main().match().getStatus() != WarMatch.Status.PLAYING)
+            event.setCancelled(true);
+        else if (event.getWhoClicked() instanceof Player)
+            if (event.getWhoClicked().getGameMode() != GameMode.SURVIVAL)
+                event.setCancelled(true);
+    }
+
+    @EventHandler
     public void onTarget(EntityTargetEvent event) {
+        // Disable monsters targeting players if a match is not playing.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onExplode(EntityExplodeEvent event) {
+        // Disable explosions if a match is not playing.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             event.setCancelled(true);
     }

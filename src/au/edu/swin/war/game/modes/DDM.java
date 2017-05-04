@@ -188,19 +188,23 @@ public class DDM extends Gamemode {
      * protect their territory from being entered.
      */
     public static class Territory implements Listener, Activatable {
-        int x1, y1, z1;
-        int x2, y2, z2;
-        String belongsTo;
-        WarManager main;
+        final int x1;
+        final int y1;
+        final int z1;
+        final int x2;
+        final int y2;
+        final int z2;
+        final String belongsTo;
+        final WarManager main;
 
-        public Territory(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam belongsTo, WarManager main) {
+        public Territory(int x1, int z1, int x2, WarTeam belongsTo, WarManager main) {
             // Defines the bottom-left and top-right regions of this cuboid.
             this.x1 = Math.min(x1, x2);
-            this.y1 = Math.min(y1, y2);
-            this.z1 = Math.min(z1, z2);
+            this.y1 = Math.min(65, 66);
+            this.z1 = Math.min(z1, 1);
             this.x2 = Math.max(x1, x2);
-            this.y2 = Math.max(y1, y2);
-            this.z2 = Math.max(z1, z2);
+            this.y2 = Math.max(65, 66);
+            this.z2 = Math.max(z1, 1);
             this.belongsTo = belongsTo.getDisplayName(); // Who does this territory belong to?
             this.main = main;
         }
