@@ -19,7 +19,7 @@ import au.edu.swin.war.util.modules.CommandUtility;
  */
 public class Main extends WarPlugin {
 
-    private Manager supercontroller; // Running instance of Manager.
+    private transient Manager supercontroller; // Running instance of Manager.
 
     /**
      * Required method by WarPlugin.
