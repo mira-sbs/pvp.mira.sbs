@@ -197,14 +197,14 @@ public class DDM extends Gamemode {
         final String belongsTo;
         final WarManager main;
 
-        public Territory(int x1, int z1, int x2, WarTeam belongsTo, WarManager main) {
+        public Territory(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam belongsTo, WarManager main) {
             // Defines the bottom-left and top-right regions of this cuboid.
             this.x1 = Math.min(x1, x2);
-            this.y1 = Math.min(65, 66);
-            this.z1 = Math.min(z1, 1);
+            this.y1 = Math.min(y1, y2);
+            this.z1 = Math.min(z1, z2);
             this.x2 = Math.max(x1, x2);
-            this.y2 = Math.max(65, 66);
-            this.z2 = Math.max(z1, 1);
+            this.y2 = Math.max(y1, y2);
+            this.z2 = Math.max(z1, z2);
             this.belongsTo = belongsTo.getDisplayName(); // Who does this territory belong to?
             this.main = main;
         }

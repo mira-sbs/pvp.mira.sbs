@@ -35,15 +35,15 @@ public class TestMap4 extends Map {
         setGamemodes(gamemodes);
         registerTeam(team1);
         registerTeam(team2);
+
+        objectives().add(new DTM.Monument(-2, 95, -23, 2, 98, -23, team1, Material.MOSSY_COBBLESTONE, main));
+        objectives().add(new DTM.Monument(-2, 95, 19, 2, 98, 23, team2, Material.MOSSY_COBBLESTONE, main));
     }
 
     protected void readySpawns() {
         addTeamSpawn(team1, new SerializedLocation(-21.5, 100, -20.5, 270, 0));
         addTeamSpawn(team2, new SerializedLocation(22.5, 100, 21.5, 90, 0));
         setSpectatorSpawn(new SerializedLocation(0.5, 114, 0.5, 0, 90));
-
-        objectives().add(new DTM.Monument(-2, -23, -19, team1, main));
-        objectives().add(new DTM.Monument(-2, 19, 23, team2, main));
     }
 
     @Override

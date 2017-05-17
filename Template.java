@@ -23,7 +23,7 @@ import java.util.UUID;
 public class Template extends Map {
 
     // Initialise your creator array as UUIDs {}, from strings.
-    private UUID[] creators = {UUID.fromString("1cb02f9e-4eee-479e-8df8-b375276eb7f6")};
+    private UUID[] creators = {UUID.fromString("cb211791-6ef6-483b-aa67-4ec1d0637715")};
     // Give your map a name.
     private String mapName = "Map Battle II";
     // Propagate your array with materials you don't want dropped on death.

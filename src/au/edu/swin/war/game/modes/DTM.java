@@ -240,15 +240,15 @@ public class DTM extends Gamemode {
         final HashMap<UUID, Integer> footprint; // Track who's broken what amount of this monument.
         final WarManager main; // A running instance of the WarManager class.
 
-        public Monument(int x1, int z1, int z2, WarTeam owner, WarManager main) {
-            this.x1 = Math.min(x1, 2);
-            this.y1 = Math.min(95, 98);
+        public Monument(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam owner, Material composure, WarManager main) {
+            this.x1 = Math.min(x1, x2);
+            this.y1 = Math.min(y1, y2);
             this.z1 = Math.min(z1, z2);
-            this.x2 = Math.max(x1, 2);
-            this.y2 = Math.max(95, 98);
+            this.x2 = Math.max(x1, x2);
+            this.y2 = Math.max(y1, y2);
             this.z2 = Math.max(z1, z2);
             this.owner = owner.getDisplayName();
-            this.composure = Material.MOSSY_COBBLESTONE;
+            this.composure = composure;
             this.footprint = new HashMap<>();
             this.main = main;
         }

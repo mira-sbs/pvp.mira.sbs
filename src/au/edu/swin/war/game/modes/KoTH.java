@@ -56,7 +56,7 @@ public class KoTH extends Gamemode {
         flag = ((SerializedLocation) map().attr().get("kothFlag")).toLocation(main.match().getCurrentWorld(), false);
 
         for (WarTeam team : getTeams()) { // Give every participating team default values.
-            captureTime.put(team.getTeamName(), 180);
+            captureTime.put(team.getTeamName(), (Integer) map().attr().get("captureTime"));
             captures.put(team.getTeamName(), 0);
         }
 

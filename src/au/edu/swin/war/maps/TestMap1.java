@@ -35,6 +35,8 @@ public class TestMap1 extends Map {
         registerTeam(team1);
         registerTeam(team2);
         setAllowBuild(false, false);
+        setMatchDuration(360);
+        attr().put("captureTime", 35);
         attr().put("kothFlag", new SerializedLocation(0, 61, 0));
     }
 
