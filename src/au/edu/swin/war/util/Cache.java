@@ -54,7 +54,7 @@ public class Cache extends WarCache {
         loadMap(TestMap2.class);
         loadMap(TestMap3.class);
         loadMap(TestMap4.class);
-        loadMap(TestMap5.class);l
+        loadMap(TestMap5.class);
     }
 
     /**
