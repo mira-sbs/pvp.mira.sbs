@@ -64,10 +64,6 @@
     </build>
     <repositories>
         <repository>
-            <id>overcast-repo</id>
-            <url>https://repo.oc.tc/content/groups/public/</url>
-        </repository>
-        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
@@ -81,18 +77,17 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <version>1.12-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <version>1.12-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>command-framework-bukkit</artifactId>
-            <version>0.6-SNAPSHOT</version>
-            <type>jar</type>
+            <version>1.9-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

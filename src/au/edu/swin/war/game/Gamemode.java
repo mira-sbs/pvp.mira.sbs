@@ -234,7 +234,7 @@ public abstract class Gamemode extends WarMode {
      * When designating gamemodes for your map, use this.
      */
     public enum Mode {
-
+        //TODO: Make this better?
         TDM("Team Death Match", "TDM"),
         FFA("Free For All", "FFA"),
         LTS("Last Team Standing", "LTS"),

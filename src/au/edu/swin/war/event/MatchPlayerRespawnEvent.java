@@ -40,4 +40,8 @@ public class MatchPlayerRespawnEvent extends Event {
     public WarPlayer getPlayer() {
         return player;
     }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
 }
