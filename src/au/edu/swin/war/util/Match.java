@@ -296,7 +296,7 @@ public class Match extends WarMatch {
 
         // Add all online players to the post spectator team.
         for (WarPlayer pl : main().getWarPlayers().values()) {
-            pl.getPlayer().setScoreboard(s()); // Let them see this scoreboard too!
+            pl.getPlayer().setScoreboard(gScore); // Let them see this scoreboard too!
             temp.addPlayer(pl.getPlayer());
         }
 

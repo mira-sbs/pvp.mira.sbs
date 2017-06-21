@@ -107,6 +107,7 @@ public class Manager extends WarManager {
      * @param wp The target player.
      * @since 1.0
      */
+    @Deprecated /* See WarManager for deprecation reason */
     public void giveSpectatorKit(WarPlayer wp) {
 
     }

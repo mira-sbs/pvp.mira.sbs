@@ -36,7 +36,7 @@ public class TestMap4 extends Map {
         registerTeam(team1);
         registerTeam(team2);
 
-        objectives().add(new DTM.Monument(-2, 95, -23, 2, 98, -23, team1, Material.MOSSY_COBBLESTONE, main));
+        objectives().add(new DTM.Monument(-2, 95, -23, 2, 98, -19, team1, Material.MOSSY_COBBLESTONE, main));
         objectives().add(new DTM.Monument(-2, 95, 19, 2, 98, 23, team2, Material.MOSSY_COBBLESTONE, main));
     }
 
