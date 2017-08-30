@@ -24,16 +24,6 @@ public abstract class Map extends WarMap {
     private Gamemode.Mode[] modes; // The defined gamemodes for this map.
 
     /**
-     * Defines the gamemodes that are allowed to
-     * be played on this map.
-     *
-     * @see Gamemode.Mode
-     */
-    protected void setGamemodes(Gamemode.Mode[] modes) {
-        this.modes = modes;
-    }
-
-    /**
      * Returns the gamemodes that are allowed to
      * be played on this map. For internal usage.
      *
@@ -41,6 +31,16 @@ public abstract class Map extends WarMap {
      */
     public Gamemode.Mode[] getGamemodes() {
         return modes;
+    }
+
+    /**
+     * Defines the gamemodes that are allowed to
+     * be played on this map.
+     *
+     * @see Gamemode.Mode
+     */
+    protected void setGamemodes(Gamemode.Mode[] modes) {
+        this.modes = modes;
     }
 
     @Override

@@ -63,11 +63,14 @@ ob_start(); // Start recording with the buffer.
         foreach ($stats['teams'] as $key => $val) { // For every value in the 'teams' array as $key and $val.
             $i++; // Increment.
             ?>
-            <section class="teamStatsContainer <?php echo "" . ($i % 2 == 0 ? "right" : "left"); // Layout properly. ?>">
-                <h4><b><strong><?php echo MineToWeb($val['color'] . $key) // Return the team name and color. ?></strong>:</b></h4>
+            <section
+                    class="teamStatsContainer <?php echo "" . ($i % 2 == 0 ? "right" : "left"); // Layout properly. ?>">
+                <h4><b><strong><?php echo MineToWeb($val['color'] . $key) // Return the team name and color. ?></strong>:</b>
+                </h4>
                 <h5><b>Kills:</b> <?php echo $val['kills']; // The amount of kills this team got. ?></h5>
                 <h5><b>Deaths:</b> <?php echo $val['deaths']; // The amount of deaths this team had. ?></h5>
-                <h5><b>Players:</b> <?php echo $val['players']; // The amount of end-match participants on this team. ?></h5>
+                <h5><b>Players:</b> <?php echo $val['players']; // The amount of end-match participants on this team. ?>
+                </h5>
                 <?php
                 foreach ($val['extra'] as $key2 => $val2) // For every value in the extra data array as $key2 and $val2.
                     echo MineToWeb("<h5><b>" . $key2 . ":</b> " . $val2 . "</h5>"); // Display each of them on the bottom.

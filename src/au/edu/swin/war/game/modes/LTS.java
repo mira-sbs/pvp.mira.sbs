@@ -5,7 +5,6 @@ import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -102,15 +101,26 @@ public class LTS extends Gamemode {
     }
 
     public void decideWinner() {
+        int highest = 0; // Highest is lower than zero since teams start off as zero.
+        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
+
         for (WarTeam team : getTeams()) {
-            if (team.getBukkitTeam().getEntries().size() >= 1) {
-                Bukkit.broadcastMessage(team.getDisplayName() + " is the last team standing!");
-                tempWinner = team.getDisplayName();
-                return;
+            // For each team, check their kills.
+            int count = team.getBukkitTeam().getSize();
+            if (count == highest)
+                // If they're equal to the current highest members, add them to the list of winners.
+                winners.add(team);
+            else if (count > highest) {
+                // If they're above the current highest members,
+                // Set the new highst members,
+                highest = count;
+                // Clear the current list of winners as they have less members than this team,
+                winners.clear();
+                // Then add this team to the list of winners.
+                winners.add(team);
             }
         }
-        Bukkit.broadcastMessage("There was no winner this match!");
-        tempWinner = "No one";
+        broadcastWinner(winners, "members remaining", highest);
     }
 
     public String getOffensive() {
@@ -158,9 +168,7 @@ public class LTS extends Gamemode {
             // Remove the old value from the board since it is not needed.
             s().resetScores(target.getTeamColor() + "    " + (target.getBukkitTeam().getEntries().size() + 1));
         }
-
         obj.getScore("  ").setScore(0); // Bottom spacer.
-
     }
 
     /**

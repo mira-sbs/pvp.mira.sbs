@@ -98,14 +98,14 @@ public class DDM extends Gamemode {
 
     public void decideWinner() {
         int lowest = 999; // Lowest is higher than 80 x 3 since teams start off as 3 x the amount of players.
-        ArrayList<String> winners = new ArrayList<>(); // Keep a temporary list of winners.
+        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
         for (WarTeam team : getTeams()) {
             // For each team, check their scores.
             int count = scores.get(team.getTeamName());
             if (count == lowest)
                 // If they're equal to the current lowest points, add them to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             else if (count < lowest) {
                 // If they're below the current lowest points,
                 // lowezt the new lowest points,
@@ -113,20 +113,10 @@ public class DDM extends Gamemode {
                 // Clear the current list of winners as they have more points than this team,
                 winners.clear();
                 // Then add this team to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             }
         }
-
-        // Is there more than one winner?
-        if (winners.size() > 1) {
-            Bukkit.broadcastMessage("It's a " + winners.size() + "-way tie! " + main.strings().sentenceFormat(winners) + " tied!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        } else if (winners.size() == 1) {
-            String winner = winners.get(0); // Get the singleton winner!
-            // ChatColor.stripColor() is used to remove the team's color from the String so it can be queried to get their points.
-            Bukkit.broadcastMessage(winner + " is the winner with " + lowest + " run-ins!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        }
+        broadcastWinner(winners, "run-ins", lowest);
     }
 
     public void updateScoreboard() {

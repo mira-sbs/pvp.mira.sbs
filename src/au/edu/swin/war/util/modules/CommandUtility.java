@@ -10,6 +10,7 @@ import au.edu.swin.war.util.Match;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -177,11 +178,14 @@ public class CommandUtility extends WarModule {
                 match.getVotes().put(vote, match.getVotes().get(vote) + 1);
                 // Set this player as already voted.
                 match.getVoted().add(((Player) sender).getUniqueId());
-                Bukkit.broadcastMessage(((Player) sender).getDisplayName() + " voted for the gamemode " + vote.getShortName());
+                TextComponent comp = new TextComponent(((Player) sender).getDisplayName() + " voted for the gamemode ");
+                comp.addExtra(vote.getDescriptionComponent(main(), true));
+                main().broadcastSpigotMessage(comp);
             } else {
                 // Notify the player that they have entered a valid gamemode, but it is not available on this map.
                 // Also show them what they can vote for because we're nice.. right?
-                sender.sendMessage("That gamemode is not available on this map.\n Available gamemodes: " + Gamemode.Mode.format(((Map) main().cache().getCurrentMap()).getGamemodes()));
+                //TODO: Fix this?
+                //sender.sendMessage("That gamemode is not available on this map.\n Available gamemodes: " + Gamemode.Mode.format(((Map) main().cache().getCurrentMap()).getGamemodes(), main()));
             }
         } catch (IllegalArgumentException ex) {
             // Notify the player that their gamemode is not on the enum list, and is therefore not an option at all.

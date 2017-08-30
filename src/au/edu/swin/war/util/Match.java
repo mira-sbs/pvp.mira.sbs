@@ -4,6 +4,7 @@ import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -30,6 +31,12 @@ import java.util.UUID;
  */
 public class Match extends WarMatch {
 
+    private final HashMap<Gamemode.Mode, Integer> votes; // Holds a key/value pair for a gamemode and the number of votes it has.
+    private final ArrayList<UUID> voted; // Players who have voted during a vote.
+    private Scoreboard gScore; // A global, temporary scoreboard which is kept during the STARTING state.
+    private long previousID; // Holds the world identifier of the previous match world.
+    private Gamemode.Mode winningVote; // Holds the winning vote during a vote.
+
     /**
      * This constructor calls the constructor of WarMatch.
      *
@@ -42,13 +49,6 @@ public class Match extends WarMatch {
         this.previousID = 0; // Assign a default previous ID.
         this.gScore = main.plugin().getServer().getScoreboardManager().getNewScoreboard();
     }
-
-    private final HashMap<Gamemode.Mode, Integer> votes; // Holds a key/value pair for a gamemode and the number of votes it has.
-    private final ArrayList<UUID> voted; // Players who have voted during a vote.
-    private Scoreboard gScore; // A global, temporary scoreboard which is kept during the STARTING state.
-
-    private long previousID; // Holds the world identifier of the previous match world.
-    private Gamemode.Mode winningVote; // Holds the winning vote during a vote.
 
     /**
      * Quick function to return the running map
@@ -181,7 +181,10 @@ public class Match extends WarMatch {
 
             public void run() {
                 if (time == 26)
-                    Bukkit.broadcastMessage("A vote is now being held.\nGamemodes: " + Gamemode.Mode.format(getRunningMap().getGamemodes()));
+                    for (WarPlayer online : main().getWarPlayers().values()) {
+                        online.getPlayer().spigot().sendMessage(new TextComponent("A vote is now being held.\nHover over a Gamemode for more information: "));
+                        online.getPlayer().spigot().sendMessage(Gamemode.Mode.format(getRunningMap().getGamemodes(), main()));
+                    }
                 else if (time == 0) {
                     this.cancel();
                     continuePreMatch(); // Continue the pre-match cycle once the time is up.
@@ -214,7 +217,11 @@ public class Match extends WarMatch {
         votes.clear();
         voted.clear();
         setCurrentMode(main().cache().getGamemode(winningVote.getFullName()));
-        Bukkit.broadcastMessage("The next match was " + getCurrentMode().getGrammar() + " " + getCurrentMode().getName() + " at " + getCurrentMap() + "!");
+
+        TextComponent comp = new TextComponent("The next match was " + getCurrentMode().getGrammar() + " ");
+        comp.addExtra(Gamemode.Mode.fromGamemode(getCurrentMode()).getDescriptionComponent(main(), false));
+        comp.addExtra(" at " + getCurrentMap() + "!");
+        main().broadcastSpigotMessage(comp);
 
         // Set the state to starting and perform starting logic.
         main().world().loadMap(getCurrentMap(), getRawRoundID());
@@ -236,7 +243,7 @@ public class Match extends WarMatch {
 
         // Add everyone to this new scoreboard.
         for (WarPlayer pl : main().getWarPlayers().values())
-            temp.addPlayer(pl.getPlayer());
+            temp.addEntry(pl.getPlayer().getName());
 
         // Create a scoreboard objective, which actually puts data on the scoreboard.
         final Objective obj = gScore.registerNewObjective("vote", "dummy");
@@ -297,7 +304,7 @@ public class Match extends WarMatch {
         // Add all online players to the post spectator team.
         for (WarPlayer pl : main().getWarPlayers().values()) {
             pl.getPlayer().setScoreboard(gScore); // Let them see this scoreboard too!
-            temp.addPlayer(pl.getPlayer());
+            temp.addEntry(pl.getPlayer().getName());
         }
 
         startCycle(); // Start the cycle.
@@ -307,8 +314,8 @@ public class Match extends WarMatch {
     public void startCycle() {
         // Set the match state to cycling.
         setStatus(Status.CYCLE);
-        ((Manager) main()).respawn().clear();
 
+        ((Manager) main()).respawn().clear();
         // Fix everyone back up.
         for (WarPlayer pl : main().getWarPlayers().values()) {
             // Force respawn everyone using the Spigot entity API.

@@ -21,6 +21,12 @@ import org.bukkit.entity.Player;
  */
 public class Manager extends WarManager {
 
+    private final Match matchutil; // An instance of the match controller.
+    private final Cache cacheutil; // An instance of the cache.
+    private final RespawnUtility respawnutil; // An instance of the respawning utility.
+    private final EntityUtility entiutil; // An instance of the entity utility.
+    private final ConfigUtility confutil; // An instance of the configuration utility.
+
     /**
      * Creates an instance of this class.
      * Must be called in onEnable();
@@ -37,12 +43,6 @@ public class Manager extends WarManager {
         this.confutil = new ConfigUtility(this);
         new Guard(this); // Guard does not need a reference so just initialize it.
     }
-
-    private final Match matchutil; // An instance of the match controller.
-    private final Cache cacheutil; // An instance of the cache.
-    private final RespawnUtility respawnutil; // An instance of the respawning utility.
-    private final EntityUtility entiutil; // An instance of the entity utility.
-    private final ConfigUtility confutil; // An instance of the configuration utility.
 
     /**
      * Returns a running instance of the extended Match manager.

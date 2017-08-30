@@ -21,6 +21,11 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class ConfigUtility extends WarModule {
 
     private final FileConfiguration config; // The configuration of config.yml in YAML.
+    /* For pretty code, values will be public in all caps. */
+    public boolean WEBSTATS_ENABLED; // Are the stats enabled?
+    public String WEBSTATS_ACTION; // Where should it HTTP POST to?
+    public String WEBSTATS_SECRET; // What's the secret password to make the script run?
+    public int WEBSTATS_POS; // The current match number.
 
     /**
      * Config utility constructor.
@@ -60,10 +65,4 @@ public class ConfigUtility extends WarModule {
         config.set("webstats.position", WEBSTATS_POS); // Set the new position in the config.
         main().plugin().saveConfig(); // Save the config.
     }
-
-    /* For pretty code, values will be public in all caps. */
-    public boolean WEBSTATS_ENABLED; // Are the stats enabled?
-    public String WEBSTATS_ACTION; // Where should it HTTP POST to?
-    public String WEBSTATS_SECRET; // What's the secret password to make the script run?
-    public int WEBSTATS_POS; // The current match number.
 }

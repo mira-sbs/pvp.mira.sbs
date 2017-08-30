@@ -5,25 +5,22 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Custom event to handle respawns.
- * <p>
- * Just like all events, custom ones can be created.
- * This one is called when a player has waited out
- * the full length of the respawn utility task.
+ * Custom event to handle events after a match respawn.
+ * Known uses: SpawnArea
  *
  * @author s101601828 @ Swin.
  * @version 1.0
- * @see Event
+ * @see au.edu.swin.war.game.util.SpawnArea
  * <p>
  * Created by Josh on 20/04/2017.
  * @since 1.0
  */
-public class MatchPlayerRespawnEvent extends Event {
+public class PostMatchPlayerRespawnEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
     private final WarPlayer player;
 
-    public MatchPlayerRespawnEvent(WarPlayer player) {
+    public PostMatchPlayerRespawnEvent(WarPlayer player) {
         this.player = player;
     }
 

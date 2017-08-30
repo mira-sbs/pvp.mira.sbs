@@ -194,6 +194,11 @@ public class Guard extends WarModule implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player)
+            if (((Player) event.getEntity()).getGameMode() == GameMode.SPECTATOR) {
+                event.setCancelled(true);
+                return;
+            }
         event.setCancelled(!main().match().canInteract(event.getEntity(), false));
     }
 

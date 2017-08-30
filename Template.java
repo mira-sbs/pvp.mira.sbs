@@ -27,7 +27,8 @@ public class Template extends Map {
     // Give your map a name.
     private String mapName = "Map Battle II";
     // Propagate your array with materials you don't want dropped on death.
-    private Material[] disabledDrops = new Material[]{Material.AIR};;
+    private Material[] disabledDrops = new Material[]{Material.AIR};
+    ;
     // Define what gamemodes will be on your map.
     private Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM};
 

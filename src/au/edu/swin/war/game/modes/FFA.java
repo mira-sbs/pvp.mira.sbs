@@ -6,7 +6,6 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;

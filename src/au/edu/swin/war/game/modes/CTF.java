@@ -123,14 +123,14 @@ public class CTF extends Gamemode {
 
     public void decideWinner() {
         int highest = -1; // Highest is lower than zero since teams start off as zero.
-        ArrayList<String> winners = new ArrayList<>(); // Keep a temporary list of winners.
+        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
         for (WarTeam team : getTeams()) {
             // For each team, check their kills.
             int count = info.get(team.getTeamName()).getCaptures();
             if (count == highest)
                 // If they're equal to the current highest points, add them to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             else if (count > highest) {
                 // If they're above the current highest points,
                 // Set the new highst points,
@@ -138,20 +138,10 @@ public class CTF extends Gamemode {
                 // Clear the current list of winners as they have less points than this team,
                 winners.clear();
                 // Then add this team to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             }
         }
-
-        // Is there more than one winner?
-        if (winners.size() > 1) {
-            Bukkit.broadcastMessage("It's a " + winners.size() + "-way tie! " + main.strings().sentenceFormat(winners) + " tied!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        } else if (winners.size() == 1) {
-            String winner = winners.get(0); // Get the singleton winner!
-            // ChatColor.stripColor() is used to remove the team's color from the String so it can be queried to get their points.
-            Bukkit.broadcastMessage(winner + " is the winner with " + highest + " captures!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        }
+        broadcastWinner(winners, "captures", highest);
     }
 
     public void onLeave(WarPlayer left) {
@@ -349,6 +339,14 @@ public class CTF extends Gamemode {
         }
     }
 
+    @Override
+    public HashMap<String, Object> getExtraTeamData(WarTeam team) {
+        HashMap<String, Object> extra = new HashMap<>();
+        extra.put("Flag Captures", info.get(team.getTeamName()).getCaptures());
+        extra.put("Flag Steals", info.get(team.getTeamName()).getAttempts());
+        return extra;
+    }
+
     /**
      * Private record to hold a list of CTF information for a team.
      * This class holds:
@@ -404,13 +402,5 @@ public class CTF extends Gamemode {
         Location getFlag() {
             return flag;
         }
-    }
-
-    @Override
-    public HashMap<String, Object> getExtraTeamData(WarTeam team) {
-        HashMap<String, Object> extra = new HashMap<>();
-        extra.put("Flag Captures", info.get(team.getTeamName()).getCaptures());
-        extra.put("Flag Steals", info.get(team.getTeamName()).getAttempts());
-        return extra;
     }
 }

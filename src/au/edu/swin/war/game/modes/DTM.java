@@ -6,7 +6,6 @@ import au.edu.swin.war.framework.stored.Activatable;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -72,7 +71,7 @@ public class DTM extends Gamemode {
 
     public void decideWinner() {
         int highest = -1; // Highest is lower than zero since teams start off as zero.
-        ArrayList<String> winners = new ArrayList<>(); // Keep a temporary list of winners.
+        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
         for (Monument mon : getMonuments()) {
             // For each monument, check their damage.
@@ -90,16 +89,7 @@ public class DTM extends Gamemode {
                 winners.add(mon.owner);
             }
         }
-
-        // Is there more than one winner?
-        if (winners.size() > 1) {
-            Bukkit.broadcastMessage("It's a " + winners.size() + "-way tie! " + main.strings().sentenceFormat(winners) + " tied!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        } else if (winners.size() == 1) {
-            String winner = winners.get(0); // Get the singleton winner!
-            Bukkit.broadcastMessage(winner + " is the winner with " + highest + "% of their monument remaining!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        }
+        broadcastWinner(winners, "% of their monument remaining", highest);
     }
 
     /**
@@ -159,10 +149,10 @@ public class DTM extends Gamemode {
             Monument target = iterator.next(); // Get the next monument to be iterated.
             // Set the new score value.
             int calc = target.calculatePercentage(0); // Calculate the percent remaining.
-            obj.getScore(target.owner.substring(0, 2) + "    " + calc + "%").setScore(i + 1);
+            obj.getScore(target.owner.getTeamColor() + "    " + calc + "%").setScore(i + 1);
             // Remove the old value from the board since it is not needed.
             if (calc < 100) // Only reset it if it is below 100%.
-                s().resetScores(target.owner.substring(0, 2) + "    " + target.calculatePercentage(1) + "%");
+                s().resetScores(target.owner.getTeamColor() + "    " + target.calculatePercentage(1) + "%");
         }
         obj.getScore("  ").setScore(0); // Bottom spacer.
     }
@@ -214,13 +204,13 @@ public class DTM extends Gamemode {
         final int y2;
         final int z2; // Top right applicable coordinates.
         final Material composure; // What blocks are this monument made of?
-        final String owner; // What team owns this monument?
+        final WarTeam owner; // What team owns this monument?
         final List<Block> region = new ArrayList<>(); // The blocks associated with this monument.
+        final HashMap<UUID, Integer> footprint; // Track who's broken what amount of this monument.
+        final WarManager main; // A running instance of the WarManager class.
         int origSize; // The original size of the monument.
         int blocksBroken; // The amount of blocks broken off the monument.
         boolean destroyed = false; // Is this monument destroyed?
-        final HashMap<UUID, Integer> footprint; // Track who's broken what amount of this monument.
-        final WarManager main; // A running instance of the WarManager class.
 
         public Monument(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam owner, Material composure, WarManager main) {
             this.x1 = Math.min(x1, x2);
@@ -229,7 +219,7 @@ public class DTM extends Gamemode {
             this.x2 = Math.max(x1, x2);
             this.y2 = Math.max(y1, y2);
             this.z2 = Math.max(z1, z2);
-            this.owner = owner.getDisplayName();
+            this.owner = owner;
             this.composure = composure;
             this.footprint = new HashMap<>();
             this.main = main;

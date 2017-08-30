@@ -112,14 +112,14 @@ public class KoTH extends Gamemode {
 
     public void decideWinner() {
         int lowest = 999; // Lowest is higher than the initial time.
-        ArrayList<String> winners = new ArrayList<>(); // Keep a temporary list of winners.
+        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
         for (WarTeam team : getTeams()) {
             // For each team, check their capture time.
             int time = captureTime.get(team.getTeamName());
             if (time == lowest)
                 // If they're equal to the current lowest time, add them to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             else if (time < lowest) {
                 // If they're above the current lowest time,
                 // Set the new lowest time,
@@ -127,19 +127,10 @@ public class KoTH extends Gamemode {
                 // Clear the current list of winners as they have more time than this team,
                 winners.clear();
                 // Then add this team to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             }
         }
-        // Is there more than one winner?
-        if (winners.size() > 1) {
-            Bukkit.broadcastMessage("It's a " + winners.size() + "-way tie! " + main.strings().sentenceFormat(winners) + " tied!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        } else if (winners.size() == 1) {
-            String winner = winners.get(0); // Get the singleton winner!
-            // ChatColor.stripColor() is used to remove the team's color from the String so it can be queried to get their points.
-            Bukkit.broadcastMessage(winner + " is the winner!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        }
+        broadcastWinner(winners, "seconds remaining", lowest);
     }
 
     /**

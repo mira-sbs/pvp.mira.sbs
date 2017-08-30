@@ -5,8 +5,6 @@ import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -73,14 +71,14 @@ public class TDM extends Gamemode {
 
     public void decideWinner() {
         int highest = -1; // Highest is lower than zero since teams start off as zero.
-        ArrayList<String> winners = new ArrayList<>(); // Keep a temporary list of winners.
+        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
         for (WarTeam team : getTeams()) {
             // For each team, check their kills.
             int count = kills.get(team.getTeamName());
             if (count == highest)
                 // If they're equal to the current highest points, add them to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             else if (count > highest) {
                 // If they're above the current highest points,
                 // Set the new highst points,
@@ -88,20 +86,10 @@ public class TDM extends Gamemode {
                 // Clear the current list of winners as they have less points than this team,
                 winners.clear();
                 // Then add this team to the list of winners.
-                winners.add(team.getDisplayName());
+                winners.add(team);
             }
         }
-
-        // Is there more than one winner?
-        if (winners.size() > 1) {
-            Bukkit.broadcastMessage("It's a " + winners.size() + "-way tie! " + main.strings().sentenceFormat(winners) + " tied!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        } else if (winners.size() == 1) {
-            String winner = winners.get(0); // Get the singleton winner!
-            // ChatColor.stripColor() is used to remove the team's color from the String so it can be queried to get their points.
-            Bukkit.broadcastMessage(winner + ChatColor.WHITE + " is the winner with " + highest + " points!");
-            tempWinner = main.strings().sentenceFormat(winners);
-        }
+        broadcastWinner(winners, "points", highest);
     }
 
     public String getOffensive() {

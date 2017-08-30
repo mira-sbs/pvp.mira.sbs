@@ -5,7 +5,9 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
 import au.edu.swin.war.game.modes.*;
-import au.edu.swin.war.maps.*;
+import au.edu.swin.war.maps.ClashOfClay;
+import au.edu.swin.war.maps.Mutiny;
+import au.edu.swin.war.maps.Xenon;
 
 /**
  * An extension to WarCache.
@@ -50,11 +52,9 @@ public class Cache extends WarCache {
     public void loadMaps() {
         // Hard-load maps via class reference.
         //TODO: Use Reflections or an external *shaded* module
-        loadMap(TestMap1.class);
-        loadMap(TestMap2.class);
-        loadMap(TestMap3.class);
-        loadMap(TestMap4.class);
-        loadMap(TestMap5.class);
+        loadMap(ClashOfClay.class);
+        loadMap(Xenon.class);
+        loadMap(Mutiny.class);
     }
 
     /**

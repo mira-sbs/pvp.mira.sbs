@@ -28,6 +28,8 @@ import java.util.Random;
  */
 public class EntityUtility extends WarModule {
 
+    private final Random rng; // Provided random number generator.
+
     /**
      * Entity utility constructor.
      * We need to link back to the manager and plugin.
@@ -38,8 +40,6 @@ public class EntityUtility extends WarModule {
         super(main);
         this.rng = new Random();
     }
-
-    private final Random rng; // Provided random number generator.
 
     /**
      * Spawns a firework with a random shape and random color.

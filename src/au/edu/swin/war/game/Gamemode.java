@@ -1,10 +1,17 @@
 package au.edu.swin.war.game;
 
 import au.edu.swin.war.event.MatchPlayerRespawnEvent;
+import au.edu.swin.war.event.PostMatchPlayerRespawnEvent;
 import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.game.WarMode;
 import au.edu.swin.war.framework.game.WarTeam;
+import au.edu.swin.war.framework.util.WarManager;
+import au.edu.swin.war.game.modes.*;
 import au.edu.swin.war.util.Manager;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -219,73 +226,6 @@ public abstract class Gamemode extends WarMode {
         //TODO: Maybe make this display what the player needs to do?
     }
 
-    /**
-     * This is an enumeration of all available gamemodes.
-     * When designating gamemodes for your map, use this.
-     */
-    public enum Mode {
-        //TODO: Make this better?
-        TDM("Team Death Match", "TDM"),
-        FFA("Free For All", "FFA"),
-        LTS("Last Team Standing", "LTS"),
-        LMS("Last Man Standing", "LMS"),
-        KOTH("King of The Hill", "KoTH"),
-        DDM("District Death Match", "DDM"),
-        CTF("Capture The Flag", "CTF"),
-        LP("Lifepool", "LP"),
-        DTM("Destroy The Monument", "DTM");
-
-        final String fullName;
-        final String shortName;
-
-        Mode(String fullName, String shortName) {
-            this.fullName = fullName;
-            this.shortName = shortName;
-        }
-
-        /**
-         * Formats this string, similar to StringUtility#sentenceFormat
-         * but specifically for this enumerated type.
-         *
-         * @param array The array of modes to format.
-         * @return The formatted string.
-         */
-        public static String format(Mode[] array) {
-            if (array.length == 0) return "None";
-            StringBuilder format = new StringBuilder();
-            if (array.length == 1) return array[0].getShortName();
-            int i = 1;
-            while (i <= array.length) {
-                if (i == array.length)
-                    format.append(" and ").append(array[i - 1].getShortName());
-                else if (i == 1)
-                    format = new StringBuilder(array[0].getShortName());
-                else
-                    format.append(", ").append(array[i - 1].getShortName());
-                i++;
-            }
-            return format.toString();
-        }
-
-        /**
-         * Returns the full name of the enumerated type.
-         *
-         * @return Full name.
-         */
-        public String getFullName() {
-            return fullName;
-        }
-
-        /**
-         * Returns the short name of the enumerated type.
-         *
-         * @return Short name.
-         */
-        public String getShortName() {
-            return shortName;
-        }
-    }
-
     @EventHandler
     public void playerDeathHandle(PlayerDeathEvent event) {
         WarPlayer dead = main.getWarPlayer(event.getEntity()); // Get the player who died.
@@ -293,6 +233,7 @@ public abstract class Gamemode extends WarMode {
         WarPlayer killer = main.getWarPlayer(dead.getPlayer().getKiller()); // Get the player who killed the player.
 
         ((Manager) main).respawn().onDeath(main.getWarPlayer(dead.getPlayer().getUniqueId()));
+        dead.getCurrentTeam().addDeath();
         // Handle respawning for this player.
 
         if (dead.equals(killer)) killer = null; // Did they kill themselves?
@@ -305,6 +246,7 @@ public abstract class Gamemode extends WarMode {
         }
 
         // Play a sound effect.
+        killer.getCurrentTeam().addKill();
         dead.getPlayer().getWorld().playSound(dead.getPlayer().getLocation(), Sound.ENTITY_BLAZE_DEATH, 1L, 1L);
 
         // Format the death message to show display names instead.
@@ -323,10 +265,37 @@ public abstract class Gamemode extends WarMode {
      * Used for incrementing deaths/kills.
      *
      * @param toAddTo The HashMap to add to.
-     * @param key     The key to increment/
+     * @param key     The key to increment.
      */
     private void inc(HashMap<UUID, Integer> toAddTo, UUID key) {
         toAddTo.put(key, toAddTo.get(key) + 1);
+    }
+
+    /**
+     * Broadcasts a winner after calculation.
+     *
+     * @param winners   The list of winners.
+     * @param objective The objective. i.e. CTF = "captures"
+     * @param highest   Used if there is a single winner.
+     */
+    protected void broadcastWinner(List<WarTeam> winners, String objective, int highest) {
+        // Is there more than one winner?
+        if (winners.size() > 1) {
+            TextComponent comp = new TextComponent("It's a " + winners.size() + "-way tie! ");
+            comp.addExtra(main.strings().winnerFormat(winners));
+            comp.addExtra(" tied!");
+            main.broadcastSpigotMessage(comp);
+
+            tempWinner = main.strings().sentenceFormat(winners);
+        } else if (winners.size() == 1) {
+            WarTeam winner = winners.get(0); // Get the singleton winner!
+            // ChatColor.stripColor() is used to remove the team's color from the String so it can be queried to get their points.
+            TextComponent comp = winner.getHoverInformation();
+            // WHY SO GRAMMAR?
+            comp.addExtra((winner.getTeamName().charAt(winner.getTeamName().length() - 1) == 's' ? " are the winners" : " is the winner") + " with " + highest + " " + objective + "!");
+            main.broadcastSpigotMessage(comp);
+            tempWinner = main.strings().sentenceFormat(winners);
+        }
     }
 
     @EventHandler
@@ -365,6 +334,7 @@ public abstract class Gamemode extends WarMode {
 
         // They're back in the match again!
         wp.getPlayer().setGameMode(GameMode.SURVIVAL);
+        Bukkit.getPluginManager().callEvent(new PostMatchPlayerRespawnEvent(wp));
     }
 
     @EventHandler
@@ -398,5 +368,125 @@ public abstract class Gamemode extends WarMode {
             if (!team.getTeamName().equals(teams.getTeamName()))
                 return teams.getTeamColor() + teams.getTeamName();
         return ChatColor.WHITE + "Unknown";
+    }
+
+    /**
+     * This is an enumeration of all available gamemodes.
+     * When designating gamemodes for your map, use this.
+     */
+    public enum Mode {
+        TDM("Team Death Match", "TDM"),
+        FFA("Free For All", "FFA"),
+        LTS("Last Team Standing", "LTS"),
+        LMS("Last Man Standing", "LMS"),
+        KOTH("King of The Hill", "KoTH"),
+        DDM("District Death Match", "DDM"),
+        CTF("Capture The Flag", "CTF"),
+        LP("Lifepool", "LP"),
+        DTM("Destroy The Monument", "DTM");
+
+        final String fullName;
+        final String shortName;
+
+        Mode(String fullName, String shortName) {
+            this.fullName = fullName;
+            this.shortName = shortName;
+        }
+
+        /**
+         * Formats this string, similar to StringUtility#sentenceFormat
+         * but specifically for this enumerated type.
+         *
+         * @param array The array of modes to format.
+         * @return The formatted string.
+         */
+        public static TextComponent format(Mode[] array, WarManager main) {
+            if (array.length == 0) return new TextComponent("None");
+            TextComponent result = new TextComponent();
+            if (array.length == 1) return new TextComponent(array[0].getDescriptionComponent(main, true));
+            int i = 1;
+            while (i <= array.length) {
+                if (i == array.length) {
+                    result.addExtra(ChatColor.WHITE + " and ");
+                    result.addExtra(array[i - 1].getDescriptionComponent(main, true));
+                } else if (i == 1)
+                    result = array[0].getDescriptionComponent(main, true);
+                else {
+                    result.addExtra(ChatColor.WHITE + ", ");
+                    result.addExtra(array[i - 1].getDescriptionComponent(main, true));
+                }
+                i++;
+            }
+            return result;
+        }
+
+        /**
+         * Converts an instance of a Gamemode into its enumerated counterpart.
+         * Extremely ineffective in my opinion.
+         * //TODO: Make each class store its own enumerated type?
+         *
+         * @param mode The mode to check.
+         * @return The resulting enum.
+         */
+        public static Mode fromGamemode(WarMode mode) {
+            if (mode instanceof CTF)
+                return CTF;
+            else if (mode instanceof DDM)
+                return DDM;
+            else if (mode instanceof DTM)
+                return DTM;
+            else if (mode instanceof FFA)
+                return FFA;
+            else if (mode instanceof KoTH)
+                return KOTH;
+            else if (mode instanceof LMS)
+                return LMS;
+            else if (mode instanceof LP)
+                return LP;
+            else if (mode instanceof LTS)
+                return LTS;
+            else if (mode instanceof TDM)
+                return TDM;
+            else return null;
+        }
+
+        /**
+         * Returns the full name of the enumerated type.
+         *
+         * @return Full name.
+         */
+        public String getFullName() {
+            return fullName;
+        }
+
+        /**
+         * Returns the short name of the enumerated type.
+         *
+         * @return Short name.
+         */
+        public String getActualShortName() {
+            return shortName;
+        }
+
+        /**
+         * Generates an interactive gamemode hoverable.
+         *
+         * @param main          Supercontroller for gamemode access.
+         * @param withVoteClick Enable click this to vote?
+         * @return Resulting chat component.
+         */
+        public TextComponent getDescriptionComponent(WarManager main, boolean withVoteClick) {
+            TextComponent msg = new TextComponent(ChatColor.GREEN + "[" + shortName + "]");
+            WarMode assoc = main.cache().getGamemode(getFullName());
+            msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder(ChatColor.GREEN + "" + ChatColor.BOLD + getFullName() + "\n"
+                            + ChatColor.RED + ChatColor.ITALIC + "When attacking:\n" + ChatColor.WHITE
+                            + assoc.getOffensive() + ChatColor.BLUE + ChatColor.ITALIC + "\nWhen defending:\n"
+                            + ChatColor.WHITE + assoc.getDefensive() + (withVoteClick ? "\n"
+                            + ChatColor.UNDERLINE + "Click To Vote" : "")).create()));
+            if (withVoteClick)
+                msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/vote " + shortName));
+            return msg;
+        }
     }
 }

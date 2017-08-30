@@ -5,13 +5,16 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.util.Manager;
 import au.edu.swin.war.util.Match;
 import au.edu.swin.war.util.modules.CommandUtility;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 /**
  * An extension to WarPlugin.
  * Acts as Main class and Spigot link.
  *
  * @author s101601828 @ Swin.
- * @version 1.0
+ * @version 1.1
  * @see WarPlugin
  * <p>
  * Created by Josh on 20/04/2017.
@@ -39,6 +42,8 @@ public class Main extends WarPlugin {
      * Called when this program is shut down.
      */
     public void onDisable() {
+        for (Player online : Bukkit.getOnlinePlayers())
+            online.sendMessage(ChatColor.RED + "Plugin has been shut down. Goodbye!");
         main().world().restoreMap(main().match().getRawRoundID() + ""); // Delete the current match world on shutdown.
     }
 
