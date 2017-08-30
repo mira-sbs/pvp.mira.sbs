@@ -95,7 +95,7 @@ public class Manager extends WarManager {
      * @param target The target to base the WarPlayer object on.
      */
     public WarPlayer craftWarPlayer(Player target) {
-        WarPlayer result = new WarPlayer(target); // Create their instance.
+        WarPlayer result = new WarPlayer(target, this); // Create their instance.
         getWarPlayers().put(target.getUniqueId(), result); // Put it in the key/value set!
         return result;
     }

@@ -34,7 +34,7 @@ public class Cache extends WarCache {
     @Override
     public void loadGamemodes() {
         // Hard-load gamemodes via class reference.
-        // Reflections isn't really needed sinice it's a War-only thing.
+        // Reflections isn't really needed since it's a War-only thing.
         loadGamemode(TDM.class);
         loadGamemode(KoTH.class);
         loadGamemode(CTF.class);

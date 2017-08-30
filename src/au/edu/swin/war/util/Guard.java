@@ -6,18 +6,24 @@ import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Map;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.event.weather.WeatherChangeEvent;
 
 /**
  * This class listens for certain Spigot events in
@@ -61,11 +67,9 @@ public class Guard extends WarModule implements Listener {
             event.getPlayer().setScoreboard(((Match) main().match()).s()); // Show the default scoreboard.
             ((Match) main().match()).s().getTeam("PostSpectators").addEntry(event.getPlayer().getName()); // Add them to this scoreboard.
             //TODO: Add them as spectators???
-            target.setGameMode(GameMode.CREATIVE);
-        } else {
+        } else
             event.getPlayer().setScoreboard(main().match().getCurrentMode().s()); // Show the gamemode's scoreboard.
-            target.setGameMode(GameMode.SPECTATOR);
-        }
+        target.setGameMode(GameMode.CREATIVE);
     }
 
     /**
@@ -80,53 +84,199 @@ public class Guard extends WarModule implements Listener {
         main().destroyWarPlayer(event.getPlayer().getUniqueId()); // Remove their WarPlayer record.
     }
 
-    /* All events below prevent damage/interaction out of play time. */
+    /*
+     * ALL EVENTS BELOW ARE FOR BLOCKS.
+     */
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        // Stop blocks being broken when a match is not playing.
-        if (main().match().getStatus() != WarMatch.Status.PLAYING)
-            event.setCancelled(true);
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
     }
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
-        // Stop blocks being placed when a match is not playing.
-        if (main().match().getStatus() != WarMatch.Status.PLAYING)
-            event.setCancelled(true);
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onPlace(BlockDamageEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    //TODO: projectile launch event
+
+    /*
+     * ALL EVENTS BELOW ARE FOR PLAYERS.
+     */
+    @EventHandler
+    public void onArmorStandChange(PlayerArmorStandManipulateEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onBedEnter(PlayerBedEnterEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), false));
+    }
+
+    @EventHandler
+    public void onBucketEmpty(PlayerBucketEmptyEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onBucketFill(PlayerBucketFillEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onDropItem(PlayerDropItemEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), false));
+    }
+
+    @EventHandler
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onInteractEntity(PlayerInteractEntityEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onConsume(PlayerItemConsumeEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    @EventHandler
+    public void onPickupArrow(PlayerPickupArrowEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), false));
+    }
+
+    @EventHandler
+    public void onPortalEvent(PlayerPortalEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onShear(PlayerShearEntityEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    /*
+     * ALL EVENTS BELOW ARE FOR ENTITIES.
+     */
+
+    @EventHandler
+    public void onLinger(AreaEffectCloudApplyEvent event) {
+        event.getAffectedEntities().removeIf(livingEntity -> !main().match().canInteract(livingEntity, false));
+    }
+
+    @EventHandler
+    public void onAir(EntityAirChangeEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getEntity(), false));
+    }
+
+    @EventHandler
+    public void onCombust(EntityCombustEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getEntity(), false));
+    }
+
+    @EventHandler
+    public void onCreatePortal(EntityCreatePortalEvent event) {
+        event.setCancelled(true);
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
-        // Block all damage if a match is not playing.
-        if (main().match().getStatus() != WarMatch.Status.PLAYING)
-            event.setCancelled(true);
-        else if (event.getEntity() instanceof Player)
-            if (((Player) event.getEntity()).getGameMode() == GameMode.SPECTATOR)
-                event.setCancelled(true);
+        event.setCancelled(!main().match().canInteract(event.getEntity(), false));
     }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        // Disable inventory modification if a match is not playing.
-        if (main().match().getStatus() != WarMatch.Status.PLAYING)
-            event.setCancelled(true);
-        else if (event.getWhoClicked() instanceof Player)
-            if (event.getWhoClicked().getGameMode() != GameMode.SURVIVAL)
-                event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onTarget(EntityTargetEvent event) {
-        // Disable monsters targeting players if a match is not playing.
-        if (main().match().getStatus() != WarMatch.Status.PLAYING)
-            event.setCancelled(true);
+    public void onDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Projectile && ((Projectile) event.getDamager()).getShooter() instanceof Player)
+            event.setCancelled(!main().match().canInteract((Player) ((Projectile) event.getDamager()).getShooter(), true));
+        else
+            event.setCancelled(!main().match().canInteract(event.getDamager(), true));
     }
 
     @EventHandler
     public void onExplode(EntityExplodeEvent event) {
-        // Disable explosions if a match is not playing.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPickupItem(EntityPickupItemEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getEntity(), false));
+    }
+
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getWhoClicked(), true));
+    }
+
+    @EventHandler
+    public void onTarget(EntityTargetEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getTarget(), false));
+    }
+
+    @EventHandler
+    public void onLaunch(ProjectileLaunchEvent event) {
+        if (event.getEntity().getShooter() instanceof Entity)
+            event.setCancelled(!main().match().canInteract((Entity) event.getEntity().getShooter(), true));
+    }
+
+    @EventHandler
+    public void onSplash(PotionSplashEvent event) {
+        event.getAffectedEntities().removeIf(livingEntity -> !main().match().canInteract(livingEntity, false));
+    }
+
+    @EventHandler
+    public void onLeash(PlayerLeashEntityEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getEntity(), false));
+    }
+
+    /*
+     * ALL EVENTS BELOW ARE FOR HANGING ENTITIES.
+     */
+
+    @EventHandler
+    public void on(HangingBreakByEntityEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getEntity(), true));
+    }
+
+    @EventHandler
+    public void on(HangingPlaceEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+    }
+
+    /*
+     * ALL EVENTS BELOW ARE FOR VEHICLES AND WEATHER.
+     */
+
+    @EventHandler
+    public void onVehicleDamage(VehicleEnterEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getEntered(), true));
+    }
+
+    @EventHandler
+    public void onVehicleDestroy(VehicleDestroyEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getAttacker(), true));
+    }
+
+    @EventHandler
+    public void onVehicleDamage(VehicleDamageEvent event) {
+        event.setCancelled(!main().match().canInteract(event.getAttacker(), true));
+    }
+
+    @EventHandler
+    public void onWeatherChange(WeatherChangeEvent event) {
+        event.setCancelled(true);
     }
 }

@@ -45,17 +45,7 @@ import java.util.Map;
  */
 public abstract class Gamemode extends WarMode {
 
-    /**
-     * Initialise the random number generator. This is used for
-     * gamemode purposes and for assigning players to teams at
-     * random.
-     */
-    protected Gamemode() {
-        super();
-        rng = new Random();
-    }
 
-    protected final Random rng;
     protected String tempWinner; // The winner of the round, if any.
 
     /* Website Statistics Stuff */

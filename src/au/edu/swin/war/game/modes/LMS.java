@@ -66,28 +66,7 @@ public class LMS extends Gamemode {
         for (WarTeam team : getTeams()) // Since this is LMS, allow friendly fire.
             team.getBukkitTeam().setAllowFriendlyFire(true);
 
-        // Keep a temporary list of people who have not being assigned to a team.
-        ArrayList<WarPlayer> targets = new ArrayList<>(main.getWarPlayers().values());
-        while (targets.size() != 0) { // Keep looping until this array is empty.
-            WarPlayer target = targets.get(rng.nextInt(targets.size())); // Gets a random player.
-            if (target.isJoined()) {
-                // If joined, use entryHandle() to put them on the lowest team.
-                entryHandle(target);
-                if (!target.isJoined()) {
-                    // If, for some reason, they did not get put on a team, assume them as spectating.
-                    target.getPlayer().setGameMode(GameMode.SPECTATOR);
-                    main.giveSpectatorKit(target);
-                } else {
-                    alive.add(target.getPlayer().getUniqueId());
-                    participated.add(target.getPlayer().getUniqueId());
-                }
-            } else {
-                // They don't want to play. Assume them as spectating.
-                target.getPlayer().setGameMode(GameMode.SPECTATOR);
-                main.giveSpectatorKit(target);
-            }
-            targets.remove(target);
-        }
+        autoAssign();
 
         permaDeath = true; // Set permanent death to true for the duration of the match.
 

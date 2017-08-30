@@ -170,7 +170,7 @@ public class Match extends WarMatch {
     @Override
     public void preMatch() {
         setStatus(Status.VOTING); // Change match cycle state.
-        previousID = getRoundID_(); // Archive reference for the match world ID.
+        previousID = getRawRoundID(); // Archive reference for the match world ID.
         setPreviousMap(getCurrentMap()); // Set the previous map's identifier.
         setCurrentMap(getRotationList().get(rotationPoint)); // Get the next map on the rotation.
         setRoundID(main().strings().generateID()); // Generates a new match world ID..
@@ -217,7 +217,7 @@ public class Match extends WarMatch {
         Bukkit.broadcastMessage("The next match was " + getCurrentMode().getGrammar() + " " + getCurrentMode().getName() + " at " + getCurrentMap() + "!");
 
         // Set the state to starting and perform starting logic.
-        main().world().loadMap(getCurrentMap(), getRoundID_());
+        main().world().loadMap(getCurrentMap(), getRawRoundID());
         setStatus(Status.STARTING);
 
         // Teleport all online WarPlayers into the map.
