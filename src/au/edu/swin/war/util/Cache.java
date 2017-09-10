@@ -5,9 +5,7 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
 import au.edu.swin.war.game.modes.*;
-import au.edu.swin.war.maps.ClashOfClay;
-import au.edu.swin.war.maps.Mutiny;
-import au.edu.swin.war.maps.Xenon;
+import au.edu.swin.war.maps.*;
 
 /**
  * An extension to WarCache.
@@ -55,6 +53,10 @@ public class Cache extends WarCache {
         loadMap(ClashOfClay.class);
         loadMap(Xenon.class);
         loadMap(Mutiny.class);
+        loadMap(ConvenienceWars.class);
+        loadMap(MaplebankWoods.class);
+        loadMap(SanguineShores.class);
+        loadMap(TheRebellion.class);
     }
 
     /**

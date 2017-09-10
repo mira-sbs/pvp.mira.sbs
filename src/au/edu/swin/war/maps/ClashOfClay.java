@@ -16,7 +16,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class ClashOfClay extends Map {
 
-    private final UUID[] creators = {UUID.fromString("d04d579e-78ed-4c60-87d4-39ef95755be6")};
+    private final UUID[] creators = {};
     private final String mapName = "Clash Of Clay";
     private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM, Gamemode.Mode.LP};
@@ -33,8 +33,8 @@ public class ClashOfClay extends Map {
         registerTeam(team2);
         setAllowBuild(true, true);
         setBuildBoundary(-51, 0, 4, 172);
-        objectives().add(new SpawnArea(main, -25, 7, -22, 10, true, false));
-        objectives().add(new SpawnArea(main, -25, 162, -22, 165, true, false));
+        objectives().add(new SpawnArea(main, -25, 7, -22, 10, true, true));
+        objectives().add(new SpawnArea(main, -25, 162, -22, 165, true, true));
         setTimeLockTime(23000);
         setMatchDuration(600);
     }
@@ -49,7 +49,7 @@ public class ClashOfClay extends Map {
     public void applyInventory(WarPlayer target) {
         PlayerInventory inv = target.getPlayer().getInventory();
 
-        main.items().applyColoredArmorAccordingToTeam(target, new Material[]{Material.LEATHER_LEGGINGS, Material.LEATHER_CHESTPLATE});
+        main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.DIAMOND_HELMET, Material.LEATHER_CHESTPLATE});
 
         inv.setItem(0, new ItemStack(Material.WOOD_SWORD, 1, (short) -16373));
         inv.setItem(1, new ItemStack(Material.BOW));

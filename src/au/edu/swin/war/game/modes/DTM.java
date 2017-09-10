@@ -73,12 +73,21 @@ public class DTM extends Gamemode {
         int highest = -1; // Highest is lower than zero since teams start off as zero.
         ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
-        for (Monument mon : getMonuments()) {
+        for (WarTeam team : getTeams()) {
+            // We will need to reassociate the WarTeam with this monument for dumb reasons.
+            // Team is defined within the map config.
+            // TODO: FIX THIS.
+            Monument mon = null;
+            for (Monument monument : getMonuments())
+                if (monument.owner.getDisplayName().equals(team.getDisplayName()))
+                    mon = monument;
+            if (mon == null) continue;
+
             // For each monument, check their damage.
             int count = mon.calculatePercentage(0);
             if (count == highest)
                 // If they're equal to the current least damage, add them to the list of winners.
-                winners.add(mon.owner);
+                winners.add(team);
             else if (count > highest) {
                 // If they're above the current least damage,
                 // Set the new least damage,
@@ -86,7 +95,7 @@ public class DTM extends Gamemode {
                 // Clear the current list of winners as they have more damage than this team,
                 winners.clear();
                 // Then add this team to the list of winners.
-                winners.add(mon.owner);
+                winners.add(team);
             }
         }
         broadcastWinner(winners, "% of their monument remaining", highest);
@@ -170,7 +179,7 @@ public class DTM extends Gamemode {
     public HashMap<String, Object> getExtraTeamData(WarTeam team) {
         HashMap<String, Object> extra = new HashMap<>();
         for (Monument mon : getMonuments()) { // We need to find the monument associated with the team...
-            if (!mon.owner.equals(team.getDisplayName())) continue; // It's not this team...
+            if (!mon.owner.getDisplayName().equals(team.getDisplayName())) continue; // It's not this team...
             List<String> footprint = new ArrayList<>(); // Keep a list of the footprint to format...
             for (Map.Entry<UUID, Integer> entry : mon.footprint.entrySet()) {
                 int contribution = Math.abs(Math.round((entry.getValue() * 100) / mon.origSize)); // Their contribution to the destruction.
@@ -315,7 +324,7 @@ public class DTM extends Gamemode {
                 if (isInside(event.getBlock().getLocation())) { // Was the block a part of the monument?
                     WarPlayer wp = main.getWarPlayer(event.getPlayer()); // Get the WarPlayer implement.
                     if (wp.getCurrentTeam() == null) return; // Are they even playing?
-                    if (wp.getCurrentTeam().getDisplayName().equals(owner)) { // Did they break their own monument?
+                    if (wp.getCurrentTeam().getDisplayName().equals(owner.getDisplayName())) { // Did they break their own monument?
                         event.setCancelled(true);
                         return;
                     }
@@ -352,8 +361,9 @@ public class DTM extends Gamemode {
 
         @EventHandler
         public void onPlace(BlockPlaceEvent event) {
-            // Don't allow blocks to be placed inside the monument region.
-            if (isInside(event.getBlockPlaced().getLocation())) event.setCancelled(true);
+            // Don't allow composure blocks to be placed inside the monument region.
+            if (isInside(event.getBlockPlaced().getLocation()))
+                if (event.getBlock().getType() == composure) event.setCancelled(true);
         }
 
         @EventHandler
@@ -364,7 +374,6 @@ public class DTM extends Gamemode {
                     if (isInside(block.getLocation())) {
                         toRemove.add(block);
                     }
-
             // Don't allow explosions to damage the monument.
             event.blockList().removeAll(toRemove);
         }

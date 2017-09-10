@@ -17,7 +17,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class Mutiny extends Map {
 
-    private final UUID[] creators = {UUID.fromString("d04d579e-78ed-4c60-87d4-39ef95755be6")}; // Skyuh
+    private final UUID[] creators = {UUID.fromString("2cfb556d-55f9-4fa3-8043-199a15d11f40")};
     private final String mapName = "Mutiny";
     private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM, Gamemode.Mode.LP};
@@ -60,7 +60,7 @@ public class Mutiny extends Map {
     public void applyInventory(WarPlayer target) {
         PlayerInventory inv = target.getPlayer().getInventory();
 
-        main.items().applyColoredArmorAccordingToTeam(target, new Material[]{Material.LEATHER_BOOTS, Material.LEATHER_LEGGINGS, Material.LEATHER_CHESTPLATE, Material.LEATHER_HELMET});
+        main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.LEATHER_BOOTS, Material.LEATHER_LEGGINGS, Material.LEATHER_CHESTPLATE, Material.LEATHER_HELMET});
 
         inv.setItem(0, new ItemStack(Material.STONE_SWORD, 1, (short) -16373));
         inv.setItem(1, new ItemStack(Material.BOW));

@@ -75,9 +75,7 @@ public class Xenon extends Map {
     public void applyInventory(WarPlayer target) {
         PlayerInventory inv = target.getPlayer().getInventory();
 
-        main.items().applyColoredArmorAccordingToTeam(target, new Material[]{Material.LEATHER_BOOTS, Material.LEATHER_CHESTPLATE});
-        inv.setHelmet(new ItemStack(Material.IRON_HELMET));
-        inv.setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+        main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.LEATHER_BOOTS, Material.IRON_LEGGINGS, Material.LEATHER_CHESTPLATE, Material.IRON_HELMET});
 
         inv.setItem(0, new ItemStack(Material.STONE_SWORD, 1, (short) -16373));
         inv.setItem(1, new ItemStack(Material.BOW));

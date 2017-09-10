@@ -116,7 +116,7 @@ public class DDM extends Gamemode {
                 winners.add(team);
             }
         }
-        broadcastWinner(winners, "run-ins", lowest);
+        broadcastWinner(winners, "run-ins remaining", lowest);
     }
 
     public void updateScoreboard() {
@@ -208,12 +208,12 @@ public class DDM extends Gamemode {
          * @return Are they inside the territory?
          */
         boolean isInside(Location loc) {
-            return loc.getX() >= x1 && loc.getX() <= x2 && loc.getY() >= y1 && loc.getY() <= y2 && loc.getZ() >= z1 && loc.getZ() <= z2;
+            return loc.getBlockX() >= x1 && loc.getBlockX() <= x2 && loc.getBlockY() >= y1 && loc.getBlockY() <= y2 && loc.getBlockZ() >= z1 && loc.getBlockZ() <= z2;
         }
 
         @EventHandler
         public void nmv(PlayerMoveEvent event) {
-            if (isInside(event.getTo()) && !event.getPlayer().isDead()) { // Are they inside the territory?
+            if (isInside(event.getTo()) && !event.getPlayer().isDead()) { // Are they inside the territory?t
                 if (!event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) return; // Are they in survival mode?
                 WarPlayer wp = main.getWarPlayer(event.getPlayer()); // Get their WarPlayer implement.
                 if (wp.getCurrentTeam() == null) return; // Cancel if they aren't on any team.
@@ -230,8 +230,8 @@ public class DDM extends Gamemode {
                     }
 
                     // Broadcast that they got in.
-                    Bukkit.broadcastMessage(wp.getTeamName() + " infiltrated " + belongsTo + "");
-                    ddm.logEvent(wp.getTeamName() + " infiltrated " + belongsTo + "");
+                    Bukkit.broadcastMessage(wp.getTeamName() + " infiltrated " + belongsTo);
+                    ddm.logEvent(wp.getTeamName() + " infiltrated " + belongsTo);
 
                     // Record their current captures remaining, and decrement it.
                     int capsToGo = ddm.scores.get(target.getTeamName());
