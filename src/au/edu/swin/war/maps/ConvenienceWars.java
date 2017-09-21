@@ -73,7 +73,7 @@ public class ConvenienceWars extends Map {
 
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.LEATHER_HELMET, Material.IRON_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.CHAINMAIL_BOOTS});
 
-        inv.setItem(0, new ItemStack(Material.IRON_SWORD, 1, (short) -16373));
+        inv.setItem(0, new ItemStack(Material.IRON_SWORD));
         inv.setItem(1, new ItemStack(Material.BOW));
         inv.setItem(2, new ItemStack(Material.PUMPKIN_PIE, 2));
         inv.setItem(3, main.items().createPotion(PotionEffectType.HEAL, 0, 1, 1));

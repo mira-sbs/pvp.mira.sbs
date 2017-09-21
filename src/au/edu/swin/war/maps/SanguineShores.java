@@ -5,14 +5,9 @@ import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.stored.SerializedLocation;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
-import au.edu.swin.war.game.modes.DTM;
 import au.edu.swin.war.game.util.SpawnArea;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
@@ -57,8 +52,8 @@ public class SanguineShores extends Map {
 
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.CHAINMAIL_HELMET, Material.LEATHER_CHESTPLATE, Material.IRON_LEGGINGS, Material.CHAINMAIL_BOOTS});
 
-        inv.setItem(0, new ItemStack(Material.IRON_SWORD, 1));
-        inv.setItem(1, new ItemStack(Material.BOW, 1));
+        inv.setItem(0, new ItemStack(Material.IRON_SWORD));
+        inv.setItem(1, new ItemStack(Material.BOW));
         inv.setItem(2, new ItemStack(Material.PUMPKIN_PIE, 6));
         inv.setItem(3, main.items().createPotion(PotionEffectType.HEAL, 0, 1, 1));
         inv.setItem(9, new ItemStack(Material.ARROW, 32));

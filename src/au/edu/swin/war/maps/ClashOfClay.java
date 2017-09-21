@@ -51,9 +51,9 @@ public class ClashOfClay extends Map {
 
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.DIAMOND_HELMET, Material.LEATHER_CHESTPLATE});
 
-        inv.setItem(0, new ItemStack(Material.WOOD_SWORD, 1, (short) -16373));
+        inv.setItem(0, new ItemStack(Material.WOOD_SWORD));
         inv.setItem(1, new ItemStack(Material.BOW));
-        inv.setItem(2, new ItemStack(Material.IRON_PICKAXE, 1, (short) -1400));
+        inv.setItem(2, new ItemStack(Material.IRON_PICKAXE));
         inv.setItem(3, new ItemStack(Material.PUMPKIN_PIE, 5));
         inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 2));
         inv.setItem(27, new ItemStack(Material.ARROW, 16));

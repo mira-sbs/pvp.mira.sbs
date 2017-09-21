@@ -6,17 +6,13 @@ import au.edu.swin.war.framework.stored.SerializedLocation;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
 import au.edu.swin.war.game.modes.DTM;
-import au.edu.swin.war.game.modes.KoTH;
 import au.edu.swin.war.game.util.SpawnArea;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -62,10 +58,10 @@ public class MaplebankWoods extends Map {
 
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.LEATHER_HELMET, Material.IRON_CHESTPLATE, Material.DIAMOND_LEGGINGS, Material.IRON_BOOTS});
 
-        inv.setItem(0, new ItemStack(Material.IRON_SWORD, 1));
-        inv.setItem(1, new ItemStack(Material.BOW, 1));
-        inv.setItem(2, new ItemStack(Material.DIAMOND_PICKAXE, 1));
-        inv.setItem(3, new ItemStack(Material.STONE_AXE, 1));
+        inv.setItem(0, new ItemStack(Material.IRON_SWORD));
+        inv.setItem(1, new ItemStack(Material.BOW));
+        inv.setItem(2, new ItemStack(Material.DIAMOND_PICKAXE));
+        inv.setItem(3, new ItemStack(Material.STONE_AXE));
         inv.setItem(4, new ItemStack(Material.COOKED_BEEF, 6));
         inv.setItem(5, new ItemStack(Material.GOLDEN_APPLE, 2));
         inv.setItem(6, new ItemStack(Material.LOG, 16));

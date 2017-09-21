@@ -24,7 +24,6 @@ public class TheRebellion extends Map {
 
     private final UUID[] creators = {UUID.fromString("2cfb556d-55f9-4fa3-8043-199a15d11f40")};
     private final String mapName = "The Rebellion";
-    private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.LTS, Gamemode.Mode.TDM};
 
     private final WarTeam team1 = new WarTeam("Protectors", ChatColor.RED, 30);
@@ -33,7 +32,6 @@ public class TheRebellion extends Map {
     protected void readyAttributes() {
         setMapName(mapName);
         setCreators(creators);
-        setDisabledDrops(disabledDrops);
         setGamemodes(gamemodes);
         registerTeam(team1);
         registerTeam(team2);
@@ -62,17 +60,17 @@ public class TheRebellion extends Map {
 
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.DIAMOND_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.DIAMOND_BOOTS});
 
-        inv.setItem(0, new ItemStack(Material.IRON_SWORD, 1));
-        inv.setItem(1, new ItemStack(Material.BOW, 1));
+        inv.setItem(0, new ItemStack(Material.IRON_SWORD));
+        inv.setItem(1, new ItemStack(Material.BOW));
         switch (target.getCurrentTeam().getTeamColor()) {
             case RED:
-                inv.setItem(2, new ItemStack(Material.DIAMOND_PICKAXE, 1));
+                inv.setItem(2, new ItemStack(Material.DIAMOND_PICKAXE));
                 break;
             case BLUE:
-                inv.setItem(2, new ItemStack(Material.IRON_PICKAXE, 1));
+                inv.setItem(2, new ItemStack(Material.IRON_PICKAXE));
                 break;
         }
-        inv.setItem(3, new ItemStack(Material.IRON_AXE, 1));
+        inv.setItem(3, new ItemStack(Material.IRON_AXE));
         inv.setItem(4, new ItemStack(Material.COOKED_BEEF, 6));
         inv.setItem(5, main.items().createPotion(PotionEffectType.HEAL, 0, 1, 1));
         inv.setItem(6, new ItemStack(Material.LOG, 16));

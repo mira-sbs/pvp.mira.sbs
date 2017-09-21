@@ -50,6 +50,7 @@ public class Cache extends WarCache {
     public void loadMaps() {
         // Hard-load maps via class reference.
         //TODO: Use Reflections or an external *shaded* module
+        loadMap(Squared.class);
         loadMap(ClashOfClay.class);
         loadMap(Xenon.class);
         loadMap(Mutiny.class);

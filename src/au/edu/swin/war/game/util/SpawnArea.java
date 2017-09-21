@@ -1,10 +1,13 @@
 package au.edu.swin.war.game.util;
 
 import au.edu.swin.war.event.PostMatchPlayerRespawnEvent;
+import au.edu.swin.war.framework.event.MatchPlayerJoinEvent;
+import au.edu.swin.war.framework.event.MatchPlayerLeaveEvent;
 import au.edu.swin.war.framework.stored.Activatable;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarModule;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -12,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -50,6 +54,7 @@ public class SpawnArea extends WarModule implements Activatable, Listener {
      * @param x2                         Top right X.
      * @param z2                         Top right Z.
      * @param allowArrowsWhilstProtected Allows protected players to shoot arrows.
+     * @param allowReEntry               Allows players to (re)enter this area.
      */
     public SpawnArea(WarManager main, int x1, int z1, int x2, int z2, boolean allowArrowsWhilstProtected, boolean allowReEntry) {
         super(main);
@@ -95,18 +100,35 @@ public class SpawnArea extends WarModule implements Activatable, Listener {
     }
 
     @EventHandler
+    public void onJoin(MatchPlayerJoinEvent event) {
+        if (isInside(event.getPlayer().getPlayer().getLocation())) {
+            invincible.add(event.getPlayer().getPlayer().getUniqueId());
+            if (!notified.contains(event.getPlayer().getPlayer().getUniqueId()))
+                event.getPlayer().sendMessage("TIP: You are now spawn protected.");
+        }
+    }
+
+    @EventHandler
+    public void onLeave(MatchPlayerLeaveEvent event) {
+        if (invincible.contains(event.getPlayer().getPlayer().getUniqueId()))
+            invincible.remove(event.getPlayer().getPlayer().getUniqueId());
+    }
+
+    @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if (invincible.contains(event.getPlayer().getUniqueId()))
-            if (!isInside(event.getTo())) {
+        if (!isInside(event.getTo())) {
+            if (invincible.contains(event.getPlayer().getUniqueId())) {
                 invincible.remove(event.getPlayer().getUniqueId());
                 if (!notified.contains(event.getPlayer().getUniqueId())) {
                     event.getPlayer().sendMessage("You are no longer spawn protected.");
                     notified.add(event.getPlayer().getUniqueId());
                 }
-            } else if (!reEntry) {
-                event.setCancelled(true);
-                event.getPlayer().setVelocity(event.getPlayer().getLocation().getDirection().multiply(-0.5));
             }
+        } else if (!reEntry) {
+            if (isInside(event.getFrom())) return;
+            event.setCancelled(true);
+            event.getPlayer().setVelocity(event.getPlayer().getLocation().getDirection().multiply(-0.75));
+        }
     }
 
     @EventHandler
@@ -135,5 +157,14 @@ public class SpawnArea extends WarModule implements Activatable, Listener {
     public void onBreak(BlockBreakEvent event) {
         if (isInside(event.getBlock().getLocation()))
             event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onExplode(EntityExplodeEvent event) {
+        List<Block> toKeep = new ArrayList<>();
+        for (Block block : event.blockList())
+            if (isInside((block.getLocation())))
+                toKeep.add(block);
+        event.blockList().removeAll(toKeep);
     }
 }

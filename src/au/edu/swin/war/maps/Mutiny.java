@@ -62,9 +62,9 @@ public class Mutiny extends Map {
 
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.LEATHER_BOOTS, Material.LEATHER_LEGGINGS, Material.LEATHER_CHESTPLATE, Material.LEATHER_HELMET});
 
-        inv.setItem(0, new ItemStack(Material.STONE_SWORD, 1, (short) -16373));
+        inv.setItem(0, new ItemStack(Material.STONE_SWORD));
         inv.setItem(1, new ItemStack(Material.BOW));
-        inv.setItem(2, new ItemStack(Material.IRON_PICKAXE, 1, (short) -1400));
+        inv.setItem(2, new ItemStack(Material.IRON_PICKAXE));
         inv.setItem(3, new ItemStack(Material.COOKED_BEEF, 5));
         inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 2));
         inv.setItem(5, new ItemStack(Material.LOG, 6));

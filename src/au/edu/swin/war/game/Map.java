@@ -31,6 +31,11 @@ import java.util.ArrayList;
  */
 public abstract class Map extends WarMap {
 
+    public Map(){
+        super();
+        attr().put("itemMerging", true); // Makes items merge by default.
+    }
+
     private Gamemode.Mode[] modes; // The defined gamemodes for this map.
 
     /**

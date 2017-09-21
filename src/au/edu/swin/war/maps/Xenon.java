@@ -21,7 +21,6 @@ public class Xenon extends Map {
 
     private final UUID[] creators = {UUID.fromString("df5fd9f4-4840-4293-9346-5c77bf7bc08f")};
     private final String mapName = "Xenon";
-    private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.FFA, Gamemode.Mode.LMS};
 
     private final WarTeam team1 = new WarTeam("Green Team", ChatColor.GREEN, 25);
@@ -29,7 +28,6 @@ public class Xenon extends Map {
     protected void readyAttributes() {
         setMapName(mapName);
         setCreators(creators);
-        setDisabledDrops(disabledDrops);
         setGamemodes(gamemodes);
         registerTeam(team1);
         setAllowBuild(false, false);
@@ -77,7 +75,7 @@ public class Xenon extends Map {
 
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.LEATHER_BOOTS, Material.IRON_LEGGINGS, Material.LEATHER_CHESTPLATE, Material.IRON_HELMET});
 
-        inv.setItem(0, new ItemStack(Material.STONE_SWORD, 1, (short) -16373));
+        inv.setItem(0, new ItemStack(Material.STONE_SWORD));
         inv.setItem(1, new ItemStack(Material.BOW));
         inv.setItem(2, new ItemStack(Material.COOKED_BEEF, 2));
         inv.setItem(3, new ItemStack(Material.EXP_BOTTLE, 5));

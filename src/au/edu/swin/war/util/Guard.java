@@ -5,7 +5,9 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Map;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -24,6 +26,8 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 /**
  * This class listens for certain Spigot events in
@@ -219,6 +223,8 @@ public class Guard extends WarModule implements Listener {
     @EventHandler
     public void onPickupItem(EntityPickupItemEvent event) {
         event.setCancelled(!main().match().canInteract(event.getEntity(), false));
+        if (event.getEntity() instanceof Player && !event.isCancelled() && (boolean) main().cache().getCurrentMap().attr().get("itemMerging"))
+            tryItemMerge(event);
     }
 
     @EventHandler
@@ -283,5 +289,78 @@ public class Guard extends WarModule implements Listener {
     @EventHandler
     public void onWeatherChange(WeatherChangeEvent event) {
         event.setCancelled(true);
+    }
+
+    /**
+     * Tries to merge an item, if it has durability.
+     *
+     * @param event Event called by spigot.
+     */
+    private void tryItemMerge(EntityPickupItemEvent event) {
+        Player pl = (Player) event.getEntity();
+        ItemStack toMerge = event.getItem().getItemStack();
+        if (toMerge.getType().getMaxDurability() == 0) return;
+        for (ItemStack armor : pl.getInventory().getArmorContents())
+            if (canMerge(armor, toMerge)) {
+                merge(event, armor, toMerge);
+                return;
+            }
+        for (ItemStack item : pl.getInventory().getContents())
+            if (canMerge(item, toMerge)) {
+                merge(event, item, toMerge);
+                return;
+            }
+        pl.updateInventory();
+    }
+
+    /**
+     * Performs a few simple checks to see if these items can merge.
+     *
+     * @param compare Stack to compare against.
+     * @param stack   Stack to merge with comparison.
+     * @return Whether or not these items can merge.
+     */
+    private boolean canMerge(ItemStack compare, ItemStack stack) {
+        return compare != null && compare.getType().getMaxDurability() >= 1 && compare.getTypeId() == stack.getTypeId() && compare.hasItemMeta() == stack.hasItemMeta() && (compareMeta(compare, stack));
+    }
+
+    /**
+     * Compares item metas.
+     * This method temporarily changes the color of leather armor
+     * to resemble each other so that they can still match. Most
+     * teams do not have the same color armor.
+     *
+     * @param compare Stack to compare against.
+     * @param stack   Stack to merge with comparison.
+     * @return Whether or not these items match in meta.
+     */
+    private boolean compareMeta(ItemStack compare, ItemStack stack) {
+        compare = compare.clone();
+        stack = stack.clone();
+        if (compare.getItemMeta() instanceof LeatherArmorMeta) {
+            LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
+            meta.setColor(((LeatherArmorMeta) compare.getItemMeta()).getColor());
+            stack.setItemMeta(meta);
+        }
+        return !compare.hasItemMeta() || Bukkit.getItemFactory().equals(compare.getItemMeta(), stack.getItemMeta());
+    }
+
+    /**
+     * After a check, it will merge the two items together.
+     * It takes the free durability of the item picked up and
+     * adds it to a vacant matching item and essentially 'repairs' it.
+     *
+     * @param event     Event called by spigot.
+     * @param mergeTo   Item to merge with.
+     * @param mergeFrom Item to merge from.
+     */
+    private void merge(EntityPickupItemEvent event, ItemStack mergeTo, ItemStack mergeFrom) {
+        event.getEntity().getWorld().playSound(event.getEntity().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F, 2F);
+        event.getItem().remove();
+        event.setCancelled(true);
+        short newDura = mergeTo.getDurability();
+        newDura -= mergeFrom.getType().getMaxDurability() - mergeFrom.getDurability();
+        if (newDura <= 0) newDura = 0;
+        mergeTo.setDurability(newDura);
     }
 }
