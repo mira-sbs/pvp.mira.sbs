@@ -61,7 +61,7 @@ public class RespawnUtility extends WarModule implements Listener {
         main().items().clear(pl); // Clear their inventory.
         pl.getPlayer().setGameMode(GameMode.SPECTATOR); // Temporarily make them a spectator.
         pl.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 400, 1)); // Death effect.
-        pl.getPlayer().getWorld().playEffect(pl.getPlayer().getLocation(), Effect.VOID_FOG, 0); // Another death effect.
+        pl.getPlayer().getWorld().playEffect(pl.getPlayer().getLocation(), Effect.SMOKE, 0); // Another death effect.
 
         // Create and store their death information.
         DeathInfo inf = new DeathInfo();

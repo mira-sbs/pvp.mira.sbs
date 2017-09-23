@@ -62,6 +62,11 @@ public class LTS extends Gamemode {
 
         autoAssign();
 
+        // Mark playing players are participated.
+        for (WarPlayer check : main.getWarPlayers().values())
+            if (check.isPlaying())
+                participated.add(check.getPlayer().getUniqueId());
+
         for (WarTeam team : getTeams()) // Record the original amount of participants.
             original.put(team.getTeamName(), team.getBukkitTeam().getEntries().size());
 
@@ -158,6 +163,9 @@ public class LTS extends Gamemode {
         if (dp.length() > 32) dp = dp.substring(0, 32); // Titles cannot be longer than 32 characters.
         obj.setDisplayName(dp); // Set the title of the scoreboard.
         obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
+
+        obj.getScore(" ").setScore(getTeams().size() + 2); // Top spacer.
+        obj.getScore("  Players Remaining").setScore(getTeams().size() + 1); // 'Points' denoter.
 
         Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
         for (int i = 0; i < getTeams().size(); i++) { // Only iterate the number of teams needed.

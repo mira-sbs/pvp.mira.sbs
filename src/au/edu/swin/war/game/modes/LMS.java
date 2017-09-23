@@ -67,6 +67,13 @@ public class LMS extends Gamemode {
 
         autoAssign();
 
+        // Mark playing players are participated.
+        for (WarPlayer check : main.getWarPlayers().values())
+            if (check.isPlaying()) {
+                alive.add(check.getPlayer().getUniqueId());
+                participated.add(check.getPlayer().getUniqueId());
+            }
+
         permaDeath = true; // Set permanent death to true for the duration of the match.
 
         // Assign objective to scoreboard for this gamemode.

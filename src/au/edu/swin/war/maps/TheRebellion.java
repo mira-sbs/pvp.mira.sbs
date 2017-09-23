@@ -8,11 +8,7 @@ import au.edu.swin.war.game.Map;
 import au.edu.swin.war.game.modes.DTM;
 import au.edu.swin.war.game.util.SpawnArea;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
@@ -36,6 +32,7 @@ public class TheRebellion extends Map {
         registerTeam(team1);
         registerTeam(team2);
         setAllowBuild(true, true);
+        setPlateauY(65);
         objectives().add(new DTM.Monument(-96, 137, 73, -93, 139, 76, team1, Material.PRISMARINE, main));
         objectives().add(new DTM.Monument(-23, 89, 32, -21, 92, 34, team2, Material.OBSIDIAN, main));
         objectives().add(new SpawnArea(main, -28, 10, -25, 13, false, true));
@@ -75,19 +72,5 @@ public class TheRebellion extends Map {
         inv.setItem(5, main.items().createPotion(PotionEffectType.HEAL, 0, 1, 1));
         inv.setItem(6, new ItemStack(Material.LOG, 16));
         inv.setItem(9, new ItemStack(Material.ARROW, 32));
-    }
-
-    @EventHandler
-    public void onBreak(BlockBreakEvent event) {
-        Location equiv = event.getBlock().getLocation().clone();
-        equiv.setY(65);
-        if (equiv.getBlock().getType() != Material.BEDROCK) event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onPlace(BlockPlaceEvent event) {
-        Location equiv = event.getBlock().getLocation().clone();
-        equiv.setY(65);
-        if (equiv.getBlock().getType() != Material.BEDROCK) event.setCancelled(true);
     }
 }

@@ -61,6 +61,7 @@ public class CTF extends Gamemode {
             info.put(team.getTeamName(), new CTFInfo(team));
 
         autoAssign();
+        restoreFlags(); // Un-bedrock the flags.
 
         // Assign objective to scoreboard for this gamemode.
         Objective obj = s().registerNewObjective("gm", "dummy");

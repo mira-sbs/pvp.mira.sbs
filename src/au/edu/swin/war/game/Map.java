@@ -2,6 +2,7 @@ package au.edu.swin.war.game;
 
 import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.stored.Activatable;
+import au.edu.swin.war.framework.stored.SerializedLocation;
 import au.edu.swin.war.util.Match;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * An extension to WarMap.
@@ -31,7 +33,7 @@ import java.util.ArrayList;
  */
 public abstract class Map extends WarMap {
 
-    public Map(){
+    public Map() {
         super();
         attr().put("itemMerging", true); // Makes items merge by default.
     }
@@ -59,6 +61,30 @@ public abstract class Map extends WarMap {
     }
 
     /**
+     * Sets at which block building should be allowed on
+     * a 'plateau' map. Ask Josh about this if needed.
+     *
+     * @param y Plateau Y.
+     */
+    protected void setPlateauY(int y) {
+        attr().put("plateau", y);
+    }
+
+    /**
+     * Adds a CTF flag and automatically creates the
+     * HashMap if it does not exist already.
+     *
+     * @param teamName Name of team who owns the flag.
+     * @param location Location of this flag.
+     */
+    protected void addCTFFlag(String teamName, SerializedLocation location) {
+        if (!attr().containsKey("flags"))
+            attr().put("flags", new HashMap<String, SerializedLocation>());
+        ((HashMap<String, SerializedLocation>) attr().get("flags")).put(teamName, location);
+    }
+
+
+    /**
      * Creates a map-specific gadget that should be declared final.
      *
      * @param material Material to make the gadget from.
@@ -66,12 +92,12 @@ public abstract class Map extends WarMap {
      * @param name     Name of gadget.
      * @param lore     Gadget description. (multiple lines allowed)
      */
-    protected ItemStack createGadget(Material material, int data, String name, String... lore) {
+    protected ItemStack createGadget(Material material, int amount, int data, String name, String... lore) {
         //TODO: pls make use item, but can't be used in constructors
         ArrayList<String> loreList = new ArrayList<>();
         for (Object st : lore)
             loreList.add(st.toString());
-        ItemStack result = new ItemStack(material, 1, (short) data);
+        ItemStack result = new ItemStack(material, amount, (short) data);
         ItemMeta meta = result.getItemMeta();
         meta.setDisplayName(ChatColor.BLUE + name);
         meta.setLore(loreList);
@@ -90,11 +116,12 @@ public abstract class Map extends WarMap {
      */
     protected boolean useGadget(PlayerInventory inv, ItemStack toTake) {
         toTake = toTake.clone();
-        toTake.setAmount(1);
         if (inv.getItemInMainHand().equals(toTake)) {
+            toTake.setAmount(1);
             inv.getItemInMainHand().setAmount(inv.getItemInMainHand().getAmount() - 1);
             return true;
         } else if (inv.getItemInOffHand().equals(toTake)) {
+            toTake.setAmount(1);
             inv.getItemInOffHand().setAmount(inv.getItemInOffHand().getAmount() - 1);
             return true;
         }

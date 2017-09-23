@@ -71,7 +71,7 @@ public class AntiTeamGrief extends WarModule implements Activatable, Listener {
         if (event.getBlock().getType() == Material.TNT)
             if (isInside(event.getBlock().getLocation()))
                 if (main().getWarPlayer(event.getPlayer().getUniqueId()).getCurrentTeam().getTeamColor().equals(teamColor)) {
-                    event.getPlayer().sendMessage("TIP: Place TNT in the enemy area!");
+                    main().warn(event.getPlayer(), "Place TNT inside the enemy area!");
                     event.setCancelled(true);
                     if (penalize)
                         event.getPlayer().damage(event.getPlayer().getHealth() <= 5 ? event.getPlayer().getHealth() - 1 : 5);

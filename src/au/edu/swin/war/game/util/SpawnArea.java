@@ -128,7 +128,7 @@ public class SpawnArea extends WarModule implements Activatable, Listener {
         } else if (!reEntry && event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
             if (isInside(event.getFrom())) return;
             event.setCancelled(true);
-            event.getPlayer().setVelocity(event.getPlayer().getLocation().getDirection().multiply(-0.75));
+            main().warn(event.getPlayer(), "You cannot enter here.");
         }
     }
 

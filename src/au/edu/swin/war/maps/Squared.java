@@ -32,6 +32,7 @@ public class Squared extends Map {
         registerTeam(team2);
         setAllowBuild(true, true);
         setBuildBoundary(-103, -51, 12, 12);
+        setBuildHeight(185);
         objectives().add(new SpawnArea(main, -118, -34, -105, -5, true, false));
         objectives().add(new SpawnArea(main, 14, -34, 27, -5, true, false));
         objectives().add(new DTM.Monument(-11, 93, -24, -8, 98, -15, team1, Material.STAINED_CLAY, main));
@@ -64,8 +65,10 @@ public class Squared extends Map {
         switch (target.getCurrentTeam().getTeamColor()) {
             case RED:
                 inv.setItem(5, new ItemStack(Material.STAINED_CLAY, 48, (short) 14));
+                break;
             case GREEN:
                 inv.setItem(5, new ItemStack(Material.STAINED_CLAY, 48, (short) 5));
+                break;
         }
     }
 }

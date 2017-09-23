@@ -18,7 +18,6 @@ public class ClashOfClay extends Map {
 
     private final UUID[] creators = {};
     private final String mapName = "Clash Of Clay";
-    private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM, Gamemode.Mode.LP};
 
     private final WarTeam team1 = new WarTeam("Blue Team", ChatColor.BLUE, 15);
@@ -27,7 +26,6 @@ public class ClashOfClay extends Map {
     protected void readyAttributes() {
         setMapName(mapName);
         setCreators(creators);
-        setDisabledDrops(disabledDrops);
         setGamemodes(gamemodes);
         registerTeam(team1);
         registerTeam(team2);
@@ -61,8 +59,10 @@ public class ClashOfClay extends Map {
         switch (target.getCurrentTeam().getTeamColor()) {
             case RED:
                 inv.setItem(5, new ItemStack(Material.STAINED_CLAY, 48, (short) 14));
+                break;
             case BLUE:
                 inv.setItem(5, new ItemStack(Material.STAINED_CLAY, 48, (short) 11));
+                break;
         }
     }
 }

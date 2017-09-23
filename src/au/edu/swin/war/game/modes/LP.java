@@ -37,7 +37,7 @@ public class LP extends Gamemode {
 
     public void initialize() {
         for (WarTeam team : getTeams()) // Give every participating team a finite amount of lives.
-            lives.put(team.getTeamName(), Bukkit.getOnlinePlayers().size() * 5);
+            lives.put(team.getTeamName(), (Bukkit.getOnlinePlayers().size() * 5) + 3);
 
         autoAssign();
 
@@ -103,7 +103,7 @@ public class LP extends Gamemode {
     private void checkWin() {
         int aliveTeams = 0; // Record how many teams have more than 0 lives remaining.
         for (WarTeam team : getTeams())
-            if (lives.get(team.getTeamName()) >= 0)
+            if (lives.get(team.getTeamName()) >= 1)
                 aliveTeams++; // This team has more than 0 lives.
         if (aliveTeams <= 1) // Is there one or less teams remaining?
             onEnd();

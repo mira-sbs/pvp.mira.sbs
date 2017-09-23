@@ -58,6 +58,8 @@ public class Cache extends WarCache {
         loadMap(MaplebankWoods.class);
         loadMap(SanguineShores.class);
         loadMap(TheRebellion.class);
+        loadMap(FairwickVillage.class);
+        loadMap(ExoticPastures.class);
     }
 
     /**

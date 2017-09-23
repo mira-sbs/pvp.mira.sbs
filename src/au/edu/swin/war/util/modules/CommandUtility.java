@@ -2,6 +2,7 @@ package au.edu.swin.war.util.modules;
 
 import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.game.WarMap;
+import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Gamemode;
@@ -51,7 +52,7 @@ public class CommandUtility extends WarModule {
      */
     @Command(aliases = {"join", "j"},
             desc = "Join the match", // Brief description of the command.
-            max = 0) // The maximum number of arguments allowed.
+            usage = "<preference>")
     public void join(CommandContext args, CommandSender sender) {
         if (!(sender instanceof Player)) return; // Only players can join. Console can also execute commands.
         WarPlayer wp = main().getWarPlayer(((Player) sender).getUniqueId());
@@ -60,12 +61,30 @@ public class CommandUtility extends WarModule {
             sender.sendMessage("You are already joined!");
             return;
         }
+
+        // Does the player have a team preference?
+        WarTeam preference = null;
+        if (args.argsLength() > 0) {
+            if (!wp.getPlayer().hasPermission("war.preference")) {
+                sender.sendMessage(ChatColor.RED + "You may not pick your team preference.");
+                return;
+            }
+            preference = main().cache().matchTeam(args.getJoinedStrings(0));
+            if (preference == null) {
+                sender.sendMessage(ChatColor.RED + "That team does not exist.");
+                return;
+            }
+        }
+
         wp.setJoined(true); // Set them as joined.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
             // If there is no match playing, notify the player that they will automatically join when there is.
             sender.sendMessage("You will automatically join the next round.");
-        else
-            main().match().getCurrentMode().entryHandle(wp); // If applicable, handle their entry.
+        else {
+            if (preference == null)
+                main().match().getCurrentMode().entryHandle(wp); // Handle entry onto smallest team.
+            else main().match().getCurrentMode().entryHandle(wp, preference); // Otherwise handle entry of preference.
+        }
     }
 
     /**

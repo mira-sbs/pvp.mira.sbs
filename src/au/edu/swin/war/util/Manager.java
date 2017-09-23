@@ -6,7 +6,11 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.util.modules.ConfigUtility;
 import au.edu.swin.war.util.modules.EntityUtility;
 import au.edu.swin.war.util.modules.RespawnUtility;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * An extension to WarManager.
@@ -27,6 +31,8 @@ public class Manager extends WarManager {
     private final EntityUtility entiutil; // An instance of the entity utility.
     private final ConfigUtility confutil; // An instance of the configuration utility.
 
+    private final ArrayList<UUID> warned; // Keeps track of warning messages for players.
+
     /**
      * Creates an instance of this class.
      * Must be called in onEnable();
@@ -42,6 +48,11 @@ public class Manager extends WarManager {
         this.entiutil = new EntityUtility(this);
         this.confutil = new ConfigUtility(this);
         new Guard(this); // Guard does not need a reference so just initialize it.
+
+        warned = new ArrayList<>();
+        // Task that allows players to receive a warning message every 3 seconds.
+        // Clear warnings.
+        Bukkit.getScheduler().runTaskTimer(plugin, warned::clear, 0L, 60L);
     }
 
     /**
@@ -98,6 +109,17 @@ public class Manager extends WarManager {
         WarPlayer result = new WarPlayer(target, this); // Create their instance.
         getWarPlayers().put(target.getUniqueId(), result); // Put it in the key/value set!
         return result;
+    }
+
+    /**
+     * Checks if a player can be warned, and then warns them.
+     *
+     * @param whoWasWarned Who was warned. (lol)
+     */
+    public void warn(Player whoWasWarned, String warning) {
+        if (warned.contains(whoWasWarned.getPlayer().getUniqueId())) return;
+        warned.add(whoWasWarned.getPlayer().getUniqueId());
+        whoWasWarned.sendMessage("TIP: " + warning);
     }
 
     /**

@@ -19,7 +19,6 @@ public class SanguineShores extends Map {
 
     private final UUID[] creators = {UUID.fromString("2cfb556d-55f9-4fa3-8043-199a15d11f40")};
     private final String mapName = "Sanguine Shores";
-    private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM, Gamemode.Mode.KOTH};
 
     private final WarTeam team1 = new WarTeam("Tourists", ChatColor.DARK_PURPLE, 20);
@@ -28,7 +27,6 @@ public class SanguineShores extends Map {
     protected void readyAttributes() {
         setMapName(mapName);
         setCreators(creators);
-        setDisabledDrops(disabledDrops);
         setGamemodes(gamemodes);
         registerTeam(team1);
         registerTeam(team2);
@@ -36,7 +34,7 @@ public class SanguineShores extends Map {
         attr().put("kothFlag", new SerializedLocation(0,93,0));
         objectives().add(new SpawnArea(main, -69, 2, -67, 4, true, true));
         objectives().add(new SpawnArea(main, 67, -4, 69, -2, true, true));
-        setTimeLockTime(14000);
+        setTimeLockTime(5000);
         setMatchDuration(600);
     }
 

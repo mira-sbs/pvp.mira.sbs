@@ -23,7 +23,6 @@ public class MaplebankWoods extends Map {
 
     private final UUID[] creators = {UUID.fromString("2cfb556d-55f9-4fa3-8043-199a15d11f40")};
     private final String mapName = "Maplebank Woods";
-    private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.LP, Gamemode.Mode.LTS, Gamemode.Mode.KOTH};
 
     private final WarTeam team1 = new WarTeam("Forest Team", ChatColor.DARK_GREEN, 25);
@@ -32,11 +31,11 @@ public class MaplebankWoods extends Map {
     protected void readyAttributes() {
         setMapName(mapName);
         setCreators(creators);
-        setDisabledDrops(disabledDrops);
         setGamemodes(gamemodes);
         registerTeam(team1);
         registerTeam(team2);
-        setAllowBuild(false, false);
+        setAllowBuild(true, true);
+        setPlateauY(59);
         objectives().add(new DTM.Monument(-13, 102, 33, -11, 106, 35, team1, Material.OBSIDIAN, main));
         objectives().add(new DTM.Monument(42, 103, 35, 38, 108, 33, team2, Material.OBSIDIAN, main));
         objectives().add(new SpawnArea(main, -18, 85, -8, 94, false, false));
@@ -66,19 +65,5 @@ public class MaplebankWoods extends Map {
         inv.setItem(5, new ItemStack(Material.GOLDEN_APPLE, 2));
         inv.setItem(6, new ItemStack(Material.LOG, 16));
         inv.setItem(10, new ItemStack(Material.ARROW, 32));
-    }
-
-    @EventHandler
-    public void onBreak(BlockBreakEvent event) {
-        Location equiv = event.getBlock().getLocation().clone();
-        equiv.setY(59);
-        if (equiv.getBlock().getType() != Material.BEDROCK) event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onPlace(BlockPlaceEvent event) {
-        Location equiv = event.getBlock().getLocation().clone();
-        equiv.setY(59);
-        if (equiv.getBlock().getType() != Material.BEDROCK) event.setCancelled(true);
     }
 }

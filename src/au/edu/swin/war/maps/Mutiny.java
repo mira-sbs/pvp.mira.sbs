@@ -19,7 +19,6 @@ public class Mutiny extends Map {
 
     private final UUID[] creators = {UUID.fromString("2cfb556d-55f9-4fa3-8043-199a15d11f40")};
     private final String mapName = "Mutiny";
-    private final Material[] disabledDrops = defaultDisabledDrops();
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM, Gamemode.Mode.LP};
 
     private final WarTeam team1 = new WarTeam("Captains", ChatColor.BLUE, 30);
@@ -28,7 +27,6 @@ public class Mutiny extends Map {
     protected void readyAttributes() {
         setMapName(mapName);
         setCreators(creators);
-        setDisabledDrops(disabledDrops);
         setGamemodes(gamemodes);
         registerTeam(team1);
         registerTeam(team2);

@@ -39,6 +39,10 @@ public class Match extends WarMatch {
     private Gamemode.Mode winningVote; // Holds the winning vote during a vote.
     private String setNext; // Holds if a map has been set next.
 
+    private final int voteTime; // Holds how long votes go for;
+    private final int cycleTime; // Holds how long cycles go for;
+    private final int startTime; // Holds how long startups go for;
+
     /**
      * This constructor calls the constructor of WarMatch.
      *
@@ -50,6 +54,9 @@ public class Match extends WarMatch {
         this.voted = new ArrayList<>();
         this.previousID = 0; // Assign a default previous ID.
         this.gScore = main.plugin().getServer().getScoreboardManager().getNewScoreboard();
+        this.voteTime = main.plugin().getConfig().getInt("settings.voteTime");
+        this.cycleTime = main.plugin().getConfig().getInt("settings.cycleTime");
+        this.startTime = main.plugin().getConfig().getInt("settings.startTime");
     }
 
     /**
@@ -140,7 +147,7 @@ public class Match extends WarMatch {
     @Override
     public void endCycle() {
         new BukkitRunnable() {
-            int timer = 31;
+            int timer = cycleTime;
 
             public void run() {
                 timer--;
@@ -210,10 +217,10 @@ public class Match extends WarMatch {
         for (Gamemode.Mode mode : getRunningMap().getGamemodes()) // Give the votable modes a default score of zero.
             votes.put(mode, 0);
         new BukkitRunnable() {
-            int time = 26; // Timer starts at 26.
+            int time = voteTime; // Timer starts at 26.
 
             public void run() {
-                if (time == 26)
+                if (time == voteTime)
                     for (WarPlayer online : main().getWarPlayers().values()) {
                         online.getPlayer().spigot().sendMessage(new TextComponent("A vote is now being held.\nHover over a Gamemode for more information: "));
                         online.getPlayer().spigot().sendMessage(Gamemode.Mode.format(getRunningMap().getGamemodes(), main()));
@@ -264,6 +271,13 @@ public class Match extends WarMatch {
         for (WarPlayer online : main().getWarPlayers().values())
             online.getPlayer().teleport(getRunningMap().getSpectatorSpawn());
 
+        // Pre-round attribute assignment
+        if (main().cache().getCurrentMap().attr().containsKey("timeLock")) {
+            World world = getCurrentWorld();
+            world.setGameRuleValue("doDaylightCycle", "false");
+            world.setFullTime((Long) main().cache().getCurrentMap().attr().get("timeLockTime"));
+        }
+
         // Completely eliminate all traces of the previous match world.
         main().world().restoreMap(previousID + "");
 
@@ -285,7 +299,7 @@ public class Match extends WarMatch {
         obj.setDisplayName(dp);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Display it on the player's sidebar.
         new BukkitRunnable() {
-            int time = 26; // Count down an additional 26 seconds!
+            int time = startTime; // Wait some more time!
 
             public void run() {
                 time--;
