@@ -1,12 +1,14 @@
 package au.edu.swin.war.util.modules;
 
 import au.edu.swin.war.framework.WarPlayer;
+import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
 import au.edu.swin.war.util.Manager;
 import au.edu.swin.war.util.Match;
+import com.sk89q.minecraft.util.commands.ChatColor;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
@@ -133,9 +135,53 @@ public class CommandUtility extends WarModule {
             desc = "View the current rotation",
             max = 0)
     public void rotation(CommandContext args, CommandSender sender) {
+        int currentPos = main().match().rotationPoint;
+        int nextPos = currentPos == main().match().getRotationList().size() - 1 ? 0 : currentPos + 1;
+
         sender.sendMessage("Current rotation:");
-        for (int i = 0; i < main().match().getRotationList().size(); i++)
-            sender.sendMessage((i + 1) + ". " + main().match().getRotationList().get(i));
+        for (int i = 0; i < main().match().getRotationList().size(); i++) {
+            // Show current map playing if the rotation is not 1 map long.
+            if (currentPos != nextPos && i == currentPos) {
+                if (((Match) main().match()).getSetNext() != null) {
+                    // If a map is set to play next
+                    sender.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
+                    sender.sendMessage(ChatColor.GOLD + "?. " + ChatColor.WHITE + ((Match) main().match()).getSetNext());
+                } else if (!main().cache().getCurrentMap().wasSet())
+                    // Otherwise just show the map playing if it wasn't set
+                    sender.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
+                else
+                    // Otherwise just show it as normal
+                    sender.sendMessage((i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
+            } else if (i == nextPos && ((Match) main().match()).getSetNext() == null)
+                // Show next map if one has not been set
+                sender.sendMessage(ChatColor.GOLD + "" + (nextPos + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(nextPos));
+            else sender.sendMessage((i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
+        }
+    }
+
+    /**
+     * Listens to the phrases '/setnext' and '/sn'.
+     * If these are said by the player, perform the
+     * setnext logic with argument(s)
+     *
+     * @param args   The command context. Such as arguments, flags, etc.
+     * @param sender The entity that sent the command. In this case, a player.
+     * @see CommandContext
+     * @see CommandSender
+     */
+    @Command(aliases = {"setnext", "sn"},
+            desc = "Set the next map to play",
+            usage = "<map>",
+            min = 1)
+    @CommandPermissions("war.admin")
+    public void set(CommandContext args, CommandSender sender) {
+        WarMap found = main().cache().matchMap(args.getJoinedStrings(0));
+        if (found == null) {
+            sender.sendMessage(ChatColor.RED + "Error: Unknown map.");
+            return;
+        }
+        ((Match) main().match()).set(found);
+        Bukkit.broadcastMessage(sender.getName() + " has set the next map to be " + found.getMapName());
     }
 
     /**

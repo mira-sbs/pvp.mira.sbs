@@ -6,6 +6,7 @@ import au.edu.swin.war.framework.event.MatchPlayerLeaveEvent;
 import au.edu.swin.war.framework.stored.Activatable;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarModule;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -124,7 +125,7 @@ public class SpawnArea extends WarModule implements Activatable, Listener {
                     notified.add(event.getPlayer().getUniqueId());
                 }
             }
-        } else if (!reEntry) {
+        } else if (!reEntry && event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
             if (isInside(event.getFrom())) return;
             event.setCancelled(true);
             event.getPlayer().setVelocity(event.getPlayer().getLocation().getDirection().multiply(-0.75));

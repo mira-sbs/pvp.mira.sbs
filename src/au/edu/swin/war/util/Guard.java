@@ -5,12 +5,15 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Map;
+import net.minecraft.server.v1_12_R1.EntityLiving;
+import net.minecraft.server.v1_12_R1.EntityTNTPrimed;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftTNTPrimed;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -28,6 +31,8 @@ import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+
+import java.lang.reflect.Field;
 
 /**
  * This class listens for certain Spigot events in
@@ -289,6 +294,29 @@ public class Guard extends WarModule implements Listener {
     @EventHandler
     public void onWeatherChange(WeatherChangeEvent event) {
         event.setCancelled(true);
+    }
+
+    /**
+     * Spawns a TNT and sets an entity as the source.
+     *
+     * @param source   Source of the TNT ignition.
+     * @param location Location to spawn TNT.
+     */
+    @Deprecated
+    private void spawnTNT(LivingEntity source, Location location) {
+        TNTPrimed tnt = location.getWorld().spawn(location.add(0.5, 0, 0.5), TNTPrimed.class);
+
+        // Change via NMS the source of the TNT by the player
+        EntityLiving nmsSource = ((CraftLivingEntity) source).getHandle();
+        EntityTNTPrimed nmsTNT = ((CraftTNTPrimed) tnt).getHandle();
+        try {
+            Field sourceField = EntityTNTPrimed.class.getDeclaredField("source");
+            sourceField.setAccessible(true);
+            sourceField.set(nmsTNT, nmsSource);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        Bukkit.broadcastMessage("tnt spawn");
     }
 
     /**

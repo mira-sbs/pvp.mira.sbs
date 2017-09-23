@@ -1,6 +1,7 @@
 package au.edu.swin.war.util;
 
 import au.edu.swin.war.framework.WarPlayer;
+import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
@@ -36,6 +37,7 @@ public class Match extends WarMatch {
     private Scoreboard gScore; // A global, temporary scoreboard which is kept during the STARTING state.
     private long previousID; // Holds the world identifier of the previous match world.
     private Gamemode.Mode winningVote; // Holds the winning vote during a vote.
+    private String setNext; // Holds if a map has been set next.
 
     /**
      * This constructor calls the constructor of WarMatch.
@@ -103,6 +105,27 @@ public class Match extends WarMatch {
     }
 
     /**
+     * This method forces a desired map to be played next.
+     * Does not perform a null check, so be careful.
+     *
+     * @param mapToSet Map to set.
+     */
+    public void set(WarMap mapToSet) {
+        setNext = mapToSet.getMapName();
+        mapToSet.setWasSet(true);
+    }
+
+    /**
+     * Returns the name of the map that was set
+     * to be played next, if any.
+     *
+     * @return Set next map name.
+     */
+    public String getSetNext() {
+        return setNext;
+    }
+
+    /**
      * Returns an instance of the global scoreboard.
      * Is used to give to the player in case there is
      * no match running and a placeholder scoreboard
@@ -138,8 +161,10 @@ public class Match extends WarMatch {
                 }
                 if (timer == 0) {
                     // Move the rotation pointer to the next map.
-                    if (rotationPoint == getRotationList().size() - 1) rotationPoint = 0;
-                    else rotationPoint++;
+                    if (!main().cache().getCurrentMap().wasSet()) {
+                        if (rotationPoint == getRotationList().size() - 1) rotationPoint = 0;
+                        else rotationPoint++;
+                    } else main().cache().getCurrentMap().setWasSet(false);
 
                     // Back to the voting stage!
                     this.cancel();
@@ -172,7 +197,15 @@ public class Match extends WarMatch {
         setStatus(Status.VOTING); // Change match cycle state.
         previousID = getRawRoundID(); // Archive reference for the match world ID.
         setPreviousMap(getCurrentMap()); // Set the previous map's identifier.
-        setCurrentMap(getRotationList().get(rotationPoint)); // Get the next map on the rotation.
+
+        if (setNext == null)
+            setCurrentMap(getRotationList().get(rotationPoint)); // Get the next map on the rotation.
+        else {
+            setCurrentMap(setNext);
+            main().cache().getCurrentMap().setWasSet(true);
+            setNext = null;
+        }
+
         setRoundID(main().strings().generateID()); // Generates a new match world ID..
         for (Gamemode.Mode mode : getRunningMap().getGamemodes()) // Give the votable modes a default score of zero.
             votes.put(mode, 0);

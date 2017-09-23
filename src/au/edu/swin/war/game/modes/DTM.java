@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -158,10 +159,10 @@ public class DTM extends Gamemode {
             Monument target = iterator.next(); // Get the next monument to be iterated.
             // Set the new score value.
             int calc = target.calculatePercentage(0); // Calculate the percent remaining.
-            obj.getScore(target.owner.getTeamColor() + "    " + calc + "%").setScore(i + 1);
             // Remove the old value from the board since it is not needed.
             if (calc < 100) // Only reset it if it is below 100%.
                 s().resetScores(target.owner.getTeamColor() + "    " + target.calculatePercentage(1) + "%");
+            obj.getScore(target.owner.getTeamColor() + "    " + calc + "%").setScore(i + 1);
         }
         obj.getScore("  ").setScore(0); // Bottom spacer.
     }
@@ -221,6 +222,7 @@ public class DTM extends Gamemode {
         int blocksBroken; // The amount of blocks broken off the monument.
         boolean destroyed = false; // Is this monument destroyed?
 
+
         public Monument(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam owner, Material composure, WarManager main) {
             this.x1 = Math.min(x1, x2);
             this.y1 = Math.min(y1, y2);
@@ -271,12 +273,10 @@ public class DTM extends Gamemode {
          * @return The remaining percent.
          */
         int calculatePercentage(int diff) {
-            int per = blocksBroken - diff;
-            int result = -1;
-            if (per == 0) result = 100;
-            if (result == -1) result = Math.abs(Math.round((per * 100) / origSize) - 100);
-            if (per == 1) result = 100 - (result / origSize);
-            return result;
+            int broken = blocksBroken - diff;
+            if (broken == -1) return 101;
+            else if (broken == 0) return 100;
+            else return Math.abs(Math.round((broken * 100) / origSize) - 100);
         }
 
         boolean isDestroyed() {
@@ -320,43 +320,9 @@ public class DTM extends Gamemode {
 
         @EventHandler
         public void onBreak(BlockBreakEvent event) {
-            if (event.getBlock().getType() == composure) { // Is it the material we're tracking?
-                if (isInside(event.getBlock().getLocation())) { // Was the block a part of the monument?
-                    WarPlayer wp = main.getWarPlayer(event.getPlayer()); // Get the WarPlayer implement.
-                    if (wp.getCurrentTeam() == null) return; // Are they even playing?
-                    if (wp.getCurrentTeam().getDisplayName().equals(owner.getDisplayName())) { // Did they break their own monument?
-                        event.setCancelled(true);
-                        return;
-                    }
-                    region.remove(event.getBlock()); // They did, let's remove it from the monument blocks.
-                    blocksBroken++; // Increment the amount of blocks remaining.
-
-                    // Increment a player's footprint on the monument.
-                    // Footprint being how much % they've destroyed.
-                    if (!footprint.containsKey(wp.getPlayer().getUniqueId()))
-                        footprint.put(wp.getPlayer().getUniqueId(), 1);
-                    else footprint.put(wp.getPlayer().getUniqueId(), footprint.get(wp.getPlayer().getUniqueId()) + 1);
-
-                    int calc = calculatePercentage(0); // Calculate the percentage of the monument remaining.
-
-                    DTM dtm = (DTM) main.cache().getGamemode("Destroy The Monument"); // Get the DTM running instance.
-
-                    if (calculatePercentage(1) == 100) { // Has this monument initially taken damage?
-                        Bukkit.broadcastMessage(owner + "'s monument has been damaged!");
-                        dtm.logEvent(wp.getTeamName() + " damaged " + owner + "'s monument");
-                    }
-
-                    if (calc <= 0) { // Has this monument been destroyed?
-                        destroy();
-                        Bukkit.broadcastMessage(owner + "'s monument has been destroyed!");
-                        dtm.logEvent(wp.getTeamName() + " destroyed " + owner + "'s monument");
-                    }
-
-                    dtm.updateScoreboard();
-                    if (dtm.checkWin()) // Has someone won?
-                        dtm.onEnd(); // Good game!
-                }
-            }
+            if (event.getBlock().getType() == composure) // Is it the material we're tracking?
+                if (isInside(event.getBlock().getLocation())) // Was the block a part of the monument?
+                    event.setCancelled(onBreak(event.getBlock(), main.getWarPlayer(event.getPlayer())));
         }
 
         @EventHandler
@@ -369,13 +335,70 @@ public class DTM extends Gamemode {
         @EventHandler
         public void onExplode(EntityExplodeEvent event) {
             ArrayList<Block> toRemove = new ArrayList<>();
-            for (Block block : event.blockList())
-                if (block.getType() == composure)
-                    if (isInside(block.getLocation())) {
-                        toRemove.add(block);
-                    }
+            if (event.getEntity() instanceof TNTPrimed && ((TNTPrimed) event.getEntity()).getSource() instanceof Player) {
+                // If explosion was a player primed TNT...
+                WarPlayer source = main.getWarPlayer(((TNTPrimed) event.getEntity()).getSource().getUniqueId());
+                if (owner.getTeamName().equals(source.getCurrentTeam().getTeamName())) {
+                    // If they're griefing their own monument, cancel the explosion damage
+                    for (Block block : event.blockList())
+                        if (block.getType() == composure)
+                            if (isInside(block.getLocation()))
+                                toRemove.add(block);
+                } else
+                    // If this is a proper monument, do the damage
+                    for (Block block : event.blockList())
+                        if (block.getType() == composure)
+                            if (isInside(block.getLocation()))
+                                onBreak(block, source);
+            } else // Any non-player explosion, cancel
+                for (Block block : event.blockList())
+                    if (block.getType() == composure)
+                        if (isInside(block.getLocation()))
+                            toRemove.add(block);
             // Don't allow explosions to damage the monument.
             event.blockList().removeAll(toRemove);
+        }
+
+        /**
+         * Returns true if block should be reverted.
+         * Returns false if block is broken.
+         *
+         * @param block Block that was broken.
+         * @param wp    Player who broke it.
+         * @return See above.
+         */
+        private boolean onBreak(Block block, WarPlayer wp) {
+            if (wp.getCurrentTeam() == null) return true; // Are they even playing?
+            if (wp.getCurrentTeam().getDisplayName().equals(owner.getDisplayName()))  // Did they break their own monument?
+                return true;
+            region.remove(block); // They did, let's remove it from the monument blocks.
+            blocksBroken++; // Increment the amount of blocks remaining.
+
+            // Increment a player's footprint on the monument.
+            // Footprint being how much % they've destroyed.
+            if (!footprint.containsKey(wp.getPlayer().getUniqueId()))
+                footprint.put(wp.getPlayer().getUniqueId(), 1);
+            else footprint.put(wp.getPlayer().getUniqueId(), footprint.get(wp.getPlayer().getUniqueId()) + 1);
+
+            int calc = calculatePercentage(0); // Calculate the percentage of the monument remaining.
+
+            DTM dtm = (DTM) main.cache().getGamemode("Destroy The Monument"); // Get the DTM running instance.
+
+            if (calculatePercentage(2) == 101) { // Has this monument initially taken damage?
+                Bukkit.broadcastMessage(owner + "'s monument has been damaged!");
+                dtm.logEvent(wp.getTeamName() + " damaged " + owner + "'s monument");
+            }
+
+            if (calc <= 0) { // Has this monument been destroyed?
+                destroy();
+                Bukkit.broadcastMessage(owner + "'s monument has been destroyed!");
+                dtm.logEvent(wp.getTeamName() + " destroyed " + owner + "'s monument");
+            }
+
+            dtm.updateScoreboard();
+            if (dtm.checkWin()) // Has someone won?
+                dtm.onEnd(); // Good game!
+            return false;
         }
     }
 }
