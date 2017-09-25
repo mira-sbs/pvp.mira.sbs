@@ -1,5 +1,6 @@
 package au.edu.swin.war.util;
 
+import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.util.WarCache;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;
@@ -96,4 +97,28 @@ public class Cache extends WarCache {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Finds a gamemode based on a case insensitive
+     * or incomplete word.
+     * <p>
+     * For example: ['KoTH']
+     * <p>
+     * Input of 'KOTH' or 'koth' or 'k' -> 'KoTH'
+     *
+     * @param preference The map to try and find.
+     * @return The map found, if any.
+     */
+    public Gamemode.Mode matchMode(String preference) {
+        Gamemode.Mode found = null;
+        if (preference == null) return null;
+        for (Gamemode.Mode mode : ((Map)getCurrentMap()).getGamemodes()) {
+            if (mode.getActualShortName().toLowerCase().startsWith(preference.toLowerCase())) {
+                found = mode;
+                break;
+            }
+        }
+        return found;
+    }
+
 }

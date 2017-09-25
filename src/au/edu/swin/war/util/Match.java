@@ -37,7 +37,9 @@ public class Match extends WarMatch {
     private Scoreboard gScore; // A global, temporary scoreboard which is kept during the STARTING state.
     private long previousID; // Holds the world identifier of the previous match world.
     private Gamemode.Mode winningVote; // Holds the winning vote during a vote.
+
     private String setNext; // Holds if a map has been set next.
+    private boolean wasSet; // True if the match playing was set.
 
     private final int voteTime; // Holds how long votes go for;
     private final int cycleTime; // Holds how long cycles go for;
@@ -117,9 +119,8 @@ public class Match extends WarMatch {
      *
      * @param mapToSet Map to set.
      */
-    public void set(WarMap mapToSet) {
+    public void setNext(WarMap mapToSet) {
         setNext = mapToSet.getMapName();
-        mapToSet.setWasSet(true);
     }
 
     /**
@@ -130,6 +131,15 @@ public class Match extends WarMatch {
      */
     public String getSetNext() {
         return setNext;
+    }
+
+    /**
+     * Returns whether or not this map was set out of rotation.
+     *
+     * @return Was set?
+     */
+    public boolean wasSet() {
+        return wasSet;
     }
 
     /**
@@ -168,10 +178,11 @@ public class Match extends WarMatch {
                 }
                 if (timer == 0) {
                     // Move the rotation pointer to the next map.
-                    if (!main().cache().getCurrentMap().wasSet()) {
+                    if (setNext == null) {
                         if (rotationPoint == getRotationList().size() - 1) rotationPoint = 0;
                         else rotationPoint++;
-                    } else main().cache().getCurrentMap().setWasSet(false);
+                    }
+                    wasSet = false;
 
                     // Back to the voting stage!
                     this.cancel();
@@ -209,7 +220,7 @@ public class Match extends WarMatch {
             setCurrentMap(getRotationList().get(rotationPoint)); // Get the next map on the rotation.
         else {
             setCurrentMap(setNext);
-            main().cache().getCurrentMap().setWasSet(true);
+            wasSet = true;
             setNext = null;
         }
 

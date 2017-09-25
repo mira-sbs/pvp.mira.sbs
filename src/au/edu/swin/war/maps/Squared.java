@@ -35,8 +35,8 @@ public class Squared extends Map {
         setBuildHeight(185);
         objectives().add(new SpawnArea(main, -118, -34, -105, -5, true, false));
         objectives().add(new SpawnArea(main, 14, -34, 27, -5, true, false));
-        objectives().add(new DTM.Monument(-11, 93, -24, -8, 98, -15, team1, Material.STAINED_CLAY, main));
-        objectives().add(new DTM.Monument(-83, 93, -24, -80, 98, -15, team2, Material.STAINED_CLAY, main));
+        objectives().add(new DTM.Monument(-11, 93, -24, -8, 98, -15, team1, main, true, Material.STAINED_CLAY));
+        objectives().add(new DTM.Monument(-83, 93, -24, -80, 98, -15, team2, main, true, Material.STAINED_CLAY));
         setTimeLockTime(12000);
         setMatchDuration(600);
     }

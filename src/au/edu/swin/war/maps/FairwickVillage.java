@@ -5,6 +5,7 @@ import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.stored.SerializedLocation;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ public class FairwickVillage extends Map {
     private final WarTeam team1 = new WarTeam("Blue Team", ChatColor.BLUE, 20);
     private final WarTeam team2 = new WarTeam("Red Team", ChatColor.RED, 20);
 
-    private final ItemStack GADGET = createGadget(Material.FIREWORK, 3, 0, "Jumpwork", "Right click to fly up");
+    private final ItemStack GADGET = createGadget(Material.FIREWORK, 3, 0, "Jumpwork", "Right click on a block to rise up", "Jump at the right time for max height");
 
     protected void readyAttributes() {
         setMapName(mapName);
@@ -69,10 +70,10 @@ public class FairwickVillage extends Map {
 
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
-        if (!isAction(event, Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK)) return;
-        if (!useGadget(event.getPlayer().getInventory(), GADGET)) return;
+        if (!isAction(event, Action.RIGHT_CLICK_BLOCK)) return;
+        if (!useGadget(event, GADGET, false)) return;
         Player pl = event.getPlayer();
-        pl.setVelocity(pl.getVelocity().add(new Vector(0, 1.05, 0)));
+        pl.setVelocity(new Vector(pl.getVelocity().getX(), pl.getVelocity().getY() < 0 ? 0.55 : 1.05, pl.getVelocity().getZ()));
     }
 
     @EventHandler

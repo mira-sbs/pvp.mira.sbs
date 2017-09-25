@@ -110,22 +110,33 @@ public abstract class Map extends WarMap {
      * Tries to take an ItemStack from a player's inventory, and returns
      * true if this was successful.
      *
-     * @param inv    Inventory to take from.
+     * @param event  Interaction event.
      * @param toTake Item to take.
      * @return Was this successful?
      */
-    protected boolean useGadget(PlayerInventory inv, ItemStack toTake) {
+    protected boolean useGadget(PlayerInteractEvent event, ItemStack toTake, boolean autoTake) {
+        PlayerInventory inv = event.getPlayer().getInventory();
+        // Only take one of the gadget.
         toTake = toTake.clone();
-        if (inv.getItemInMainHand().equals(toTake)) {
-            toTake.setAmount(1);
-            inv.getItemInMainHand().setAmount(inv.getItemInMainHand().getAmount() - 1);
-            return true;
-        } else if (inv.getItemInOffHand().equals(toTake)) {
-            toTake.setAmount(1);
-            inv.getItemInOffHand().setAmount(inv.getItemInOffHand().getAmount() - 1);
-            return true;
+
+        ItemStack inHand;
+        switch (event.getHand()) {
+            case HAND:
+                inHand = inv.getItemInMainHand();
+                break;
+            case OFF_HAND:
+                inHand = inv.getItemInOffHand();
+                break;
+            default:
+                return false;
         }
-        return false;
+        toTake.setAmount(inHand.getAmount()); // Set the comparison amount equal to the amount in their hand.
+
+        if (inHand.equals(toTake)) {
+            if (autoTake)
+                inHand.setAmount(inHand.getAmount() - 1);
+            return true;
+        } else return false;
     }
 
     /**

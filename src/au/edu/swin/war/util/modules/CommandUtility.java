@@ -6,21 +6,14 @@ import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Gamemode;
-import au.edu.swin.war.game.Map;
+import au.edu.swin.war.util.Cache;
 import au.edu.swin.war.util.Manager;
 import au.edu.swin.war.util.Match;
-import com.sk89q.minecraft.util.commands.ChatColor;
-import com.sk89q.minecraft.util.commands.Command;
-import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.minecraft.util.commands.*;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Handles all player commands.
@@ -119,6 +112,111 @@ public class CommandUtility extends WarModule {
     }
 
     /**
+     * Listens to the phrases '/rotation' and '/rot
+     * If these are said by the player, show them
+     * the currently loaded rotation.
+     *
+     * @param args   The command context. Such as arguments, flags, etc.
+     * @param sender The entity that sent the command. In this case, a player.
+     * @see CommandContext
+     * @see CommandSender
+     */
+    @Command(aliases = {"rotation", "rot"},
+            desc = "View the current rotation",
+            max = 0)
+    public void rotation(CommandContext args, CommandSender sender) {
+        int currentPos = main().match().rotationPoint;
+        int nextPos = currentPos == main().match().getRotationList().size() - 1 ? 0 : currentPos + 1;
+        Match match = (Match) main().match();
+
+        sender.sendMessage("Current rotation:");
+        for (int i = 0; i < main().match().getRotationList().size(); i++) {
+            if (currentPos == i) {
+                // Is this the current map playing?
+                if (match.wasSet()) {
+                    // Is a /setnext map playing? Show that one instead.
+                    sender.sendMessage((i + 1) + ". " + ChatColor.WHITE + match.getRotationList().get(i));
+                    sender.sendMessage(ChatColor.YELLOW + "» " + ChatColor.WHITE + main().cache().getCurrentMap().getMapName());
+                } else
+                    // Otherwise just show the regular rotation map playing.
+                    sender.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ChatColor.WHITE + match.getRotationList().get(i));
+            } else if (nextPos == i) {
+                // Is this the map next up?
+                if (match.getSetNext() != null) {
+                    // Is there a map set?
+                    sender.sendMessage(ChatColor.GOLD + "» " + ChatColor.WHITE + match.getSetNext());
+                    sender.sendMessage((i + 1) + ". " + ChatColor.WHITE + match.getRotationList().get(i));
+                } else
+                    // Otherwise just show the next map on the rotation.
+                    sender.sendMessage(ChatColor.GOLD + "" + (i + 1) + ". " + ChatColor.WHITE + match.getRotationList().get(i));
+            } else sender.sendMessage((i + 1) + ". " + ChatColor.WHITE + match.getRotationList().get(i));
+        }
+    }
+
+    /**
+     * Listens to the phrases '/vote' and '/v'.
+     * If these are said by the player, perform
+     * the vote logic on them.
+     *
+     * @param args   The command context. Such as arguments, flags, etc.
+     * @param sender The entity that sent the command. In this case, a player.
+     * @see CommandContext
+     * @see CommandSender
+     */
+    @Command(aliases = {"vote", "v"},
+            desc = "Vote for an available gamemode",
+            usage = "<gamemode>", // Describes command arguments.
+            min = 1,
+            max = 1)
+    public void vote(CommandContext args, CommandSender sender) {
+        tryVote(sender, args.getString(0), false, false);
+    }
+
+    /**
+     * Administrative command.
+     * Listens to the phrases '/admin' and '/adm',
+     * followed by the parameter(s).
+     *
+     * @param args   The command context. Such as arguments, flags, etc.
+     * @param sender The entity that sent the command. In this case, a player.
+     * @see CommandContext
+     * @see CommandSender
+     */
+    @Command(aliases = {"admin", "adm"},
+            desc = "Administrative command",
+            usage = "<skip/rig>",
+            flags = "s",
+            min = 1)
+    @CommandPermissions("war.admin")
+    public void admin(CommandContext args, CommandSender sender) throws CommandNumberFormatException {
+        String arg0 = args.getString(0);
+        switch (arg0) {
+            case "s":
+            case "skip":
+                if (length(args, sender, 2, false, "admin skip <time>")) {
+                    if (main().match().getStatus() != WarMatch.Status.PLAYING) {
+                        sender.sendMessage(ChatColor.RED + "There is no match playing.");
+                        break;
+                    }
+                    Integer time = args.getInteger(1);
+                    main().match().getCurrentMode().setTimeElapsed(main().match().getCurrentMode().getTimeElapsed() + time);
+                    warnStaff(+time + " elapsed second" + (time == 1 ? "" : "s") + " added by " + sender.getName());
+                    if (!args.hasFlag('s'))
+                        warnNonStaff("Match has been skipped forward " + time + " second" + (time == 1 ? "" : "s"));
+                }
+                break;
+            case "r":
+            case "rig":
+                if (length(args, sender, 2, false, "admin rig <mode>"))
+                    tryVote(sender, args.getString(1), true, args.hasFlag('s'));
+                break;
+            default:
+                sender.sendMessage(ChatColor.RED + "Unknown admin command '" + arg0 + "'.");
+                break;
+        }
+    }
+
+    /**
      * Listens to the phrases '/endmatch' and '/endm'.
      * If these are said by the player, perform
      * the early end-match logic is called on them
@@ -137,44 +235,6 @@ public class CommandUtility extends WarModule {
             Bukkit.broadcastMessage(sender.getName() + " called an end to this match early");
             ((Gamemode) main().match().getCurrentMode()).logEvent(sender.getName() + " ended this match early..");
             main().match().getCurrentMode().onEnd(); // Calls onEnd() forcibly.
-        }
-    }
-
-    /**
-     * Listens to the phrases '/rotation' and '/rot
-     * If these are said by the player, show them
-     * the currently loaded rotation.
-     *
-     * @param args   The command context. Such as arguments, flags, etc.
-     * @param sender The entity that sent the command. In this case, a player.
-     * @see CommandContext
-     * @see CommandSender
-     */
-    @Command(aliases = {"rotation", "rot"},
-            desc = "View the current rotation",
-            max = 0)
-    public void rotation(CommandContext args, CommandSender sender) {
-        int currentPos = main().match().rotationPoint;
-        int nextPos = currentPos == main().match().getRotationList().size() - 1 ? 0 : currentPos + 1;
-
-        sender.sendMessage("Current rotation:");
-        for (int i = 0; i < main().match().getRotationList().size(); i++) {
-            // Show current map playing if the rotation is not 1 map long.
-            if (currentPos != nextPos && i == currentPos) {
-                if (((Match) main().match()).getSetNext() != null) {
-                    // If a map is set to play next
-                    sender.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
-                    sender.sendMessage(ChatColor.GOLD + "?. " + ChatColor.WHITE + ((Match) main().match()).getSetNext());
-                } else if (!main().cache().getCurrentMap().wasSet())
-                    // Otherwise just show the map playing if it wasn't set
-                    sender.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
-                else
-                    // Otherwise just show it as normal
-                    sender.sendMessage((i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
-            } else if (i == nextPos && ((Match) main().match()).getSetNext() == null)
-                // Show next map if one has not been set
-                sender.sendMessage(ChatColor.GOLD + "" + (nextPos + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(nextPos));
-            else sender.sendMessage((i + 1) + ". " + ChatColor.WHITE + main().match().getRotationList().get(i));
         }
     }
 
@@ -199,62 +259,97 @@ public class CommandUtility extends WarModule {
             sender.sendMessage(ChatColor.RED + "Error: Unknown map.");
             return;
         }
-        ((Match) main().match()).set(found);
+        ((Match) main().match()).setNext(found);
         Bukkit.broadcastMessage(sender.getName() + " has set the next map to be " + found.getMapName());
     }
 
     /**
-     * Listens to the phrases '/vote' and '/v'.
-     * If these are said by the player, perform
-     * the vote logic on them.
+     * Tries to cast a vote.
      *
-     * @param args   The command context. Such as arguments, flags, etc.
-     * @param sender The entity that sent the command. In this case, a player.
-     * @see CommandContext
-     * @see CommandSender
+     * @param sender    Who is voting.
+     * @param votingFor What they are voting for.
+     * @param rig       Is it a rigged vote? (+1337 votes)
+     * @param silent    If it is rigged, is it silent?
      */
-    @Command(aliases = {"vote", "v"},
-            desc = "Vote for an available gamemode",
-            usage = "<gamemode>", // Describes command arguments.
-            min = 1,
-            max = 1)
-    public void vote(CommandContext args, CommandSender sender) {
-        if (!(sender instanceof Player)) return; // Only players can leave. Console can also execute commands.
+    private void tryVote(CommandSender sender, String votingFor, boolean rig, boolean silent) {
         if (main().match().getStatus() != WarMatch.Status.VOTING) {
             // Notify the player there is no vote being held and ignore all other logic.
             sender.sendMessage("There is no vote being held at the moment.");
             return;
         }
+
         Match match = (Match) main().match(); // Since this procedure contains non-WarMatch functions, use Match instead.
-        if (match.getVoted().contains(((Player) sender).getUniqueId())) {
+        if (!rig && match.getVoted().contains(((Player) sender).getUniqueId())) {
             // Do not allow a player to vote twice. Das cheating. Kindof like real elections.
             sender.sendMessage("You have already voted!");
             return;
         }
-        List<Gamemode.Mode> available = new ArrayList<>(); // Create a list of gamemodes that are allowed to be voted for.
-        Collections.addAll(available, ((Map) main().cache().getCurrentMap()).getGamemodes()); // Add the available gamemodes to the list.
-        //TODO: Make case sensitive for KoTH?
 
-        String votedFor = args.getString(0); // Returns the gamemode they voted for, as a String.
-        try {
-            Gamemode.Mode vote = Gamemode.Mode.valueOf(votedFor);
-            if (available.contains(vote)) {
-                // Increment the votes for this gamemode by 1.
-                match.getVotes().put(vote, match.getVotes().get(vote) + 1);
-                // Set this player as already voted.
+        Gamemode.Mode selection = ((Cache) main().cache()).matchMode(votingFor); // Match to the selected mode.
+        if (selection != null) {
+            // Increment the votes for this gamemode by 1, or 1337 if rigging.
+            match.getVotes().put(selection, match.getVotes().get(selection) + (rig ? 1337 : 1));
+
+            // Set this player as already voted, if not rigging.
+            if (!rig) {
                 match.getVoted().add(((Player) sender).getUniqueId());
                 TextComponent comp = new TextComponent(((Player) sender).getDisplayName() + " voted for the gamemode ");
-                comp.addExtra(vote.getDescriptionComponent(main(), true));
+                comp.addExtra(selection.getDescriptionComponent(main(), true));
                 main().broadcastSpigotMessage(comp);
             } else {
-                // Notify the player that they have entered a valid gamemode, but it is not available on this map.
-                // Also show them what they can vote for because we're nice.. right?
-                //TODO: Fix this?
-                //sender.sendMessage("That gamemode is not available on this map.\n Available gamemodes: " + Gamemode.Mode.format(((Map) main().cache().getCurrentMap()).getGamemodes(), main()));
+                // Warn staff and players(?) that vote was rigged.
+                warnStaff(selection.getActualShortName() + " was rigged by " + sender.getName());
+                if (!silent)
+                    warnNonStaff("The vote was rigged to be " + selection.getActualShortName());
             }
-        } catch (IllegalArgumentException ex) {
+        } else
             // Notify the player that their gamemode is not on the enum list, and is therefore not an option at all.
-            sender.sendMessage("Your input is not a valid gamemode.");
-        }
+            sender.sendMessage("This gamemode is not valid.");
+    }
+
+    /**
+     * Privately warns staff with a message.
+     * Used by the admin command to alert other
+     * staff when any sub command is used.
+     *
+     * @param message Warning message.
+     */
+    private void warnStaff(String message) {
+        for (Player online : Bukkit.getOnlinePlayers())
+            if (online.hasPermission("war.admin"))
+                online.sendMessage(ChatColor.YELLOW + "Staff: " + message);
+        Bukkit.getConsoleSender().sendMessage(message);
+    }
+
+    /**
+     * Publicly warns players with a message.
+     * Used by the admin command to alert normal
+     * players to the usage of an admin command
+     * if the silent flag was not used.
+     *
+     * @param message Warning message.
+     */
+    private void warnNonStaff(String message) {
+        for (Player online : Bukkit.getOnlinePlayers())
+            if (!online.hasPermission("war.admin"))
+                online.sendMessage(ChatColor.YELLOW + "Warning: " + message);
+        Bukkit.getConsoleSender().sendMessage(message); // Also writes message to console as well.
+    }
+
+    /**
+     * Double checks the input of a user that it is
+     * a required length, equal to or greater than.
+     *
+     * @param args             Command context.
+     * @param sender           Who sent the command.
+     * @param required         Required argument amount.
+     * @param greaterOrEqualTo >= or ==?
+     * @param usage            Correct usage if returning false.
+     * @return Result.
+     */
+    private boolean length(CommandContext args, CommandSender sender, int required, boolean greaterOrEqualTo, String usage) {
+        boolean result = greaterOrEqualTo ? args.argsLength() >= required : args.argsLength() == required;
+        if (!result) sender.sendMessage(ChatColor.RED + "Invalid usage. Try: /" + usage);
+        return result;
     }
 }

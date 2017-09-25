@@ -9,15 +9,12 @@ import au.edu.swin.war.game.modes.DTM;
 import au.edu.swin.war.game.util.SpawnArea;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Egg;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.inventory.ItemStack;
@@ -48,8 +45,8 @@ public class ExoticPastures extends Map {
         setPlateauY(77);
         objectives().add(new SpawnArea(main, -51, -48, -45, -42, true, false));
         objectives().add(new SpawnArea(main, 43, -4, 49, 2, true, false));
-        objectives().add(new DTM.Monument(-33, 109, 4, -33, 110, 4, team1, Material.OBSIDIAN, main));
-        objectives().add(new DTM.Monument(31, 109, -50, 31, 110, -50, team2, Material.OBSIDIAN, main));
+        objectives().add(new DTM.Monument(-33, 109, 4, -33, 110, 4, team1, main, false, Material.OBSIDIAN));
+        objectives().add(new DTM.Monument(31, 109, -50, 31, 110, -50, team2, main, false, Material.OBSIDIAN));
         setTimeLockTime(14000);
         setMatchDuration(600);
     }
@@ -67,7 +64,7 @@ public class ExoticPastures extends Map {
         main.items().applyArmorAcccordingToTeam(target, new Material[]{Material.LEATHER_HELMET, Material.GOLD_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.IRON_BOOTS});
 
         ItemStack HOE = new ItemStack(Material.GOLD_HOE, 1);
-        HOE.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 4);
+        HOE.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 8);
 
         inv.setItem(0, HOE);
         inv.setItem(1, new ItemStack(Material.BOW));

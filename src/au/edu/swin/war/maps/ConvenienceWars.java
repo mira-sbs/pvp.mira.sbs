@@ -28,7 +28,7 @@ public class ConvenienceWars extends Map {
     private final WarTeam team1 = new WarTeam("Coles Clerks", ChatColor.RED, 25);
     private final WarTeam team2 = new WarTeam("Aldi Clerks", ChatColor.DARK_GREEN, 25);
 
-    private final ItemStack GADGET = createGadget(Material.SULPHUR, 2,0, "Emergency Exit", "Sends you flying backward");
+    private final ItemStack GADGET = createGadget(Material.SULPHUR, 2, 0, "Emergency Exit", "Sends you flying backward");
 
     protected void readyAttributes() {
         setMapName(mapName);
@@ -82,7 +82,7 @@ public class ConvenienceWars extends Map {
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         if (!isAction(event, Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK)) return;
-        if (!useGadget(event.getPlayer().getInventory(), GADGET)) return;
+        if (!useGadget(event, GADGET, true)) return;
         Player pl = event.getPlayer();
         pl.setVelocity(pl.getLocation().getDirection().multiply(-2.5).setY(0.1));
     }

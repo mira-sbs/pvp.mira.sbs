@@ -33,8 +33,8 @@ public class TheRebellion extends Map {
         registerTeam(team2);
         setAllowBuild(true, true);
         setPlateauY(65);
-        objectives().add(new DTM.Monument(-96, 137, 73, -93, 139, 76, team1, Material.PRISMARINE, main));
-        objectives().add(new DTM.Monument(-23, 89, 32, -21, 92, 34, team2, Material.OBSIDIAN, main));
+        objectives().add(new DTM.Monument(-96, 137, 73, -93, 139, 76, team1, main, false, Material.PRISMARINE));
+        objectives().add(new DTM.Monument(-23, 89, 32, -21, 92, 34, team2, main, false, Material.OBSIDIAN));
         objectives().add(new SpawnArea(main, -28, 10, -25, 13, false, true));
         objectives().add(new SpawnArea(main, -15, 37, -12, 40, false, true));
         objectives().add(new SpawnArea(main, -72, 95, -62, 105, false, true));

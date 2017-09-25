@@ -4,6 +4,7 @@ webstats:
     secret: "abcdef12345"
     position: 0
 settings:
+    maps_repo: "maps"
     voteTime: 26
     cycleTime: 30
     startTime: 30

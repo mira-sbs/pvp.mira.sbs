@@ -8,11 +8,7 @@ import au.edu.swin.war.game.Map;
 import au.edu.swin.war.game.modes.DTM;
 import au.edu.swin.war.game.util.SpawnArea;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -36,8 +32,8 @@ public class MaplebankWoods extends Map {
         registerTeam(team2);
         setAllowBuild(true, true);
         setPlateauY(59);
-        objectives().add(new DTM.Monument(-13, 102, 33, -11, 106, 35, team1, Material.OBSIDIAN, main));
-        objectives().add(new DTM.Monument(42, 103, 35, 38, 108, 33, team2, Material.OBSIDIAN, main));
+        objectives().add(new DTM.Monument(-13, 102, 33, -11, 106, 35, team1, main, false, Material.OBSIDIAN));
+        objectives().add(new DTM.Monument(42, 103, 35, 38, 108, 33, team2, main, false, Material.OBSIDIAN));
         objectives().add(new SpawnArea(main, -18, 85, -8, 94, false, false));
         objectives().add(new SpawnArea(main, 36, 85, 46, 94, false, false));
         attr().put("kothFlag", new SerializedLocation(14, 100, -7));

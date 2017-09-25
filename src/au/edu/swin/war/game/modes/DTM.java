@@ -38,10 +38,12 @@ import java.util.*;
 public class DTM extends Gamemode {
 
     private List<Monument> monuments; // Keeps a temporary list of the monuments applicable for this match.
+    private boolean weak = false; // Are monuments weakened?
 
     public void reset() {
         monuments.clear();
         monuments = null;
+        weak = false;
     }
 
     public void initialize() {
@@ -61,7 +63,15 @@ public class DTM extends Gamemode {
     }
 
     public void tick() {
-        //Nothing needed here.
+        // If the amount of time remaining is 60 seconds,
+        if (map().getMatchDuration() - getTimeElapsed() <= 60 && !weak) {
+            // Enable "weak monument".
+            weak = true;
+            Bukkit.broadcastMessage("This match is about to end, Monuments have been weakened!");
+            logEvent("Monuments were weakened!");
+            for (Monument toWeaken : monuments)
+                toWeaken.weaken();
+        }
     }
 
     public void onKill(WarPlayer killed, WarPlayer killer) {
@@ -183,7 +193,7 @@ public class DTM extends Gamemode {
             if (!mon.owner.getDisplayName().equals(team.getDisplayName())) continue; // It's not this team...
             List<String> footprint = new ArrayList<>(); // Keep a list of the footprint to format...
             for (Map.Entry<UUID, Integer> entry : mon.footprint.entrySet()) {
-                int contribution = Math.abs(Math.round((entry.getValue() * 100) / mon.origSize)); // Their contribution to the destruction.
+                double contribution = Math.abs(Math.ceil((entry.getValue() * 100) / mon.origSize)); // Their contribution to the destruction.
                 WarPlayer wp = main.getWarPlayer(entry.getKey()); // Get their WarPlayer implement.
                 if (wp != null)
                     footprint.add(wp.getTeamName() + " (" + contribution + "%)");
@@ -213,17 +223,17 @@ public class DTM extends Gamemode {
         final int x2;
         final int y2;
         final int z2; // Top right applicable coordinates.
-        final Material composure; // What blocks are this monument made of?
+        final ArrayList<Material> composure; // What blocks are this monument made of?
         final WarTeam owner; // What team owns this monument?
         final List<Block> region = new ArrayList<>(); // The blocks associated with this monument.
         final HashMap<UUID, Integer> footprint; // Track who's broken what amount of this monument.
         final WarManager main; // A running instance of the WarManager class.
+        final boolean isVisible; // Is this monument visible if DTM is not playing?
         int origSize; // The original size of the monument.
         int blocksBroken; // The amount of blocks broken off the monument.
         boolean destroyed = false; // Is this monument destroyed?
 
-
-        public Monument(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam owner, Material composure, WarManager main) {
+        public Monument(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam owner, WarManager main, boolean isVisible, Material... composure) {
             this.x1 = Math.min(x1, x2);
             this.y1 = Math.min(y1, y2);
             this.z1 = Math.min(z1, z2);
@@ -231,21 +241,24 @@ public class DTM extends Gamemode {
             this.y2 = Math.max(y1, y2);
             this.z2 = Math.max(z1, z2);
             this.owner = owner;
-            this.composure = composure;
-            this.footprint = new HashMap<>();
             this.main = main;
+            this.isVisible = isVisible;
+            this.composure = new ArrayList<>();
+            Collections.addAll(this.composure, composure);
+            this.footprint = new HashMap<>();
         }
 
         /**
          * Awaken this Monument for the round.
          */
         public void activate() {
-            if (!main.match().getCurrentMode().getFullName().equals("Destroy The Monument")) {
-                // Remove the monument if DTM is not being played on a map that supports monuments.
-                for (Block bl : getBlocks())
-                    bl.setType(Material.AIR);
-                return;
-            }
+            if (!isVisible)
+                if (!main.match().getCurrentMode().getFullName().equals("Destroy The Monument")) {
+                    // Remove the monument if DTM is not being played on a map that supports monuments.
+                    for (Block bl : getBlocks())
+                        bl.setType(Material.AIR);
+                    return;
+                }
 
             // Calculate the monument region and activate listeners.
             region.addAll(getBlocks());
@@ -287,6 +300,21 @@ public class DTM extends Gamemode {
             destroyed = true;
         }
 
+        void weaken() {
+            for (Block block : getBlocks())
+                switch (block.getType()) {
+                    case OBSIDIAN:
+                        block.setType(Material.GOLD_BLOCK);
+                        break;
+                    default:
+                        block.setType(Material.GLASS);
+                        break;
+                }
+            composure.clear();
+            composure.add(Material.GOLD_BLOCK);
+            composure.add(Material.GLASS);
+        }
+
         /**
          * Checks if a location is inside the cuboid.
          * This is used to check if a block has been
@@ -313,14 +341,14 @@ public class DTM extends Gamemode {
             for (int x = this.x1; x <= this.x2; x++)
                 for (int y = this.y1; y <= this.y2; y++)
                     for (int z = this.z1; z <= this.z2; z++)
-                        if (main.match().getCurrentWorld().getBlockAt(x, y, z).getType() == composure) // If this block matches the target composure..
+                        if (composure.contains(main.match().getCurrentWorld().getBlockAt(x, y, z).getType())) // If this block matches the target composure..
                             blocks.add(main.match().getCurrentWorld().getBlockAt(x, y, z)); // Add this as part of the monument region.
             return blocks;
         }
 
         @EventHandler
         public void onBreak(BlockBreakEvent event) {
-            if (event.getBlock().getType() == composure) // Is it the material we're tracking?
+            if (composure.contains(event.getBlock().getType())) // Is it the material we're tracking?
                 if (isInside(event.getBlock().getLocation())) // Was the block a part of the monument?
                     event.setCancelled(onBreak(event.getBlock(), main.getWarPlayer(event.getPlayer())));
         }
@@ -329,7 +357,7 @@ public class DTM extends Gamemode {
         public void onPlace(BlockPlaceEvent event) {
             // Don't allow composure blocks to be placed inside the monument region.
             if (isInside(event.getBlockPlaced().getLocation()))
-                if (event.getBlock().getType() == composure) event.setCancelled(true);
+                if (composure.contains(event.getBlock().getType())) event.setCancelled(true);
         }
 
         @EventHandler
@@ -341,18 +369,18 @@ public class DTM extends Gamemode {
                 if (owner.getTeamName().equals(source.getCurrentTeam().getTeamName())) {
                     // If they're griefing their own monument, cancel the explosion damage
                     for (Block block : event.blockList())
-                        if (block.getType() == composure)
+                        if (composure.contains(block.getType()))
                             if (isInside(block.getLocation()))
                                 toRemove.add(block);
                 } else
                     // If this is a proper monument, do the damage
                     for (Block block : event.blockList())
-                        if (block.getType() == composure)
+                        if (composure.contains(block.getType()))
                             if (isInside(block.getLocation()))
                                 onBreak(block, source);
             } else // Any non-player explosion, cancel
                 for (Block block : event.blockList())
-                    if (block.getType() == composure)
+                    if (composure.contains(block.getType()))
                         if (isInside(block.getLocation()))
                             toRemove.add(block);
             // Don't allow explosions to damage the monument.

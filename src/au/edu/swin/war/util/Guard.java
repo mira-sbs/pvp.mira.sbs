@@ -7,10 +7,7 @@ import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Map;
 import net.minecraft.server.v1_12_R1.EntityLiving;
 import net.minecraft.server.v1_12_R1.EntityTNTPrimed;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftTNTPrimed;
 import org.bukkit.entity.*;
@@ -20,15 +17,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
@@ -296,6 +297,37 @@ public class Guard extends WarModule implements Listener {
         event.setCancelled(true);
     }
 
+    /*
+     * ALL EVENTS BELOW ARE FOR LAPIS AUTOENCHANT.
+     */
+    @EventHandler
+    public void onOpen(InventoryOpenEvent event) {
+        if (event.getInventory() instanceof EnchantingInventory)
+            event.getInventory().setItem(1, new ItemStack(Material.INK_SACK, 3, (short) 4));
+    }
+
+    @EventHandler
+    public void onEnchclick(InventoryClickEvent event) {
+        if (event.getClickedInventory() instanceof EnchantingInventory) {
+            if (event.isShiftClick() && event.getSlot() == 1)
+                event.setCancelled(true);
+            else if (event.getSlot() == 1)
+                event.setCurrentItem(new ItemStack(Material.AIR));
+        }
+    }
+
+    @EventHandler
+    public void onEnchant(EnchantItemEvent event) {
+        if (event.getInventory() instanceof EnchantingInventory)
+            event.getInventory().setItem(1, new ItemStack(Material.INK_SACK, 3, (short) 4));
+    }
+
+    @EventHandler
+    public void onClose(InventoryCloseEvent event) {
+        if (event.getInventory() instanceof EnchantingInventory)
+            event.getInventory().setItem(1, null);
+    }
+
     /**
      * Spawns a TNT and sets an entity as the source.
      *
@@ -324,6 +356,7 @@ public class Guard extends WarModule implements Listener {
      *
      * @param event Event called by spigot.
      */
+
     private void tryItemMerge(EntityPickupItemEvent event) {
         Player pl = (Player) event.getEntity();
         ItemStack toMerge = event.getItem().getItemStack();
