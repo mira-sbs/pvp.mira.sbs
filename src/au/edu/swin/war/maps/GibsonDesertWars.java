@@ -44,7 +44,7 @@ public class GibsonDesertWars extends Map {
         addTeamSpawn(team2, new SerializedLocation(-11.5, 61, 9.5, 180, 0));
         addTeamSpawn(team2, new SerializedLocation(-25.5, 75, -4.5, 225, 0));
         addTeamSpawn(team2, new SerializedLocation(15.5, 73, 11.5, 135, 0));
-        setSpectatorSpawn(new SerializedLocation(92, 82, -46.5, 90, 15));
+        setSpectatorSpawn(new SerializedLocation(92, 82, -45.5, 90, 15));
     }
 
     @Override
