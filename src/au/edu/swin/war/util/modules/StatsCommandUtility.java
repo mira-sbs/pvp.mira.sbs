@@ -7,10 +7,14 @@ import au.edu.swin.war.util.Manager;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandNumberFormatException;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -109,23 +113,31 @@ public class StatsCommandUtility extends WarModule {
         int page = args.argsLength() == 1 ? args.getInteger(0) : 1;
         int offset = (page * 10) - 10;
         Bukkit.getScheduler().runTaskAsynchronously(main().plugin(), () -> {
+            StringBuilder msg = new StringBuilder("\n--- Leaderboard Page " + page + " ---\n");
             try {
                 ResultSet lb = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` ORDER BY `kills` DESC LIMIT 10 OFFSET " + offset).executeQuery();
-                sender.sendMessage("--- Leaderboard Page " + page + " ---");
                 for (int i = 0; i < 10; i++) {
                     if (!lb.next()) {
-                        if (i != 9) sender.sendMessage(ChatColor.RED + "No more results to display.");
+                        if (i != 9) msg.append(ChatColor.RED).append("No more results to display.\n");
                         break;
                     }
                     OfflinePlayer target = Bukkit.getOfflinePlayer(UUID.fromString(lb.getString("player_uuid")));
-                    sender.sendMessage("#" + (offset + i + 1) + " " + target.getName() + ": Kills: " + ChatColor.RED + lb.getInt("kills") + ChatColor.WHITE + " - Deaths: " + ChatColor.BLUE + lb.getInt("deaths"));
+                    msg.append(ChatColor.WHITE).append("#").append(offset + i + 1).append(" ").append(target.getName()).append(": Kills: ").append(ChatColor.RED).append(lb.getInt("kills")).append(ChatColor.WHITE).append(" - Deaths: ").append(ChatColor.BLUE).append(lb.getInt("deaths")).append("\n");
                 }
-                sender.sendMessage("------------------------" + (page + "").replaceAll(".", "-"));
+                msg.append(ChatColor.WHITE).append("------------------------").append((page + "").replaceAll(".", "-")).append("\n");
             } catch (SQLException e) {
                 sender.sendMessage(ChatColor.RED + "An error occurred. Please try again later.");
                 e.printStackTrace();
+                return;
+            } finally {
+                waiting.remove(sender.getName());
             }
-            waiting.remove(sender.getName());
+            if (sender instanceof Player) {
+                // Send a hoverable message if they're a player.
+                TextComponent cmp = new TextComponent(ChatColor.GREEN + "[Leaderboard]");
+                cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(msg.toString()).create()));
+                sender.spigot().sendMessage(cmp);
+            } else sender.sendMessage(msg.toString()); // Otherwise send clean to console.
         });
     }
 
@@ -142,13 +154,19 @@ public class StatsCommandUtility extends WarModule {
      * @param matchesPlayed Supplied.
      */
     private void displayStats(CommandSender sender, String name, int kills, int deaths, int currentStreak, int highestStreak, int matchesPlayed) {
-        sender.sendMessage("--- War statistics for " + name + " ---");
-        sender.sendMessage("Kills: " + ChatColor.RED + kills);
-        sender.sendMessage("Deaths: " + ChatColor.BLUE + deaths);
-        sender.sendMessage("KD/R: " + ChatColor.GREEN + calculateKD(kills, deaths));
-        sender.sendMessage("Killstreak: " + ChatColor.AQUA + (currentStreak != -1 ? currentStreak + "" + ChatColor.WHITE + " (" + highestStreak + " highest)" : highestStreak + "" + ChatColor.WHITE + " (highest)"));
-        sender.sendMessage("Matches played: " + ChatColor.GOLD + matchesPlayed);
-        sender.sendMessage("-----------------------" + name.replaceAll("(?s).", "-"));
+        String result = "\n--- War statistics for " + name + " ---\n";
+        result += ChatColor.WHITE + "Kills: " + ChatColor.RED + kills + "\n";
+        result += ChatColor.WHITE + "Deaths: " + ChatColor.BLUE + deaths + "\n";
+        result += ChatColor.WHITE + "KD/R: " + ChatColor.GREEN + calculateKD(kills, deaths) + "\n";
+        result += ChatColor.WHITE + "Killstreak: " + ChatColor.AQUA + (currentStreak != -1 ? currentStreak + "" + ChatColor.WHITE + " (" + highestStreak + " highest)" : highestStreak + "" + ChatColor.WHITE + " (highest)") + "\n";
+        result += ChatColor.WHITE + "Matches played: " + ChatColor.GOLD + matchesPlayed + "\n";
+        result += ChatColor.WHITE + "-----------------------" + name.replaceAll(".", "-") + "\n";
+        if (sender instanceof Player) {
+            // Send a hoverable message if they're a player.
+            TextComponent cmp = new TextComponent(ChatColor.GREEN + "[Statistics for " + name + "]");
+            cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(result).create()));
+            sender.spigot().sendMessage(cmp);
+        } else sender.sendMessage(result); // Otherwise send clean to console.
     }
 
     /**
