@@ -5,6 +5,7 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.util.Manager;
 import au.edu.swin.war.util.Match;
 import au.edu.swin.war.util.modules.CommandUtility;
+import au.edu.swin.war.util.modules.StatsCommandUtility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -33,6 +34,7 @@ public class Main extends WarPlugin {
         // The Manager handles most of the module initialisations.
         supercontroller = new Manager(this);
         registerCommandClass(CommandUtility.class); // Register the command class containing the @Commands.
+        registerCommandClass(StatsCommandUtility.class); // Register statistics commands.
         registerCommands(); // Finalise the registration of  all the classes we chose.
         ((Match) main().match()).firstMatch(); // Start the special first round procedure to kick off the cycle.
     }

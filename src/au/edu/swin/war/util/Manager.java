@@ -1,15 +1,19 @@
 package au.edu.swin.war.util;
 
 import au.edu.swin.war.Main;
+import au.edu.swin.war.WarPlayerPlus;
 import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarManager;
+import au.edu.swin.war.stats.WarStats;
 import au.edu.swin.war.util.modules.ConfigUtility;
 import au.edu.swin.war.util.modules.EntityUtility;
+import au.edu.swin.war.util.modules.QueryUtility;
 import au.edu.swin.war.util.modules.RespawnUtility;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -30,8 +34,10 @@ public class Manager extends WarManager {
     private final RespawnUtility respawnutil; // An instance of the respawning utility.
     private final EntityUtility entiutil; // An instance of the entity utility.
     private final ConfigUtility confutil; // An instance of the configuration utility.
+    private final QueryUtility qryutil; // An instance of the database utility.
 
     private final ArrayList<UUID> warned; // Keeps track of warning messages for players.
+    private final HashMap<UUID, WarStats> tempStats; // Holds statistics for a player until they log in.
 
     /**
      * Creates an instance of this class.
@@ -47,9 +53,12 @@ public class Manager extends WarManager {
         this.respawnutil = new RespawnUtility(this);
         this.entiutil = new EntityUtility(this);
         this.confutil = new ConfigUtility(this);
+        this.qryutil = new QueryUtility(this, plugin.getConfig().getBoolean("database.enabled"));
         new Guard(this); // Guard does not need a reference so just initialize it.
+        new StatsListener(this); // Stats Listener does not need a reference so just initialize it.
 
         warned = new ArrayList<>();
+        tempStats = new HashMap<>();
         // Task that allows players to receive a warning message every 3 seconds.
         // Clear warnings.
         Bukkit.getScheduler().runTaskTimer(plugin, warned::clear, 0L, 60L);
@@ -101,12 +110,35 @@ public class Manager extends WarManager {
     }
 
     /**
+     * Returns a running instance of the query utility.
+     *
+     * @return Query utility.
+     */
+    public QueryUtility query() {
+        return qryutil;
+    }
+
+    /**
+     * Temporarily holds onto a player's statistics
+     * without necessarily having a WarPlayerPlus
+     * instance created yet. (pre login)
+     *
+     * @param uuid      UUID associated with the stats.
+     * @param tempStats Actual stats.
+     */
+    void putTempStats(UUID uuid, WarStats tempStats) {
+        this.tempStats.put(uuid, tempStats);
+    }
+
+    /**
      * Creates an instance of a WarPlayer for a player.
      *
      * @param target The target to base the WarPlayer object on.
      */
     public WarPlayer craftWarPlayer(Player target) {
-        WarPlayer result = new WarPlayer(target, this); // Create their instance.
+        WarStats stats = tempStats.getOrDefault(target.getUniqueId(), new WarStats(this, target.getUniqueId())); // Get their stats, or create new ones.
+        tempStats.remove(target.getUniqueId()); // Remove their pre-login storage stats.
+        WarPlayer result = new WarPlayerPlus(target, this, stats); // Create their instance.
         getWarPlayers().put(target.getUniqueId(), result); // Put it in the key/value set!
         return result;
     }

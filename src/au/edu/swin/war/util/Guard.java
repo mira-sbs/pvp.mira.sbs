@@ -5,6 +5,7 @@ import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Map;
+import au.edu.swin.war.stats.WarStats;
 import net.minecraft.server.v1_12_R1.EntityLiving;
 import net.minecraft.server.v1_12_R1.EntityTNTPrimed;
 import org.bukkit.*;
@@ -34,6 +35,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * This class listens for certain Spigot events in
@@ -50,48 +54,6 @@ public class Guard extends WarModule implements Listener {
     Guard(WarManager main) {
         super(main);
         main().plugin().getServer().getPluginManager().registerEvents(this, main().plugin());
-    }
-
-    /**
-     * This event procedure handles high-priority logic
-     * when a player first connects to the server.
-     *
-     * @param event An event called by Spigot.
-     */
-    @EventHandler(priority = EventPriority.HIGHEST) // Highest priority denoting this one needs to be executed first.
-    public void onJoin(PlayerJoinEvent event) {
-        Player target = event.getPlayer(); // Get the player who connected.
-        WarPlayer wp = main().craftWarPlayer(target); // Creates their needed WarPlayer record.
-
-        WarMatch.Status status = main().match().getStatus(); // Get the status of the match.
-        // Clear the player's inventory and give them the spectator kit.
-        main().items().clear(wp);
-        main().giveSpectatorKit(wp);
-
-        if (status == WarMatch.Status.STARTING || status == WarMatch.Status.PLAYING || status == WarMatch.Status.CYCLE)
-            target.teleport(main().cache().getCurrentMap().getSpectatorSpawn()); // Spawn them in the current defined map.
-        else if (status == WarMatch.Status.VOTING)
-            target.teleport(((Map) main().cache().getMap(main().match().getPreviousMap())).getSpectatorSpawn_()); // Spawn them in the previous defined map.
-
-        if (status != WarMatch.Status.PLAYING) {
-            event.getPlayer().setScoreboard(((Match) main().match()).s()); // Show the default scoreboard.
-            ((Match) main().match()).s().getTeam("PostSpectators").addEntry(event.getPlayer().getName()); // Add them to this scoreboard.
-            //TODO: Add them as spectators???
-        } else
-            event.getPlayer().setScoreboard(main().match().getCurrentMode().s()); // Show the gamemode's scoreboard.
-        target.setGameMode(GameMode.CREATIVE);
-    }
-
-    /**
-     * This event procedure correctly handles what
-     * happens when a player disconnects.
-     *
-     * @param event An event called by Spigot.
-     */
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        event.getPlayer().performCommand("leave"); // Act as if they were using the leave command.
-        main().destroyWarPlayer(event.getPlayer().getUniqueId()); // Remove their WarPlayer record.
     }
 
     /*

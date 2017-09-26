@@ -33,7 +33,7 @@ import java.util.HashMap;
  */
 public abstract class Map extends WarMap {
 
-    public Map() {
+    protected Map() {
         super();
         attr().put("itemMerging", true); // Makes items merge by default.
     }

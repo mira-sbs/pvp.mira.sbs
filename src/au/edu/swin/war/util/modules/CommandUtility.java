@@ -174,7 +174,7 @@ public class CommandUtility extends WarModule {
 
     /**
      * Administrative command.
-     * Listens to the phrases '/admin' and '/adm',
+     * Listens to the phrase '/rig'
      * followed by the parameter(s).
      *
      * @param args   The command context. Such as arguments, flags, etc.
@@ -182,38 +182,64 @@ public class CommandUtility extends WarModule {
      * @see CommandContext
      * @see CommandSender
      */
-    @Command(aliases = {"admin", "adm"},
-            desc = "Administrative command",
-            usage = "<skip/rig>",
+    @Command(aliases = {"rig"},
+            desc = "Rig the vote for a gamemode",
+            usage = "<gamemode>",
             flags = "s",
             min = 1)
     @CommandPermissions("war.admin")
-    public void admin(CommandContext args, CommandSender sender) throws CommandNumberFormatException {
-        String arg0 = args.getString(0);
-        switch (arg0) {
-            case "s":
-            case "skip":
-                if (length(args, sender, 2, false, "admin skip <time>")) {
-                    if (main().match().getStatus() != WarMatch.Status.PLAYING) {
-                        sender.sendMessage(ChatColor.RED + "There is no match playing.");
-                        break;
-                    }
-                    Integer time = args.getInteger(1);
-                    main().match().getCurrentMode().setTimeElapsed(main().match().getCurrentMode().getTimeElapsed() + time);
-                    warnStaff(+time + " elapsed second" + (time == 1 ? "" : "s") + " added by " + sender.getName());
-                    if (!args.hasFlag('s'))
-                        warnNonStaff("Match has been skipped forward " + time + " second" + (time == 1 ? "" : "s"));
-                }
+    public void rig(CommandContext args, CommandSender sender) throws CommandNumberFormatException {
+        tryVote(sender, args.getString(0), true, args.hasFlag('s'));
+    }
+
+    /**
+     * Administrative command.
+     * Listens to the phrases '/settime' and '/set',
+     * followed by the parameter(s).
+     *
+     * @param args   The command context. Such as arguments, flags, etc.
+     * @param sender The entity that sent the command. In this case, a player.
+     * @see CommandContext
+     * @see CommandSender
+     */
+    @Command(aliases = {"settime", "set"},
+            desc = "Add, subtract, or set match time",
+            usage = "<(+-)seconds>",
+            min = 1)
+    @CommandPermissions("war.admin")
+    public void settime(CommandContext args, CommandSender sender) throws CommandNumberFormatException {
+        if (main().match().getStatus() != WarMatch.Status.PLAYING) {
+            sender.sendMessage(ChatColor.RED + "There is no match playing.");
+            return;
+        }
+        Gamemode currentMode = (Gamemode) main().match().getCurrentMode();
+        long duration = main().cache().getCurrentMap().getMatchDuration();
+
+        String time = args.getString(0);
+        int result;
+        switch (time.charAt(0)) {
+            case '+':
+                // Add time to the match.
+                result = Integer.parseInt(time.substring(1, time.length()));
                 break;
-            case "r":
-            case "rig":
-                if (length(args, sender, 2, false, "admin rig <mode>"))
-                    tryVote(sender, args.getString(1), true, args.hasFlag('s'));
+            case '-':
+                // Subtract time.
+                result = -Integer.parseInt(time.substring(1, time.length()));
                 break;
             default:
-                sender.sendMessage(ChatColor.RED + "Unknown admin command '" + arg0 + "'.");
+                // Set the amount of time remaining.
+                result = args.getInteger(0) - currentMode.getTimeElapsed();
                 break;
         }
+
+        currentMode.setTimeElapsed(currentMode.getTimeElapsed() + result);
+        if (currentMode.getTimeElapsed() > duration) currentMode.setTimeElapsed((int) (duration - 0xA));
+        else if (currentMode.getTimeElapsed() < 0) currentMode.setTimeElapsed(0x0);
+
+        long minutes = ((duration - currentMode.getTimeElapsed()) / 0x3C); // Calculates number of minutes remaining.
+        String s = (minutes == 1 ? "" : "s"); // Should it be 'minute' or 'minutes'?
+
+        Bukkit.broadcastMessage(ChatColor.YELLOW + "There is now " + minutes + " minute" + s + " remaining!");
     }
 
     /**
@@ -334,22 +360,5 @@ public class CommandUtility extends WarModule {
             if (!online.hasPermission("war.admin"))
                 online.sendMessage(ChatColor.YELLOW + "Warning: " + message);
         Bukkit.getConsoleSender().sendMessage(message); // Also writes message to console as well.
-    }
-
-    /**
-     * Double checks the input of a user that it is
-     * a required length, equal to or greater than.
-     *
-     * @param args             Command context.
-     * @param sender           Who sent the command.
-     * @param required         Required argument amount.
-     * @param greaterOrEqualTo >= or ==?
-     * @param usage            Correct usage if returning false.
-     * @return Result.
-     */
-    private boolean length(CommandContext args, CommandSender sender, int required, boolean greaterOrEqualTo, String usage) {
-        boolean result = greaterOrEqualTo ? args.argsLength() >= required : args.argsLength() == required;
-        if (!result) sender.sendMessage(ChatColor.RED + "Invalid usage. Try: /" + usage);
-        return result;
     }
 }

@@ -4,7 +4,14 @@ webstats:
     secret: "abcdef12345"
     position: 0
 settings:
-    maps_repo: "maps"
+    maps_repo: "~/path/to/maps"
     voteTime: 26
     cycleTime: 30
     startTime: 30
+database:
+    enabled: true
+    username: "user"
+    password: "pass"
+    database: "war"
+    hostname: "localhost"
+    port: 3306

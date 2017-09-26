@@ -3,6 +3,7 @@ package au.edu.swin.war.game;
 import au.edu.swin.war.event.MatchPlayerRespawnEvent;
 import au.edu.swin.war.event.PostMatchPlayerRespawnEvent;
 import au.edu.swin.war.framework.WarPlayer;
+import au.edu.swin.war.framework.event.MatchPlayerDeathEvent;
 import au.edu.swin.war.framework.game.WarMode;
 import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.util.WarManager;
@@ -242,6 +243,7 @@ public abstract class Gamemode extends WarMode {
             logEvent(event.getDeathMessage()); // Log the death.
             environmentalKills++;
             onDeath(dead);
+            main.plugin().getServer().getPluginManager().callEvent(new MatchPlayerDeathEvent(dead, null));
             return;
         }
 
@@ -258,6 +260,7 @@ public abstract class Gamemode extends WarMode {
         logEvent(event.getDeathMessage()); // Log the event first.
         inc(kills, killer.getPlayer().getUniqueId()); // Increment their kills this match.
         onKill(dead, killer);
+        main.plugin().getServer().getPluginManager().callEvent(new MatchPlayerDeathEvent(dead, killer));
     }
 
     /**

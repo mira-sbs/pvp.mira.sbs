@@ -1,6 +1,5 @@
 package au.edu.swin.war.util;
 
-import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.util.WarCache;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.game.Gamemode;

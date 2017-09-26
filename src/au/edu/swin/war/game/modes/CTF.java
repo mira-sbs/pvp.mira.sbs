@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -332,7 +333,7 @@ public class CTF extends Gamemode {
     }
 
     @EventHandler
-    public void onPickup(PlayerPickupItemEvent event) {
+    public void onPickup(EntityPickupItemEvent event) {
         if (event.getItem().getItemStack().getType() == Material.WOOL) {
             // Don't allow wool to be picked up.
             event.setCancelled(true);

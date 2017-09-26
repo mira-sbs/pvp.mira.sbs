@@ -1,12 +1,12 @@
 package au.edu.swin.war.util.modules;
 
+import au.edu.swin.war.WarPlayerPlus;
 import au.edu.swin.war.event.MatchPlayerRespawnEvent;
 import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.util.Manager;
 import org.bukkit.Bukkit;
-import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -61,10 +61,9 @@ public class RespawnUtility extends WarModule implements Listener {
         main().items().clear(pl); // Clear their inventory.
         pl.getPlayer().setGameMode(GameMode.SPECTATOR); // Temporarily make them a spectator.
         pl.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 400, 1)); // Death effect.
-        pl.getPlayer().getWorld().playEffect(pl.getPlayer().getLocation(), Effect.SMOKE, 0); // Another death effect.
 
         // Create and store their death information.
-        DeathInfo inf = new DeathInfo();
+        DeathInfo inf = new DeathInfo((WarPlayerPlus) pl);
         info.put(pl.getPlayer().getUniqueId(), inf);
         if (!main().match().getCurrentMode().isPermaDeath())
             pl.getPlayer().sendMessage("You died! Respawning in " + inf.timeUntilRespawn + " second" + main().strings().plural(inf.timeUntilRespawn));
@@ -126,7 +125,11 @@ public class RespawnUtility extends WarModule implements Listener {
      * Some day, this class may be extended to hold more info.
      */
     private class DeathInfo {
-        int timeUntilRespawn = 6;
-        // 6 seconds in respawn hell.
+
+        DeathInfo(WarPlayerPlus wpp) {
+            timeUntilRespawn = 6 + (int) Math.ceil(wpp.stats().getCurrentStreak() / 2);
+        }
+
+        int timeUntilRespawn; // Respawn hell.
     }
 }

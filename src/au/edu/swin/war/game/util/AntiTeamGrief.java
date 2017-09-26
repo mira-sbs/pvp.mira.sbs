@@ -22,9 +22,12 @@ import org.bukkit.event.block.BlockPlaceEvent;
  */
 public class AntiTeamGrief extends WarModule implements Activatable, Listener {
 
-    private int x1, z2, z1, x2;
-    private ChatColor teamColor;
-    private boolean penalize;
+    private final int x1;
+    private final int z2;
+    private final int z1;
+    private final int x2;
+    private final ChatColor teamColor;
+    private final boolean penalize;
 
     /**
      * Spawn area constructor.

@@ -40,11 +40,14 @@ import java.util.UUID;
  */
 public class SpawnArea extends WarModule implements Activatable, Listener {
 
-    private int x1, z2, z1, x2;
-    private boolean arrows;
-    private boolean reEntry;
-    private List<UUID> invincible;
-    private List<UUID> notified;
+    private final int x1;
+    private final int z2;
+    private final int z1;
+    private final int x2;
+    private final boolean arrows;
+    private final boolean reEntry;
+    private final List<UUID> invincible;
+    private final List<UUID> notified;
 
     /**
      * Spawn area constructor.
