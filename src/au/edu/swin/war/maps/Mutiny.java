@@ -17,7 +17,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class Mutiny extends Map {
 
-    private final UUID[] creators = {UUID.fromString("2cfb556d-55f9-4fa3-8043-199a15d11f40")};
+    private final UUID[] creators = {id("2e1c067c-6f09-4db0-8cd7-defc12ce622e"), id("a40cdbc0-ce09-4c56-a1a8-7732394b6ad4")};
     private final String mapName = "Mutiny";
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM, Gamemode.Mode.LP};
 

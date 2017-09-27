@@ -121,8 +121,8 @@ public class LMS extends Gamemode {
         if (alive.size() == 1) {
             WarPlayer winner = main.getWarPlayer(alive.get(0)); // Get the only player in the array.
             if (winner != null) {
-                tempWinner = winner.getTeamName();
-                Bukkit.broadcastMessage(winner.getTeamName() + " is the last man standing!");
+                tempWinner = winner.getDisplayName();
+                Bukkit.broadcastMessage(winner.getDisplayName() + " is the last man standing!");
                 return;
             }
         }

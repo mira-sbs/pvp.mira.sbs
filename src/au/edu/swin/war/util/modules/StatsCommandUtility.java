@@ -130,7 +130,6 @@ public class StatsCommandUtility extends WarModule {
                     }
                     msg.append(ChatColor.WHITE).append("#").append(offset + i + 1).append(" ").append(lb.getString("last_ign")).append(": Kills: ").append(ChatColor.RED).append(lb.getInt("kills")).append(ChatColor.WHITE).append(" - Deaths: ").append(ChatColor.BLUE).append(lb.getInt("deaths")).append("\n");
                 }
-                msg.append(ChatColor.WHITE).append("----------------------------").append((page + "").replaceAll(".", "-")).append("\n");
             } catch (SQLException e) {
                 sender.sendMessage(ChatColor.RED + "An error occurred. Please try again later.");
                 e.printStackTrace();
@@ -166,7 +165,6 @@ public class StatsCommandUtility extends WarModule {
         result += ChatColor.WHITE + "KD/R: " + ChatColor.GREEN + calculateKD(kills, deaths) + "\n";
         result += ChatColor.WHITE + "Killstreak: " + ChatColor.AQUA + (currentStreak != -1 ? currentStreak + "" + ChatColor.WHITE + " (" + highestStreak + " highest)" : highestStreak + "" + ChatColor.WHITE + " (highest)") + "\n";
         result += ChatColor.WHITE + "Matches played: " + ChatColor.GOLD + matchesPlayed + "\n";
-        result += ChatColor.WHITE + "---------------------------" + name.replaceAll(".", "-") + "\n";
         if (sender instanceof Player) {
             // Send a hoverable message if they're a player.
             TextComponent cmp = new TextComponent("   \n   " + ChatColor.GREEN + "[Statistics for " + name + "]   \n   ");

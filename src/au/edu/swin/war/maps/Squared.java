@@ -17,7 +17,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class Squared extends Map {
 
-    private final UUID[] creators = {};
+    private final UUID[] creators = {id("2e1c067c-6f09-4db0-8cd7-defc12ce622e"), id("a40cdbc0-ce09-4c56-a1a8-7732394b6ad4")};
     private final String mapName = "Squared";
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.TDM, Gamemode.Mode.LP};
 

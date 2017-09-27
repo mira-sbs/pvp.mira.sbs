@@ -19,7 +19,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class Xenon extends Map {
 
-    private final UUID[] creators = {UUID.fromString("df5fd9f4-4840-4293-9346-5c77bf7bc08f")};
+    private final UUID[] creators = {id("df5fd9f4-4840-4293-9346-5c77bf7bc08f")};
     private final String mapName = "Xenon";
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.FFA, Gamemode.Mode.LMS};
 

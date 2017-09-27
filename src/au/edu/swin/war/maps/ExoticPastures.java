@@ -26,7 +26,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class ExoticPastures extends Map {
 
-    private final UUID[] creators = {};
+    private final UUID[] creators = {id("2e1c067c-6f09-4db0-8cd7-defc12ce622e")};
     private final String mapName = "Exotic Pastures";
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.TDM, Gamemode.Mode.LP};
 

@@ -201,12 +201,12 @@ public class KoTH extends Gamemode {
             if (holder == target) // Are they already in control of the flag?
                 wp.getPlayer().sendMessage("You already have control of the flag!");
             else {
-                Bukkit.broadcastMessage(wp.getTeamName() + " took the flag for " + target.getDisplayName() + "!");
+                Bukkit.broadcastMessage(wp.getDisplayName() + " took the flag for " + target.getDisplayName() + "!");
                 // Log first capture and additional captures!
                 if (holder == null)
-                    logEvent(wp.getTeamName() + " captured the flag first!");
+                    logEvent(wp.getDisplayName() + " captured the flag first!");
                 else
-                    logEvent(wp.getTeamName() + " captured the flag for " + target.getDisplayName());
+                    logEvent(wp.getDisplayName() + " captured the flag for " + target.getDisplayName());
                 holder = target; // Broadcast the taking of the flag and reflect the change.
 
                 for (Player online : Bukkit.getOnlinePlayers())

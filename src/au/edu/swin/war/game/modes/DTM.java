@@ -196,7 +196,7 @@ public class DTM extends Gamemode {
                 double contribution = Math.abs(Math.ceil((entry.getValue() * 100) / mon.origSize)); // Their contribution to the destruction.
                 WarPlayer wp = main.getWarPlayer(entry.getKey()); // Get their WarPlayer implement.
                 if (wp != null)
-                    footprint.add(wp.getTeamName() + " (" + contribution + "%)");
+                    footprint.add(wp.getDisplayName() + " (" + contribution + "%)");
                 else
                     footprint.add(Bukkit.getOfflinePlayer(entry.getKey()).getName() + " (" + contribution + "%)");
             }
@@ -414,13 +414,13 @@ public class DTM extends Gamemode {
 
             if (calculatePercentage(2) == 101) { // Has this monument initially taken damage?
                 Bukkit.broadcastMessage(owner + "'s monument has been damaged!");
-                dtm.logEvent(wp.getTeamName() + " damaged " + owner + "'s monument");
+                dtm.logEvent(wp.getDisplayName() + " damaged " + owner + "'s monument");
             }
 
             if (calc <= 0) { // Has this monument been destroyed?
                 destroy();
                 Bukkit.broadcastMessage(owner + "'s monument has been destroyed!");
-                dtm.logEvent(wp.getTeamName() + " destroyed " + owner + "'s monument");
+                dtm.logEvent(wp.getDisplayName() + " destroyed " + owner + "'s monument");
             }
 
             dtm.updateScoreboard();

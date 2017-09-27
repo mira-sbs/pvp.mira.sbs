@@ -230,8 +230,8 @@ public class DDM extends Gamemode {
                     }
 
                     // Broadcast that they got in.
-                    Bukkit.broadcastMessage(wp.getTeamName() + " infiltrated " + belongsTo);
-                    ddm.logEvent(wp.getTeamName() + " infiltrated " + belongsTo);
+                    Bukkit.broadcastMessage(wp.getDisplayName() + " scored a point");
+                    ddm.logEvent(wp.getDisplayName() + " scored a point");
 
                     // Record their current captures remaining, and decrement it.
                     int capsToGo = ddm.scores.get(target.getTeamName());
@@ -244,7 +244,7 @@ public class DDM extends Gamemode {
                         event.setTo(ddm.map().getTeamSpawns(target.getTeamName()).get(new Random().nextInt(ddm
                                 .map().getTeamSpawns(target.getTeamName()).size())).toLocation(main.match().getCurrentWorld(), true));
                 } else {
-                    event.getPlayer().sendMessage("You're supposed to stop the enemy from getting into here!");
+                    main.warn(event.getPlayer(), "You're supposed to stop the enemy from getting into here!");
                     event.setTo(event.getFrom());
                 }
             }

@@ -16,7 +16,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class ClashOfClay extends Map {
 
-    private final UUID[] creators = {};
+    private final UUID[] creators = {id("d04d579e-78ed-4c60-87d4-39ef95755be6")};
     private final String mapName = "Clash Of Clay";
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.TDM, Gamemode.Mode.LP};
 

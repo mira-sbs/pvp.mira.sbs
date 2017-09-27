@@ -73,8 +73,8 @@ public class FFA extends Gamemode {
             if (!killer.getPlayer().getUniqueId().equals(leader)) { // Is this not the same leader?
                 leader = killer.getPlayer().getUniqueId(); // New leader!
                 // Broadcast and log that a new leader has taken over.
-                Bukkit.broadcastMessage(killer.getTeamName() + " is now the leader");
-                logEvent(killer.getTeamName() + " is now the leader");
+                Bukkit.broadcastMessage(killer.getDisplayName() + " is now the leader");
+                logEvent(killer.getDisplayName() + " is now the leader");
             }
         }
         killer.sendMessage("You now have " + cKills + "/" + getFFAKills() + " kills");
@@ -97,7 +97,7 @@ public class FFA extends Gamemode {
             int count = entry.getValue();
             if (count == highest)
                 // If they're equal to the current highest points, add them to the list of winners.
-                winners.add(found.getTeamName());
+                winners.add(found.getDisplayName());
             else if (count > highest) {
                 // If they're above the current highest points,
                 // Set the new highst points,
@@ -105,7 +105,7 @@ public class FFA extends Gamemode {
                 // Clear the current list of winners as they have less points than this player,
                 winners.clear();
                 // Then add this player to the list of winners.
-                winners.add(found.getTeamName());
+                winners.add(found.getDisplayName());
             }
         }
 

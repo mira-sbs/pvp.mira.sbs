@@ -111,8 +111,8 @@ public class CTF extends Gamemode {
             if (inf.getHolder() != null)
                 if (inf.getHolder().equals(killed.getName())) {
                     capture.remove(killed.getName()); // Remove their flagholder status.
-                    Bukkit.broadcastMessage(killed.getTeamName() + " dropped " + inf.getTeam().getDisplayName() + "'s flag!"); // Broadcast the change.
-                    logEvent(killed.getTeamName() + " dropped " + inf.getTeam().getDisplayName() + "'s flag!"); // Log the change.
+                    Bukkit.broadcastMessage(killed.getDisplayName() + " dropped " + inf.getTeam().getDisplayName() + "'s flag!"); // Broadcast the change.
+                    logEvent(killed.getDisplayName() + " dropped " + inf.getTeam().getDisplayName() + "'s flag!"); // Log the change.
                     for (Player target : Bukkit.getOnlinePlayers())
                         target.playSound(target.getLocation(), Sound.ENTITY_IRONGOLEM_HURT, 1F, 1F); // Play a sound effect.
                     inf.setHolder(null); // Set the holder to null.
@@ -269,8 +269,8 @@ public class CTF extends Gamemode {
                                 if (inf2.getHolder() != null) // Is someone holding their flag?
                                     if (inf2.getHolder().equals(wp.getName())) { // Was it their flag that just got captured?
                                         // If no one is holding their flag, capture it!
-                                        Bukkit.broadcastMessage(wp.getTeamName() + " captured " + inf2.getTeam().getDisplayName() + "'s flag!");
-                                        logEvent(wp.getTeamName() + " captured " + inf2.getTeam().getDisplayName() + "'s flag"); // Log the capture.
+                                        Bukkit.broadcastMessage(wp.getDisplayName() + " captured " + inf2.getTeam().getDisplayName() + "'s flag!");
+                                        logEvent(wp.getDisplayName() + " captured " + inf2.getTeam().getDisplayName() + "'s flag"); // Log the capture.
                                         inf2.setHolder(null); // No one is holding their flag anymore as it got captured.
                                         break;
                                     }
@@ -320,8 +320,8 @@ public class CTF extends Gamemode {
                 capture.put(wp.getName(), inf.target.getTeamColor() + inf.target.getTeamName()); // Register the player as a flag holder.
                 info.get(wp.getCurrentTeam().getTeamName()).addAttempt(); // Record the steal as an attempt.
 
-                Bukkit.broadcastMessage(wp.getTeamName() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag!"); // Broadcast it!
-                logEvent(wp.getTeamName() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag"); // Log the steal.
+                Bukkit.broadcastMessage(wp.getDisplayName() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag!"); // Broadcast it!
+                logEvent(wp.getDisplayName() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag"); // Log the steal.
 
                 for (Player target : Bukkit.getOnlinePlayers())
                     target.playSound(target.getLocation(), Sound.ENTITY_ARROW_HIT, 1F, 1F); // Play a sound effect.

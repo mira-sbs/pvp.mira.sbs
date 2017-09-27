@@ -16,7 +16,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class GibsonDesertWars extends Map {
 
-    private final UUID[] creators = {};
+    private final UUID[] creators = {id("d04d579e-78ed-4c60-87d4-39ef95755be6"),id("5435a69c-d78a-46d7-bba1-02b1c9ed71b9")};
     private final String mapName = "Gibson Desert Wars";
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.TDM, Gamemode.Mode.LP};
 

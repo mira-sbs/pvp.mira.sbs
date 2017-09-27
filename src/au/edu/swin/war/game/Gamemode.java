@@ -239,7 +239,7 @@ public abstract class Gamemode extends WarMode {
 
         if (dead.equals(killer)) killer = null; // Did they kill themselves?
         if (killer == null) {
-            event.setDeathMessage(event.getDeathMessage().replaceAll(dead.getName(), dead.getTeamName()));
+            event.setDeathMessage(event.getDeathMessage().replaceAll(dead.getName(), dead.getDisplayName()));
             logEvent(event.getDeathMessage()); // Log the death.
             environmentalKills++;
             onDeath(dead);
@@ -253,8 +253,8 @@ public abstract class Gamemode extends WarMode {
 
         // Format the death message to show display names instead.
         event.setDeathMessage(event.getDeathMessage()
-                .replaceAll(dead.getName(), dead.getTeamName())
-                .replaceAll(killer.getName(), killer.getTeamName()));
+                .replaceAll(dead.getName(), dead.getDisplayName())
+                .replaceAll(killer.getName(), killer.getDisplayName()));
 
         // Call the onKill() procedure so the extended Gamemode can react to it.
         logEvent(event.getDeathMessage()); // Log the event first.

@@ -319,7 +319,7 @@ public class CommandUtility extends WarModule {
             // Set this player as already voted, if not rigging.
             if (!rig) {
                 match.getVoted().add(((Player) sender).getUniqueId());
-                TextComponent comp = new TextComponent(((Player) sender).getDisplayName() + " voted for the gamemode ");
+                TextComponent comp = new TextComponent(((Player) sender).getName() + " voted for the gamemode ");
                 comp.addExtra(selection.getDescriptionComponent(main(), true));
                 main().broadcastSpigotMessage(comp);
             } else {

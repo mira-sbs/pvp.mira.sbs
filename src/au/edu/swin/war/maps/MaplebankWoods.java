@@ -17,7 +17,7 @@ import java.util.UUID;
 @SuppressWarnings("Duplicates")
 public class MaplebankWoods extends Map {
 
-    private final UUID[] creators = {UUID.fromString("2cfb556d-55f9-4fa3-8043-199a15d11f40")};
+    private final UUID[] creators = {id("2e1c067c-6f09-4db0-8cd7-defc12ce622e"), id("5bed8f4c-6c40-485a-a4be-eb7c9f3627d1")};
     private final String mapName = "Maplebank Woods";
     private final Gamemode.Mode[] gamemodes = {Gamemode.Mode.DTM, Gamemode.Mode.LP, Gamemode.Mode.LTS, Gamemode.Mode.KOTH};
 
