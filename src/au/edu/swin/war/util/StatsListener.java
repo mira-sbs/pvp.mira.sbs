@@ -47,6 +47,7 @@ public class StatsListener extends WarModule implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
+        if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) return; // Don't create anything in the database if they can't get on.
         try {
             // Inserts their data into `mc_player` before inserting into `war_stats`.
             PreparedStatement player = ((Manager) main()).query().prepare("INSERT INTO `mc_players` (`player_uuid`, `last_ign`) VALUES (?,?) ON DUPLICATE KEY UPDATE `joins` = `joins` + 1");

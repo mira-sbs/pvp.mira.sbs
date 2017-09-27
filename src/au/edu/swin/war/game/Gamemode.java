@@ -343,6 +343,7 @@ public abstract class Gamemode extends WarMode {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         event.getPlayer().setScoreboard(s());
+        s().getTeam("Spectators").addPlayer(event.getPlayer());
     }
 
     /**

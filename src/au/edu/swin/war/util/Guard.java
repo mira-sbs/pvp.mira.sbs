@@ -1,11 +1,8 @@
 package au.edu.swin.war.util;
 
-import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
-import au.edu.swin.war.game.Map;
-import au.edu.swin.war.stats.WarStats;
 import net.minecraft.server.v1_12_R1.EntityLiving;
 import net.minecraft.server.v1_12_R1.EntityTNTPrimed;
 import org.bukkit.*;
@@ -13,7 +10,6 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftTNTPrimed;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -35,9 +31,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * This class listens for certain Spigot events in
@@ -219,6 +212,12 @@ public class Guard extends WarModule implements Listener {
     @EventHandler
     public void onLeash(PlayerLeashEntityEvent event) {
         event.setCancelled(!main().match().canInteract(event.getEntity(), false));
+    }
+
+    @EventHandler
+    public void onHit(ProjectileHitEvent event) {
+        if (event.getEntity() instanceof TippedArrow)
+            event.getEntity().remove();
     }
 
     /*

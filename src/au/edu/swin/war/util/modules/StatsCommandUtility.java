@@ -24,7 +24,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Handles all statistics commands.
@@ -69,12 +68,18 @@ public class StatsCommandUtility extends WarModule {
         }
 
         if (finalTarget.isOnline()) {
+            Player target = Bukkit.getPlayer(finalTarget.getUniqueId());
             WarStats stats = ((WarPlayerPlus) main().getWarPlayer(finalTarget.getUniqueId())).stats();
-            displayStats(sender, finalTarget.getName(), stats.getKills(), stats.getDeaths(), stats.getCurrentStreak(), stats.getHighestStreak(), stats.getMatchesPlayed());
+            displayStats(sender, target.getDisplayName() + ChatColor.GREEN, stats.getKills(), stats.getDeaths(), stats.getCurrentStreak(), stats.getHighestStreak(), stats.getMatchesPlayed());
         } else {
+            if (waiting.contains(sender.getName())) {
+                sender.sendMessage(ChatColor.RED + "Try this command again in a few moments.");
+                return;
+            }
+            waiting.add(sender.getName());
             Bukkit.getScheduler().runTaskAsynchronously(main().plugin(), () -> {
                 try {
-                    PreparedStatement stmt = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` WHERE `player_uuid`=?");
+                    PreparedStatement stmt = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` NATURAL JOIN `mc_players` WHERE `player_uuid`=?");
                     stmt.setString(1, finalTarget.getUniqueId().toString());
                     ResultSet stats = stmt.executeQuery();
                     if (stats.next())
@@ -85,6 +90,8 @@ public class StatsCommandUtility extends WarModule {
                     sender.sendMessage(ChatColor.RED + "An error occurred. Please try again later.");
                     main().plugin().log("Unable to retrieve stats for " + finalTarget.getUniqueId());
                     e.printStackTrace();
+                } finally {
+                    waiting.remove(sender.getName());
                 }
             });
         }
@@ -115,16 +122,15 @@ public class StatsCommandUtility extends WarModule {
         Bukkit.getScheduler().runTaskAsynchronously(main().plugin(), () -> {
             StringBuilder msg = new StringBuilder("\n--- Leaderboard Page " + page + " ---\n");
             try {
-                ResultSet lb = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` ORDER BY `kills` DESC LIMIT 10 OFFSET " + offset).executeQuery();
+                ResultSet lb = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` NATURAL JOIN `mc_players` ORDER BY `kills` DESC LIMIT 10 OFFSET " + offset).executeQuery();
                 for (int i = 0; i < 10; i++) {
                     if (!lb.next()) {
                         if (i != 9) msg.append(ChatColor.RED).append("No more results to display.\n");
                         break;
                     }
-                    OfflinePlayer target = Bukkit.getOfflinePlayer(UUID.fromString(lb.getString("player_uuid")));
-                    msg.append(ChatColor.WHITE).append("#").append(offset + i + 1).append(" ").append(target.getName()).append(": Kills: ").append(ChatColor.RED).append(lb.getInt("kills")).append(ChatColor.WHITE).append(" - Deaths: ").append(ChatColor.BLUE).append(lb.getInt("deaths")).append("\n");
+                    msg.append(ChatColor.WHITE).append("#").append(offset + i + 1).append(" ").append(lb.getString("last_ign")).append(": Kills: ").append(ChatColor.RED).append(lb.getInt("kills")).append(ChatColor.WHITE).append(" - Deaths: ").append(ChatColor.BLUE).append(lb.getInt("deaths")).append("\n");
                 }
-                msg.append(ChatColor.WHITE).append("------------------------").append((page + "").replaceAll(".", "-")).append("\n");
+                msg.append(ChatColor.WHITE).append("----------------------------").append((page + "").replaceAll(".", "-")).append("\n");
             } catch (SQLException e) {
                 sender.sendMessage(ChatColor.RED + "An error occurred. Please try again later.");
                 e.printStackTrace();
@@ -134,7 +140,7 @@ public class StatsCommandUtility extends WarModule {
             }
             if (sender instanceof Player) {
                 // Send a hoverable message if they're a player.
-                TextComponent cmp = new TextComponent(ChatColor.GREEN + "[Leaderboard]");
+                TextComponent cmp = new TextComponent("   \n    " + ChatColor.GREEN + "[Leaderboard]    \n   ");
                 cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(msg.toString()).create()));
                 sender.spigot().sendMessage(cmp);
             } else sender.sendMessage(msg.toString()); // Otherwise send clean to console.
@@ -154,16 +160,16 @@ public class StatsCommandUtility extends WarModule {
      * @param matchesPlayed Supplied.
      */
     private void displayStats(CommandSender sender, String name, int kills, int deaths, int currentStreak, int highestStreak, int matchesPlayed) {
-        String result = "\n--- War statistics for " + name + " ---\n";
+        String result = "\n--- War statistics for " + name + ChatColor.WHITE + " ---\n";
         result += ChatColor.WHITE + "Kills: " + ChatColor.RED + kills + "\n";
         result += ChatColor.WHITE + "Deaths: " + ChatColor.BLUE + deaths + "\n";
         result += ChatColor.WHITE + "KD/R: " + ChatColor.GREEN + calculateKD(kills, deaths) + "\n";
         result += ChatColor.WHITE + "Killstreak: " + ChatColor.AQUA + (currentStreak != -1 ? currentStreak + "" + ChatColor.WHITE + " (" + highestStreak + " highest)" : highestStreak + "" + ChatColor.WHITE + " (highest)") + "\n";
         result += ChatColor.WHITE + "Matches played: " + ChatColor.GOLD + matchesPlayed + "\n";
-        result += ChatColor.WHITE + "-----------------------" + name.replaceAll(".", "-") + "\n";
+        result += ChatColor.WHITE + "---------------------------" + name.replaceAll(".", "-") + "\n";
         if (sender instanceof Player) {
             // Send a hoverable message if they're a player.
-            TextComponent cmp = new TextComponent(ChatColor.GREEN + "[Statistics for " + name + "]");
+            TextComponent cmp = new TextComponent("   \n   " + ChatColor.GREEN + "[Statistics for " + name + "]   \n   ");
             cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(result).create()));
             sender.spigot().sendMessage(cmp);
         } else sender.sendMessage(result); // Otherwise send clean to console.

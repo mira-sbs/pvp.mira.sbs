@@ -187,7 +187,7 @@ public class CommandUtility extends WarModule {
             usage = "<gamemode>",
             flags = "s",
             min = 1)
-    @CommandPermissions("war.admin")
+    @CommandPermissions("war.mod")
     public void rig(CommandContext args, CommandSender sender) throws CommandNumberFormatException {
         tryVote(sender, args.getString(0), true, args.hasFlag('s'));
     }
@@ -255,7 +255,7 @@ public class CommandUtility extends WarModule {
     @Command(aliases = {"endmatch", "endm"},
             desc = "Ends the match early",
             max = 0)
-    @CommandPermissions("war.admin") // Give this a special permission so only administrators can use it
+    @CommandPermissions("war.mod") // Give this a special permission so only administrators can use it
     public void end(CommandContext args, CommandSender sender) {
         if (main().match().getStatus() == WarMatch.Status.PLAYING) {
             Bukkit.broadcastMessage(sender.getName() + " called an end to this match early");
@@ -278,7 +278,7 @@ public class CommandUtility extends WarModule {
             desc = "Set the next map to play",
             usage = "<map>",
             min = 1)
-    @CommandPermissions("war.admin")
+    @CommandPermissions("war.mod")
     public void set(CommandContext args, CommandSender sender) {
         WarMap found = main().cache().matchMap(args.getJoinedStrings(0));
         if (found == null) {
@@ -342,7 +342,7 @@ public class CommandUtility extends WarModule {
      */
     private void warnStaff(String message) {
         for (Player online : Bukkit.getOnlinePlayers())
-            if (online.hasPermission("war.admin"))
+            if (online.hasPermission("war.staff"))
                 online.sendMessage(ChatColor.YELLOW + "Staff: " + message);
         Bukkit.getConsoleSender().sendMessage(message);
     }
@@ -357,7 +357,7 @@ public class CommandUtility extends WarModule {
      */
     private void warnNonStaff(String message) {
         for (Player online : Bukkit.getOnlinePlayers())
-            if (!online.hasPermission("war.admin"))
+            if (!online.hasPermission("war.staff"))
                 online.sendMessage(ChatColor.YELLOW + "Warning: " + message);
         Bukkit.getConsoleSender().sendMessage(message); // Also writes message to console as well.
     }

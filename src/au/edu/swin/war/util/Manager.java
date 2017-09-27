@@ -10,10 +10,15 @@ import au.edu.swin.war.util.modules.EntityUtility;
 import au.edu.swin.war.util.modules.QueryUtility;
 import au.edu.swin.war.util.modules.RespawnUtility;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,6 +44,8 @@ public class Manager extends WarManager {
     private final ArrayList<UUID> warned; // Keeps track of warning messages for players.
     private final HashMap<UUID, WarStats> tempStats; // Holds statistics for a player until they log in.
 
+    private ItemStack HANDBOOK; // Needs to be created in its own function because it's HELLA huge.
+
     /**
      * Creates an instance of this class.
      * Must be called in onEnable();
@@ -62,6 +69,7 @@ public class Manager extends WarManager {
         // Task that allows players to receive a warning message every 3 seconds.
         // Clear warnings.
         Bukkit.getScheduler().runTaskTimer(plugin, warned::clear, 0L, 60L);
+        createBook();
     }
 
     /**
@@ -163,6 +171,29 @@ public class Manager extends WarManager {
      */
     @Deprecated /* See WarManager for deprecation reason */
     public void giveSpectatorKit(WarPlayer wp) {
+        wp.getPlayer().getInventory().setHeldItemSlot(4);
+        wp.getPlayer().getInventory().setItem(4, HANDBOOK);
+    }
 
+    /**
+     * Creates the handbook because the process of
+     * doing so consumes lines like no tomorrow.
+     */
+    private void createBook() {
+        HANDBOOK = new ItemStack(Material.WRITTEN_BOOK);
+        BookMeta bookMeta = (BookMeta) HANDBOOK.getItemMeta();
+        bookMeta.setTitle(ChatColor.BOLD + "War: The Basics");
+        bookMeta.setAuthor("War Administration");
+        bookMeta.setGeneration(BookMeta.Generation.TATTERED);
+
+        List<String> pages = new ArrayList<>();
+        pages.add(ChatColor.translateAlternateColorCodes('&', "&lWar: The Basics\n&0Hey there, player!\n\nBook Contents:\n&ci.&0 Overview\n&9ii.&0 Commands\n&6iii.&0 Players\n&aiv.&0 Rules\n\nIf you're &cnew&0, read through me and then\n       &nHAVE FUN!\n\n&0  »»»"));
+        pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart I. An Overview\n&0Welcome to War!\n\nThis is a &5team-based &0strategy PvP server!\nWork with your &4team mates &0to win matches.\n\nThere's a &agamemode &0tosuit everyone's play style!\n\n\n&0     »»»"));
+        pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart II. Commands\n\nStart Playing!\n&c/join &0- &9/leave\n&0What's up next?\n&4/rotation\n&0Have your say!\n&a/vote &0<gamemode>\nStatistics!\n&6/stats &0+ &7/leaderboard\n\n&0Or, &n/? War\n\n&0        »»»"));
+        pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart III. Players\n&0You'll see these people online!\n\n&oStaff:\n&6@&8Administrator\n&5@&8Moderator\n\n&0&oOther Ranks:\n&a#&8Donator\n&e#&8DonatorPlus\n&4#&8MapCreator\n\n&0           »»»"));
+        pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart IV. Rules\n&0Follow these!\n\n&ci. &0Don't be a dick.\n&9ii. &0Play the game.\n&4iii. &0Don't cheat.\n&6iv. &0Don't combat log.\n&2v. &0Be a good sport.\n&5vi. &0Don't spawncamp.\n&8vii. &0Listen to @Staff\n&7viii. &0Have fun!\n\n\n&0              »»»"));
+        pages.add(ChatColor.translateAlternateColorCodes('&', "&oNow, go get 'em!\n\n&0We encourage players to use &4commonsense &0whilst playing. Have a safe, sensible, and &dfun &cWar!\n\n&0- Administration\n\n\n\n\n                  X"));
+        bookMeta.setPages(pages);
+        HANDBOOK.setItemMeta(bookMeta);
     }
 }

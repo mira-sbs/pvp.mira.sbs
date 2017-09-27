@@ -15,7 +15,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -248,7 +247,8 @@ public class CTF extends Gamemode {
     public void onBreak(BlockBreakEvent event) {
         if (event.getBlock().getType() == Material.BEDROCK) return;
         WarPlayer wp = main.getWarPlayer(event.getPlayer());
-        event.setCancelled(checkBreak(wp, event.getBlock())); // Depending on the value the function returns, cancel the block breaking.
+        if (checkBreak(wp, event.getBlock()))
+            event.setCancelled(true); // Depending on the value the function returns, cancel the block breaking.
     }
 
     @EventHandler
@@ -301,6 +301,7 @@ public class CTF extends Gamemode {
      * @return Whether the event needs to be cancelled or not.
      */
     private boolean checkBreak(WarPlayer wp, Block broken) {
+        if (!wp.isPlaying()) return false;
         for (CTFInfo inf : info.values()) { // For every team's flag..
             if (inf.flag.equals(broken.getLocation())) { // Did they break a flag?
                 if (capture.containsKey(wp.getName())) {
