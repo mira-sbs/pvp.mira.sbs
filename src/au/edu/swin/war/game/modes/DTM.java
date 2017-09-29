@@ -232,6 +232,7 @@ public class DTM extends Gamemode {
         int origSize; // The original size of the monument.
         int blocksBroken; // The amount of blocks broken off the monument.
         boolean destroyed = false; // Is this monument destroyed?
+        boolean weak = false; // Is this monument weak?
 
         public Monument(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam owner, WarManager main, boolean isVisible, Material... composure) {
             this.x1 = Math.min(x1, x2);
@@ -264,7 +265,14 @@ public class DTM extends Gamemode {
             region.addAll(getBlocks());
             main.plugin().getServer().getPluginManager().registerEvents(this, main.plugin());
             origSize = region.size();
+            main.plugin().log("Activated monument with size of " + origSize);
             blocksBroken = 0;
+
+            // Incorrect/unexpected definition failsafe.
+            if (origSize == 0) {
+                Bukkit.broadcastMessage("Warning: This match is invalid and will end in 3 seconds");
+                Bukkit.getScheduler().runTaskLater(main.plugin(), () -> main.match().matchEnd(), 100L);
+            }
         }
 
         /**
@@ -277,6 +285,7 @@ public class DTM extends Gamemode {
             origSize = 0;
             blocksBroken = 0;
             destroyed = false;
+            weak = false;
         }
 
         /**
@@ -310,9 +319,7 @@ public class DTM extends Gamemode {
                         block.setType(Material.GLASS);
                         break;
                 }
-            composure.clear();
-            composure.add(Material.GOLD_BLOCK);
-            composure.add(Material.GLASS);
+            weak = true;
         }
 
         /**
@@ -329,6 +336,19 @@ public class DTM extends Gamemode {
         }
 
         /**
+         * Checks for composure.
+         * Checks specifically for gold and glass if weak.
+         *
+         * @param type Type to check.
+         * @return Is this a monument block?
+         */
+        boolean isComposed(Material type) {
+            if (!weak)
+                return composure.contains(type);
+            else return type == Material.GOLD_BLOCK || type == Material.GLASS;
+        }
+
+        /**
          * Get the blocks associated with this monument.
          * Loops through x,y,z from bottom left to top
          * right to get the composure blocks.
@@ -341,14 +361,14 @@ public class DTM extends Gamemode {
             for (int x = this.x1; x <= this.x2; x++)
                 for (int y = this.y1; y <= this.y2; y++)
                     for (int z = this.z1; z <= this.z2; z++)
-                        if (composure.contains(main.match().getCurrentWorld().getBlockAt(x, y, z).getType())) // If this block matches the target composure..
+                        if (isComposed(main.match().getCurrentWorld().getBlockAt(x, y, z).getType())) // If this block matches the target composure..
                             blocks.add(main.match().getCurrentWorld().getBlockAt(x, y, z)); // Add this as part of the monument region.
             return blocks;
         }
 
         @EventHandler
         public void onBreak(BlockBreakEvent event) {
-            if (composure.contains(event.getBlock().getType())) // Is it the material we're tracking?
+            if (isComposed(event.getBlock().getType())) // Is it the material we're tracking?
                 if (isInside(event.getBlock().getLocation())) // Was the block a part of the monument?
                     event.setCancelled(onBreak(event.getBlock(), main.getWarPlayer(event.getPlayer())));
         }
@@ -357,7 +377,7 @@ public class DTM extends Gamemode {
         public void onPlace(BlockPlaceEvent event) {
             // Don't allow composure blocks to be placed inside the monument region.
             if (isInside(event.getBlockPlaced().getLocation()))
-                if (composure.contains(event.getBlock().getType())) event.setCancelled(true);
+                if (isComposed(event.getBlock().getType())) event.setCancelled(true);
         }
 
         @EventHandler
@@ -369,18 +389,18 @@ public class DTM extends Gamemode {
                 if (owner.getTeamName().equals(source.getCurrentTeam().getTeamName())) {
                     // If they're griefing their own monument, cancel the explosion damage
                     for (Block block : event.blockList())
-                        if (composure.contains(block.getType()))
+                        if (isComposed(block.getType()))
                             if (isInside(block.getLocation()))
                                 toRemove.add(block);
                 } else
                     // If this is a proper monument, do the damage
                     for (Block block : event.blockList())
-                        if (composure.contains(block.getType()))
+                        if (isComposed(block.getType()))
                             if (isInside(block.getLocation()))
                                 onBreak(block, source);
             } else // Any non-player explosion, cancel
                 for (Block block : event.blockList())
-                    if (composure.contains(block.getType()))
+                    if (isComposed(block.getType()))
                         if (isInside(block.getLocation()))
                             toRemove.add(block);
             // Don't allow explosions to damage the monument.
