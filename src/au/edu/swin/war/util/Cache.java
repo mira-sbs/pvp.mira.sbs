@@ -61,6 +61,7 @@ public class Cache extends WarCache {
         loadMap(FairwickVillage.class);
         loadMap(ExoticPastures.class);
         loadMap(GibsonDesertWars.class);
+        loadMap(BattleRoyale.class);
     }
 
     /**
@@ -112,7 +113,7 @@ public class Cache extends WarCache {
     public Gamemode.Mode matchMode(String preference) {
         Gamemode.Mode found = null;
         if (preference == null) return null;
-        for (Gamemode.Mode mode : ((Map)getCurrentMap()).getGamemodes()) {
+        for (Gamemode.Mode mode : ((Map) getCurrentMap()).getGamemodes()) {
             if (mode.getActualShortName().toLowerCase().startsWith(preference.toLowerCase())) {
                 found = mode;
                 break;
