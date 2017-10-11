@@ -124,11 +124,15 @@ public class BattleRoyale extends Map {
                     ItemStack HEALING_POTION = new ItemStack(Material.SPLASH_POTION, 48);
                     PotionMeta meta = (PotionMeta) HEALING_POTION.getItemMeta();
                     meta.addCustomEffect(new PotionEffect(PotionEffectType.HEAL, 0, 1), true);
+                    meta.setColor(PotionEffectType.HEAL.getColor());
+                    meta.setDisplayName("Splash Potion of Healing");
                     HEALING_POTION.setItemMeta(meta);
 
                     ItemStack DAMAGE_POTION = new ItemStack(Material.SPLASH_POTION, 6);
                     meta = (PotionMeta) DAMAGE_POTION.getItemMeta();
                     meta.addCustomEffect(new PotionEffect(PotionEffectType.HARM, 0, 1), true);
+                    meta.setColor(PotionEffectType.HARM.getColor());
+                    meta.setDisplayName("Splash Potion of Harming");
                     DAMAGE_POTION.setItemMeta(meta);
 
                     inv.setItem(2, HEALING_POTION);
@@ -210,17 +214,19 @@ public class BattleRoyale extends Map {
         event.setCancelled(true);
         for (LivingEntity target : event.getAffectedEntities())
             if (event.getEntity().getShooter().equals(target))
-                main.warn((Player) target, "TIP: Potions have no effect on yourself on this map");
+                main.warn((Player) target, "Potions have no effect on yourself on this map");
             else target.addPotionEffects(event.getEntity().getEffects());
     }
 
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         if (event.getClickedBlock() == null) return;
+        WarPlayer wp = main.getWarPlayer(event.getPlayer());
+        if (!wp.isPlaying()) return;
         Block block = event.getClickedBlock();
         if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
             Sign sign = (Sign) block.getState();
-            apply(main.getWarPlayer(event.getPlayer()), Class.valueOf(sign.getLine(1)));
+            apply(wp, Class.valueOf(sign.getLine(1)));
         }
     }
 }

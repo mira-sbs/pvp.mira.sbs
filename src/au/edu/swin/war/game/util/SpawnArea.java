@@ -10,6 +10,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.SplashPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -137,12 +138,13 @@ public class SpawnArea extends WarModule implements Activatable, Listener {
 
     @EventHandler
     public void onShoot(ProjectileLaunchEvent event) {
-        if (!arrows)
-            if (event.getEntity().getShooter() instanceof Player)
-                if (invincible.contains(((Player) event.getEntity().getShooter()).getUniqueId())) {
-                    event.setCancelled(true);
-                    ((Player) event.getEntity().getShooter()).sendMessage("You cannot shoot whilst you are protected.");
-                }
+        if (!(event.getEntity() instanceof SplashPotion))
+            if (!arrows)
+                if (event.getEntity().getShooter() instanceof Player)
+                    if (invincible.contains(((Player) event.getEntity().getShooter()).getUniqueId())) {
+                        event.setCancelled(true);
+                        ((Player) event.getEntity().getShooter()).sendMessage("You cannot shoot whilst you are protected.");
+                    }
     }
 
     @EventHandler
