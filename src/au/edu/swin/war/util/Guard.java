@@ -1,5 +1,6 @@
 package au.edu.swin.war.util;
 
+import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
@@ -29,8 +30,12 @@ import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class listens for certain Spigot events in
@@ -218,6 +223,39 @@ public class Guard extends WarModule implements Listener {
     public void onHit(ProjectileHitEvent event) {
         if (event.getEntity() instanceof TippedArrow)
             event.getEntity().remove();
+    }
+
+    private List<PotionEffectType> harmful = new ArrayList<>();
+
+    {
+        harmful.add(PotionEffectType.BLINDNESS);
+        harmful.add(PotionEffectType.CONFUSION);
+        harmful.add(PotionEffectType.GLOWING);
+        harmful.add(PotionEffectType.HARM);
+        harmful.add(PotionEffectType.HUNGER);
+        harmful.add(PotionEffectType.LEVITATION);
+        harmful.add(PotionEffectType.POISON);
+        harmful.add(PotionEffectType.SLOW);
+        harmful.add(PotionEffectType.SLOW_DIGGING);
+        harmful.add(PotionEffectType.UNLUCK);
+        harmful.add(PotionEffectType.WEAKNESS);
+        harmful.add(PotionEffectType.WITHER);
+    }
+
+    @EventHandler
+    public void onPotionSplash(PotionSplashEvent event) {
+        if (!(event.getEntity().getShooter() instanceof Player)) return;
+        event.setCancelled(true);
+        WarPlayer source = main().getWarPlayer(event.getEntity().getUniqueId());
+        for (LivingEntity target : event.getAffectedEntities())
+            if (target instanceof Player) {
+                WarPlayer pl = main().getWarPlayer(target.getUniqueId());
+                if (pl.isPlaying() && pl.getCurrentTeam().getTeamName().equals(source.getCurrentTeam().getTeamName())) {
+                    for (PotionEffect effect : event.getEntity().getEffects())
+                        if (!harmful.contains(effect.getType()))
+                            target.addPotionEffect(effect); // Add non harmful potion effects
+                } else target.addPotionEffects(event.getEntity().getEffects()); // Don't check non teammates
+            } else target.addPotionEffects(event.getEntity().getEffects()); // Don't check non players
     }
 
     /*
