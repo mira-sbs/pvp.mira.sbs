@@ -213,11 +213,11 @@ public class BattleRoyale extends Map {
     @EventHandler
     public void onPotionSplash(PotionSplashEvent event) {
         if (!(event.getEntity().getShooter() instanceof Player)) return;
-        event.setCancelled(true);
         for (LivingEntity target : event.getAffectedEntities())
-            if (event.getEntity().getShooter().equals(target))
+            if (event.getEntity().getShooter().equals(target)) {
                 main.warn((Player) target, "Potions have no effect on yourself on this map");
-            else target.addPotionEffects(event.getEntity().getEffects());
+                event.setIntensity(target, 0);
+            }
     }
 
     @EventHandler

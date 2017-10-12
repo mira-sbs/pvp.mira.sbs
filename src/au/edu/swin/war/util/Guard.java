@@ -245,17 +245,15 @@ public class Guard extends WarModule implements Listener {
     @EventHandler
     public void onPotionSplash(PotionSplashEvent event) {
         if (!(event.getEntity().getShooter() instanceof Player)) return;
-        event.setCancelled(true);
         WarPlayer source = main().getWarPlayer(((Player) event.getEntity().getShooter()).getUniqueId());
         for (LivingEntity target : event.getAffectedEntities())
             if (target instanceof Player) {
                 WarPlayer pl = main().getWarPlayer(target.getUniqueId());
-                if (pl.isPlaying() && pl.getCurrentTeam().getTeamName().equals(source.getCurrentTeam().getTeamName())) {
+                if (pl.isPlaying() && pl.getCurrentTeam().getTeamName().equals(source.getCurrentTeam().getTeamName()))
                     for (PotionEffect effect : event.getEntity().getEffects())
                         if (!harmful.contains(effect.getType()))
-                            target.addPotionEffect(effect); // Add non harmful potion effects
-                } else target.addPotionEffects(event.getEntity().getEffects()); // Don't check non teammates
-            } else target.addPotionEffects(event.getEntity().getEffects()); // Don't check non players
+                            event.setIntensity(target, 0); // Add non harmful potion effects
+            }
     }
 
     /*
