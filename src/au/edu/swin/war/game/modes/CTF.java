@@ -281,7 +281,7 @@ public class CTF extends Gamemode {
                                 break;
                             }
                         } else
-                            wp.sendMessage(inf.getHolder() + " is holding your team's flag. You cannot capture!");
+                            main.warn(wp.getPlayer(), inf.getHolder() + " is holding your team's flag. You cannot capture!");
                     }
                 }
             }
@@ -306,12 +306,12 @@ public class CTF extends Gamemode {
             if (inf.flag.equals(broken.getLocation())) { // Did they break a flag?
                 if (capture.containsKey(wp.getName())) {
                     // Are they already holding a flag?
-                    wp.sendMessage("You can't steal more than one flag at once!");
+                    main.warn(wp.getPlayer(), "You can't steal more than one flag at once!");
                     return true;
                 }
                 if (wp.getCurrentTeam().getTeamName().equals(inf.target.getTeamName())) {
                     // Are they trying to steal their own flag?
-                    wp.sendMessage("You can't steal your own flag! Defend it!");
+                    main.warn(wp.getPlayer(), "You can't steal your own flag! Defend it!");
                     return true;
                 }
                 // Otherwise,

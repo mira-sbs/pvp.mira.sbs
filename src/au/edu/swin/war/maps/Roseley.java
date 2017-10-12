@@ -72,8 +72,7 @@ public class Roseley extends Map {
     @EventHandler
     public void onFish(PlayerFishEvent event) {
         if (event.getCaught() != null) return;
-        if (!useGadget(event, EquipmentSlot.HAND, GRAPPLE_HOOK, false)) return;
-        if (!useGadget(event, EquipmentSlot.OFF_HAND, GRAPPLE_HOOK, false)) return;
+        if (!useGadget(event, EquipmentSlot.HAND, GRAPPLE_HOOK, false) && !useGadget(event, EquipmentSlot.OFF_HAND, GRAPPLE_HOOK, false)) return;
         Player pl = event.getPlayer();
         Location bobber = event.getHook().getLocation();
         if (event.getState() == PlayerFishEvent.State.IN_GROUND || !bobber.getBlock().getType().isTransparent()) {
