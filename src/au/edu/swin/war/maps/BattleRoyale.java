@@ -5,6 +5,7 @@ import au.edu.swin.war.framework.game.WarTeam;
 import au.edu.swin.war.framework.stored.SerializedLocation;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
+import au.edu.swin.war.game.util.RadialSpawnPoint;
 import au.edu.swin.war.game.util.SpawnArea;
 import net.minecraft.server.v1_12_R1.EntityLiving;
 import net.minecraft.server.v1_12_R1.EntityTNTPrimed;
@@ -64,7 +65,7 @@ public class BattleRoyale extends Map {
         addTeamSpawn(team1, new SerializedLocation(-28.5, 85, 25.5, 135, 0));
         addTeamSpawn(team2, new SerializedLocation(-33.5, 85, -25.5, 315, 0));
         addTeamSpawn(team2, new SerializedLocation(-28.5, 85, -25.5, 45, 0));
-        setSpectatorSpawn(new SerializedLocation(-2.5, 84, 0.5, 90, 0));
+        setSpectatorSpawn(new RadialSpawnPoint(main.rng, -2.5, 84, 0.5, 90, 0, 0, 5));
     }
 
     @Override
@@ -126,14 +127,14 @@ public class BattleRoyale extends Map {
                     PotionMeta meta = (PotionMeta) HEALING_POTION.getItemMeta();
                     meta.addCustomEffect(new PotionEffect(PotionEffectType.HEAL, 0, 1), true);
                     meta.setColor(PotionEffectType.HEAL.getColor());
-                    meta.setDisplayName("Splash Potion of Healing");
+                    meta.setDisplayName(ChatColor.WHITE + "Splash Potion of Healing");
                     HEALING_POTION.setItemMeta(meta);
 
                     ItemStack DAMAGE_POTION = new ItemStack(Material.SPLASH_POTION, 6);
                     meta = (PotionMeta) DAMAGE_POTION.getItemMeta();
                     meta.addCustomEffect(new PotionEffect(PotionEffectType.HARM, 0, 1), true);
                     meta.setColor(PotionEffectType.HARM.getColor());
-                    meta.setDisplayName("Splash Potion of Harming");
+                    meta.setDisplayName(ChatColor.WHITE + "Splash Potion of Harming");
                     DAMAGE_POTION.setItemMeta(meta);
 
                     inv.setItem(2, HEALING_POTION);

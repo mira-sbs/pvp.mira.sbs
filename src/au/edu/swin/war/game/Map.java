@@ -132,6 +132,7 @@ public abstract class Map extends WarMap {
             default:
                 return false;
         }
+        toTake.setDurability(inHand.getDurability()); // Equalize the durabilities
         toTake.setAmount(inHand.getAmount()); // Set the comparison amount equal to the amount in their hand.
 
         if (inHand.equals(toTake)) {
