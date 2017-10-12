@@ -4,9 +4,11 @@ import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.stored.Activatable;
 import au.edu.swin.war.framework.stored.SerializedLocation;
 import au.edu.swin.war.util.Match;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
@@ -105,7 +107,13 @@ public abstract class Map extends WarMap {
         meta.setLore(loreList);
         result.setItemMeta(meta);
         result.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
-        return result;
+
+        // Add an NBT tag to signify that this is a gadget and should not receive more NBT tags.
+        net.minecraft.server.v1_12_R1.ItemStack item = CraftItemStack.asNMSCopy(result);
+        NBTTagCompound compound = item.hasTag() ? item.getTag() : new NBTTagCompound();
+        compound.setBoolean("gadget", true);
+        item.setTag(compound);
+        return CraftItemStack.asBukkitCopy(item);
     }
 
     /**
@@ -135,7 +143,7 @@ public abstract class Map extends WarMap {
         toTake.setDurability(inHand.getDurability()); // Equalize the durabilities
         toTake.setAmount(inHand.getAmount()); // Set the comparison amount equal to the amount in their hand.
 
-        if (inHand.equals(toTake)) {
+        if (inHand.isSimilar(toTake)) {
             if (autoTake)
                 inHand.setAmount(inHand.getAmount() - 1);
             return true;
