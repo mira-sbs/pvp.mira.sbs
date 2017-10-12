@@ -40,7 +40,7 @@ public class Mutiny extends Map {
         objectives().add(new SpawnArea(main, 30, -60, 32, -58, false, true));
         objectives().add(new AntiTeamGrief(main, team1.getTeamColor(), -45, -77, 54, -41, true));
         objectives().add(new AntiTeamGrief(main, team2.getTeamColor(), -45, -5, 54, 31, true));
-        setTimeLockTime(23000);
+        setTimeLockTime(4000);
         setMatchDuration(600);
     }
 

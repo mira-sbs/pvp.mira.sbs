@@ -58,7 +58,7 @@ public class CommandUtility extends WarModule {
         // Does the player have a team preference?
         WarTeam preference = null;
         if (args.argsLength() > 0) {
-            if (!wp.getPlayer().hasPermission("war.preference")) {
+            if (!main().plugin().hasPermission(sender, "war.preference")) {
                 sender.sendMessage(ChatColor.RED + "You may not pick your team preference.");
                 return;
             }
@@ -71,7 +71,7 @@ public class CommandUtility extends WarModule {
 
         wp.setJoined(true); // Set them as joined.
         if (main().match().getStatus() != WarMatch.Status.PLAYING)
-            // If there is no match playing, notify the player that they will automatically join when there is.
+            // If there is no match playing, notify the player that they will automatically join when there is
             sender.sendMessage("You will automatically join the next round.");
         else {
             if (preference == null)
@@ -342,7 +342,7 @@ public class CommandUtility extends WarModule {
      */
     private void warnStaff(String message) {
         for (Player online : Bukkit.getOnlinePlayers())
-            if (online.hasPermission("war.staff"))
+            if (main().plugin().hasPermission(online, "war.staff"))
                 online.sendMessage(ChatColor.YELLOW + "Staff: " + message);
         Bukkit.getConsoleSender().sendMessage(message);
     }
@@ -357,7 +357,7 @@ public class CommandUtility extends WarModule {
      */
     private void warnNonStaff(String message) {
         for (Player online : Bukkit.getOnlinePlayers())
-            if (!online.hasPermission("war.staff"))
+            if (!main().plugin().hasPermission(online, "war.staff"))
                 online.sendMessage(ChatColor.YELLOW + "Warning: " + message);
         Bukkit.getConsoleSender().sendMessage(message); // Also writes message to console as well.
     }

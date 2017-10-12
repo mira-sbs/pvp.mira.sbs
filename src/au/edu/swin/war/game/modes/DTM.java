@@ -231,8 +231,10 @@ public class DTM extends Gamemode {
         final boolean isVisible; // Is this monument visible if DTM is not playing?
         int origSize; // The original size of the monument.
         int blocksBroken; // The amount of blocks broken off the monument.
+
         boolean destroyed = false; // Is this monument destroyed?
         boolean weak = false; // Is this monument weak?
+        boolean active = false; // Should we do anything?
 
         public Monument(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam owner, WarManager main, boolean isVisible, Material... composure) {
             this.x1 = Math.min(x1, x2);
@@ -261,6 +263,8 @@ public class DTM extends Gamemode {
                     return;
                 }
 
+            active = true; // We're active!
+
             // Calculate the monument region and activate listeners.
             region.addAll(getBlocks());
             main.plugin().getServer().getPluginManager().registerEvents(this, main.plugin());
@@ -286,6 +290,7 @@ public class DTM extends Gamemode {
             blocksBroken = 0;
             destroyed = false;
             weak = false;
+            active = false;
         }
 
         /**
@@ -368,6 +373,7 @@ public class DTM extends Gamemode {
 
         @EventHandler
         public void onBreak(BlockBreakEvent event) {
+            if (!active) return;
             if (isComposed(event.getBlock().getType())) // Is it the material we're tracking?
                 if (isInside(event.getBlock().getLocation())) // Was the block a part of the monument?
                     event.setCancelled(onBreak(event.getBlock(), main.getWarPlayer(event.getPlayer())));
@@ -375,6 +381,7 @@ public class DTM extends Gamemode {
 
         @EventHandler
         public void onPlace(BlockPlaceEvent event) {
+            if (!active) return;
             // Don't allow composure blocks to be placed inside the monument region.
             if (isInside(event.getBlockPlaced().getLocation()))
                 if (isComposed(event.getBlock().getType())) event.setCancelled(true);
@@ -382,6 +389,7 @@ public class DTM extends Gamemode {
 
         @EventHandler
         public void onExplode(EntityExplodeEvent event) {
+            if (!active) return;
             ArrayList<Block> toRemove = new ArrayList<>();
             if (event.getEntity() instanceof TNTPrimed && ((TNTPrimed) event.getEntity()).getSource() instanceof Player) {
                 // If explosion was a player primed TNT...

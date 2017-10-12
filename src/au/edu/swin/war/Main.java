@@ -7,7 +7,6 @@ import au.edu.swin.war.util.Match;
 import au.edu.swin.war.util.modules.CommandUtility;
 import au.edu.swin.war.util.modules.StatsCommandUtility;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
@@ -45,7 +44,7 @@ public class Main extends WarPlugin {
      */
     public void onDisable() {
         for (Player online : Bukkit.getOnlinePlayers())
-            online.sendMessage(ChatColor.RED + "Plugin has been shut down. Goodbye!");
+            online.kickPlayer(getServer().getShutdownMessage());
         main().world().restoreMap(main().match().getRawRoundID() + ""); // Delete the current match world on shutdown.
     }
 

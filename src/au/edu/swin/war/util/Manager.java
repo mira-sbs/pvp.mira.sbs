@@ -192,7 +192,7 @@ public class Manager extends WarManager {
         pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart II. Commands\n\nStart Playing!\n&c/join &0- &9/leave\n&0What's up next?\n&4/rotation\n&0Have your say!\n&a/vote &0<gamemode>\nStatistics!\n&6/stats &0+ &7/leaderboard\n\n&0Or, &n/? War\n\n&0        »»»"));
         pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart III. Players\n&0You'll see these people online!\n\n&oStaff:\n&6@&8Administrator\n&5@&8Moderator\n\n&0&oOther Ranks:\n&a#&8Donator\n&e#&8DonatorPlus\n&4#&8MapCreator\n\n&0           »»»"));
         pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart IV. Rules\n&0Follow these!\n\n&ci. &0Don't be a dick.\n&9ii. &0Play the game.\n&4iii. &0Don't cheat.\n&6iv. &0Don't combat log.\n&2v. &0Be a good sport.\n&5vi. &0Don't spawncamp.\n&8vii. &0Listen to @Staff\n&7viii. &0Have fun!\n\n\n&0              »»»"));
-        pages.add(ChatColor.translateAlternateColorCodes('&', "&oNow, go get 'em!\n\n&0We encourage players to use &4commonsense &0whilst playing. Have a safe, sensible, and &dfun &cWar!\n\n&0- Administration\n\n\n\n\n                  X"));
+        pages.add(ChatColor.translateAlternateColorCodes('&', "&oNow, go get 'em!\n\n&0We encourage players to use &4common sense &0whilst playing. Have a safe, sensible, and &dfun &cWar!\n\n&0- Administration\n\n\n\n\n                  X"));
         bookMeta.setPages(pages);
         HANDBOOK.setItemMeta(bookMeta);
     }

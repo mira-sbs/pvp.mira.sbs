@@ -33,7 +33,7 @@ public class ClashOfClay extends Map {
         setBuildBoundary(-51, 0, 4, 172);
         objectives().add(new SpawnArea(main, -25, 7, -22, 10, true, true));
         objectives().add(new SpawnArea(main, -25, 162, -22, 165, true, true));
-        setTimeLockTime(23000);
+        setTimeLockTime(4000);
         setMatchDuration(600);
     }
 

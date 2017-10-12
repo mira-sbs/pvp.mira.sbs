@@ -33,7 +33,7 @@ public class GibsonDesertWars extends Map {
         setBuildBoundary(-30, -119, 215, 28);
         objectives().add(new DTM.Monument(154, 80, -49, 158, 81, -48, team1, main, false, Material.SMOOTH_BRICK));
         objectives().add(new DTM.Monument(25, 80, -44, 29, 81, -43, team2, main, false, Material.SMOOTH_BRICK));
-        setTimeLockTime(18000);
+        setTimeLockTime(4000);
         setMatchDuration(600);
     }
 

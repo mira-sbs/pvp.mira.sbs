@@ -38,7 +38,7 @@ public class FairwickVillage extends Map {
         registerTeam(team1);
         registerTeam(team2);
         setAllowBuild(true, false);
-        setTimeLockTime(14000);
+        setTimeLockTime(2000);
         setMatchDuration(600);
 
         addCTFFlag(team1.getTeamName(), new SerializedLocation(72, 74, 136));
