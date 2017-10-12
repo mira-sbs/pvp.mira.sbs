@@ -10,6 +10,7 @@ import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Map;
 import au.edu.swin.war.stats.WarStats;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -92,6 +93,7 @@ public class StatsListener extends WarModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST) // Highest priority denoting this one needs to be executed first.
     public void onJoin(PlayerJoinEvent event) {
         Player target = event.getPlayer(); // Get the player who connected.
+        target.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(16); // 1.9 PVP
         WarPlayer wp = main().craftWarPlayer(target); // Creates their needed WarPlayer record.
 
         WarMatch.Status status = main().match().getStatus(); // Get the status of the match.
