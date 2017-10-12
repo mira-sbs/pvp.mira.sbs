@@ -80,7 +80,7 @@ public class Roseley extends Map {
         if (event.getState() == PlayerFishEvent.State.IN_GROUND || (!bobber.getBlock().getType().isTransparent() && !bobber.getBlock().getRelative(BlockFace.DOWN).getType().isTransparent())) {
             pl.setFallDistance(0);
             pl.playSound(pl.getLocation(), Sound.ENTITY_FIREWORK_SHOOT, 4, 4);
-            pl.setVelocity(bobber.toVector().subtract(pl.getLocation().toVector()).multiply(0.1));
+            pl.setVelocity(bobber.toVector().subtract(pl.getLocation().toVector()).multiply(0.45));
         }
     }
 }
