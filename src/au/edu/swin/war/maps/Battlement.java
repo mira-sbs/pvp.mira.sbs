@@ -61,7 +61,7 @@ public class Battlement extends Map {
         addTeamSpawn(team2, new SerializedLocation(11.5, 70, -37.5, 45, 0));
         addTeamSpawn(team2, new SerializedLocation(19.5, 74, -21.5, 45, 0));
         addTeamSpawn(team2, new SerializedLocation(27.5, 74, -21.5, 45, 0));
-        addTeamSpawn(team2, new SerializedLocation(19.5, -74, -29.5, 45, 0));
+        addTeamSpawn(team2, new SerializedLocation(19.5, 74, -29.5, 45, 0));
         addTeamSpawn(team2, new SerializedLocation(23.5, 78, -25.5, 45, 0));
         setSpectatorSpawn(new RadialSpawnPoint(main.rng, 13.5, 93, 17.5, 135, 25, 3, 3));
     }
