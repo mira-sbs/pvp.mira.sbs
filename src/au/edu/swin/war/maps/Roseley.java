@@ -63,11 +63,11 @@ public class Roseley extends Map {
 
         inv.setItem(0, new ItemStack(Material.IRON_SWORD));
         inv.setItem(1, new ItemStack(Material.BOW));
-        inv.setItem(2, new ItemStack(Material.COOKED_CHICKEN, 5));
-        inv.setItem(3, main.items().createPotion(PotionEffectType.HEAL, 0, 1, 1));
+        inv.setItem(2, GRAPPLE_HOOK);
+        inv.setItem(3, new ItemStack(Material.COOKED_CHICKEN, 5));
+        inv.setItem(4, main.items().createPotion(PotionEffectType.HEAL, 0, 1, 1));
         inv.setItem(8, new ItemStack(Material.EXP_BOTTLE, 5));
         inv.setItem(27, new ItemStack(Material.ARROW, 28));
-        inv.setItem(4, GRAPPLE_HOOK);
     }
 
     @EventHandler
