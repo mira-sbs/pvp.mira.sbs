@@ -62,6 +62,7 @@ public class Cache extends WarCache {
         loadMap(ExoticPastures.class);
         loadMap(GibsonDesertWars.class);
         loadMap(BattleRoyale.class);
+        loadMap(Roseley.class);
     }
 
     /**

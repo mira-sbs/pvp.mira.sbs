@@ -40,7 +40,6 @@ public class Roseley extends Map {
         registerTeam(team1);
         registerTeam(team2);
         setAllowBuild(false, false);
-        setBuildBoundary(-51, 0, 4, 172);
         objectives().add(new SpawnArea(main, -59, 56, -45, 59, true, true));
         objectives().add(new SpawnArea(main, -10, 1, -1, 10, true, true));
         addCTFFlag(team1.getTeamName(), new SerializedLocation(-30, 74, 10));
