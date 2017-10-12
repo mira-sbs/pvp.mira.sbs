@@ -71,7 +71,7 @@ public class FairwickVillage extends Map {
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         if (!isAction(event, Action.RIGHT_CLICK_BLOCK)) return;
-        if (!useGadget(event, GADGET, false)) return;
+        if (!useGadget(event, event.getHand(), GADGET, false)) return;
         Player pl = event.getPlayer();
         pl.setVelocity(new Vector(pl.getVelocity().getX(), pl.getVelocity().getY() < 0 ? 0.55 : 1.05, pl.getVelocity().getZ()));
     }

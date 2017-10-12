@@ -10,7 +10,9 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -114,13 +116,13 @@ public abstract class Map extends WarMap {
      * @param toTake Item to take.
      * @return Was this successful?
      */
-    protected boolean useGadget(PlayerInteractEvent event, ItemStack toTake, boolean autoTake) {
+    protected boolean useGadget(PlayerEvent event, EquipmentSlot hand, ItemStack toTake, boolean autoTake) {
         PlayerInventory inv = event.getPlayer().getInventory();
         // Only take one of the gadget.
         toTake = toTake.clone();
 
         ItemStack inHand;
-        switch (event.getHand()) {
+        switch (hand) {
             case HAND:
                 inHand = inv.getItemInMainHand();
                 break;

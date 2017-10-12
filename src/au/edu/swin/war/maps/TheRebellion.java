@@ -33,6 +33,7 @@ public class TheRebellion extends Map {
         registerTeam(team2);
         setAllowBuild(true, true);
         setPlateauY(65);
+        setDisabledDrops(new Material[]{Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE});
         objectives().add(new DTM.Monument(-96, 137, 73, -93, 139, 76, team1, main, false, Material.PRISMARINE));
         objectives().add(new DTM.Monument(-23, 89, 32, -21, 92, 34, team2, main, false, Material.OBSIDIAN));
         objectives().add(new SpawnArea(main, -28, 10, -25, 13, false, true));

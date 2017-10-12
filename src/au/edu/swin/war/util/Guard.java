@@ -246,7 +246,7 @@ public class Guard extends WarModule implements Listener {
     public void onPotionSplash(PotionSplashEvent event) {
         if (!(event.getEntity().getShooter() instanceof Player)) return;
         event.setCancelled(true);
-        WarPlayer source = main().getWarPlayer(event.getEntity().getUniqueId());
+        WarPlayer source = main().getWarPlayer(((Player) event.getEntity().getShooter()).getUniqueId());
         for (LivingEntity target : event.getAffectedEntities())
             if (target instanceof Player) {
                 WarPlayer pl = main().getWarPlayer(target.getUniqueId());

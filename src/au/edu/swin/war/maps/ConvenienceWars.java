@@ -82,7 +82,7 @@ public class ConvenienceWars extends Map {
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         if (!isAction(event, Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK)) return;
-        if (!useGadget(event, GADGET, true)) return;
+        if (!useGadget(event, event.getHand(), GADGET, true)) return;
         Player pl = event.getPlayer();
         pl.setVelocity(pl.getLocation().getDirection().multiply(-2.5).setY(0.1));
     }
