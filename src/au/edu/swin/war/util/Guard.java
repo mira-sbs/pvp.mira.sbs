@@ -225,7 +225,7 @@ public class Guard extends WarModule implements Listener {
             event.getEntity().remove();
     }
 
-    private List<PotionEffectType> harmful = new ArrayList<>();
+    private final List<PotionEffectType> harmful = new ArrayList<>();
 
     {
         harmful.add(PotionEffectType.BLINDNESS);

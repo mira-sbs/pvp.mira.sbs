@@ -21,6 +21,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -165,8 +166,8 @@ public class BattleRoyale extends Map {
                 new Material[]{Material.GOLD_HELMET, Material.LEATHER_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS}
         );
 
-        public Apply apply;
-        public Material[] armor;
+        public final Apply apply;
+        public final Material[] armor;
 
         Class(Apply apply, Material[] armor) {
             this.apply = apply;
@@ -185,11 +186,12 @@ public class BattleRoyale extends Map {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         Location loc = event.getBlock().getLocation();
         if (loc.getY() > 83) return;
         if (event.getBlockPlaced().getType() == Material.TNT) {
+            event.setCancelled(true); // Cancel to stop the warning message
             event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT, 1));
             event.getPlayer().getWorld().playSound(loc, Sound.ENTITY_TNT_PRIMED, 1L, 1L);
 

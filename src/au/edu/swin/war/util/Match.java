@@ -279,8 +279,10 @@ public class Match extends WarMatch {
         setStatus(Status.STARTING);
 
         // Teleport all online WarPlayers into the map.
-        for (WarPlayer online : main().getWarPlayers().values())
+        for (WarPlayer online : main().getWarPlayers().values()) {
+            online.update();
             online.getPlayer().teleport(getRunningMap().getSpectatorSpawn());
+        }
 
         // Pre-round attribute assignment
         if (main().cache().getCurrentMap().attr().containsKey("timeLock")) {

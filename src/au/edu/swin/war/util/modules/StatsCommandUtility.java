@@ -146,7 +146,7 @@ public class StatsCommandUtility extends WarModule {
         });
     }
 
-    private List<String> waiting = Collections.synchronizedList(new ArrayList<String>());
+    private final List<String> waiting = Collections.synchronizedList(new ArrayList<String>());
 
     /**
      * Display stats in a formatted way to a CommandSender.
