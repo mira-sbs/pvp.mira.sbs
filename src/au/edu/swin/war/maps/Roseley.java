@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerFishEvent;
@@ -72,10 +73,11 @@ public class Roseley extends Map {
     @EventHandler
     public void onFish(PlayerFishEvent event) {
         if (event.getCaught() != null) return;
-        if (!useGadget(event, EquipmentSlot.HAND, GRAPPLE_HOOK, false) && !useGadget(event, EquipmentSlot.OFF_HAND, GRAPPLE_HOOK, false)) return;
+        if (!useGadget(event, EquipmentSlot.HAND, GRAPPLE_HOOK, false) && !useGadget(event, EquipmentSlot.OFF_HAND, GRAPPLE_HOOK, false))
+            return;
         Player pl = event.getPlayer();
         Location bobber = event.getHook().getLocation();
-        if (event.getState() == PlayerFishEvent.State.IN_GROUND || !bobber.getBlock().getType().isTransparent()) {
+        if (event.getState() == PlayerFishEvent.State.IN_GROUND || (!bobber.getBlock().getType().isTransparent() && !bobber.getBlock().getRelative(BlockFace.DOWN).getType().isTransparent())) {
             pl.setFallDistance(0);
             pl.playSound(pl.getLocation(), Sound.ENTITY_FIREWORK_SHOOT, 4, 4);
             pl.setVelocity(bobber.toVector().subtract(pl.getLocation().toVector()).multiply(0.1));
