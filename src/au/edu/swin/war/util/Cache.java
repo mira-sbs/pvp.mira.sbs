@@ -64,6 +64,7 @@ public class Cache extends WarCache {
         loadMap(BattleRoyale.class);
         loadMap(Roseley.class);
         loadMap(Battlement.class);
+        loadMap(SanguineShoresII.class);
     }
 
     /**
