@@ -180,7 +180,7 @@ public class StatsCommandUtility extends WarModule {
      * @param deaths Supplied.
      * @return Calculated kill/death ratio.
      */
-    private String calculateKD(int kills, int deaths) {
+    private String calculateKD(double kills, double deaths) {
         NumberFormat nf = new DecimalFormat("#.##");
         double result;
         if (deaths == 0) result = kills;
