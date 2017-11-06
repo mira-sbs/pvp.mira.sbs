@@ -278,17 +278,17 @@ public class Match extends WarMatch {
         main().world().loadMap(getCurrentMap(), getRawRoundID());
         setStatus(Status.STARTING);
 
-        // Teleport all online WarPlayers into the map.
-        for (WarPlayer online : main().getWarPlayers().values()) {
-            online.update();
-            online.getPlayer().teleport(getRunningMap().getSpectatorSpawn());
-        }
-
         // Pre-round attribute assignment
         if (main().cache().getCurrentMap().attr().containsKey("timeLock")) {
             World world = getCurrentWorld();
             world.setGameRuleValue("doDaylightCycle", "false");
             world.setFullTime((Long) main().cache().getCurrentMap().attr().get("timeLockTime"));
+        }
+
+        // Teleport all online WarPlayers into the map.
+        for (WarPlayer online : main().getWarPlayers().values()) {
+            online.update();
+            online.getPlayer().teleport(getRunningMap().getSpectatorSpawn());
         }
 
         // Completely eliminate all traces of the previous match world.

@@ -89,6 +89,11 @@
             <artifactId>command-framework-bukkit</artifactId>
             <version>1.9-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.5.0</version>
+        </dependency>
     </dependencies>
 
     <issueManagement>
