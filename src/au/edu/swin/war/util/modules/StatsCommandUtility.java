@@ -79,7 +79,7 @@ public class StatsCommandUtility extends WarModule {
             waiting.add(sender.getName());
             Bukkit.getScheduler().runTaskAsynchronously(main().plugin(), () -> {
                 try {
-                    PreparedStatement stmt = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` NATURAL JOIN `mc_players` WHERE `player_uuid`=?");
+                    PreparedStatement stmt = ((Manager) main()).query().prepare("SELECT * FROM `WarStats` NATURAL JOIN `Players` WHERE `player_uuid`=?");
                     stmt.setString(1, finalTarget.getUniqueId().toString());
                     ResultSet stats = stmt.executeQuery();
                     if (stats.next())
@@ -122,7 +122,7 @@ public class StatsCommandUtility extends WarModule {
         Bukkit.getScheduler().runTaskAsynchronously(main().plugin(), () -> {
             StringBuilder msg = new StringBuilder("\n--- Leaderboard Page " + page + " ---\n");
             try {
-                ResultSet lb = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` NATURAL JOIN `mc_players` ORDER BY `kills` DESC LIMIT 10 OFFSET " + offset).executeQuery();
+                ResultSet lb = ((Manager) main()).query().prepare("SELECT * FROM `WarStats` NATURAL JOIN `Players` ORDER BY `kills` DESC LIMIT 10 OFFSET " + offset).executeQuery();
                 for (int i = 0; i < 10; i++) {
                     if (!lb.next()) {
                         if (i != 9) msg.append(ChatColor.RED).append("No more results to display.\n");

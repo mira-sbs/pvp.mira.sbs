@@ -111,7 +111,7 @@ public class WarStats {
      * @param query SET ... WHERE, where ... is the query
      */
     private void updateQuery(String query) {
-        String toExecute = "UPDATE `war_stats` SET " + query + " WHERE `player_uuid`='" + owner + "'";
+        String toExecute = "UPDATE `WarStats` SET " + query + " WHERE `player_uuid`='" + owner + "'";
         main.query().addQuery(() -> {
             try {
                 PreparedStatement execute = main.query().prepare(toExecute);

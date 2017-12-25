@@ -50,32 +50,18 @@ public class Database {
     private void createTables() throws SQLException {
         DatabaseMetaData meta = connection.getMetaData();
 
-        // Check if the `mc_players` table exists, and then create it if not.
-        ResultSet check1 = meta.getTables(null, null, "mc_players", null);
-        if (!check1.next()) {
-            connection.prepareStatement(
-                    "CREATE TABLE `mc_players` (" +
-                            "player_uuid CHAR(36) NOT NULL," +
-                            "last_ign VARCHAR(16) NOT NULL," +
-                            "last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
-                            "joins INT(9) DEFAULT 0," +
-                            "PRIMARY KEY (player_uuid));"
-            ).executeUpdate();
-        }
-        check1.close();
-
         // Check if the `war_stats` table exists, and then create it if not.
-        ResultSet check2 = meta.getTables(null, null, "war_stats", null);
+        ResultSet check2 = meta.getTables(null, null, "WarStats", null);
         if (!check2.next()) {
             connection.prepareStatement(
-                    "CREATE TABLE `war_stats` (" +
+                    "CREATE TABLE `WarStats` (" +
                             "player_uuid CHAR(36) NOT NULL," +
                             "kills INT(6) NOT NULL DEFAULT 0," +
                             "deaths INT(6) NOT NULL DEFAULT 0," +
                             "highestStreak INT(6) NOT NULL DEFAULT 0," +
                             "matchesPlayed INT(6) NOT NULL DEFAULT 0," +
                             "PRIMARY KEY (player_uuid)," +
-                            "FOREIGN KEY (player_uuid) REFERENCES `mc_players`(player_uuid));"
+                            "FOREIGN KEY (player_uuid) REFERENCES `Players`(player_uuid));"
             ).executeUpdate();
         }
         check2.close();
@@ -100,6 +86,11 @@ public class Database {
      * Reopen the connection if it was closed for any reason.
      */
     public void reopen() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         connection = open();
     }
 

@@ -1,0 +1,16 @@
+prelogin:
+    error: "&cAn error occurred logging you in.\nPlease try again later."
+killstreaks:
+    status: "You are running a killstreak of {0}".
+    onfire: "{0} is on fire!"
+vote:
+    starting: "A vote is now being held.\nHover over a Gamemode for more information:"
+    next: "The next match was {0} {1} at {2}!"
+guard:
+    building: "You cannot build on this map."
+    border: "Build inside the map border!"
+    highest: "You cannot build any higher."
+match:
+    teams:
+        full: "All teams are full. Please try joining later."
+        join: "You have joined the {0}!"

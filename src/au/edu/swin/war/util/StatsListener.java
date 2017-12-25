@@ -50,15 +50,9 @@ public class StatsListener extends WarModule implements Listener {
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
         if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) return; // Don't create anything in the database if they can't get on.
         try {
-            // Inserts their data into `mc_player` before inserting into `war_stats`.
-            PreparedStatement player = ((Manager) main()).query().prepare("INSERT INTO `mc_players` (`player_uuid`, `last_ign`) VALUES (?,?) ON DUPLICATE KEY UPDATE `joins` = `joins` + 1");
-            player.setString(1, event.getUniqueId().toString());
-            player.setString(2, event.getName());
-            player.executeUpdate();
-            player.close();
 
             // Checks if the player has stats recorded already.
-            PreparedStatement stats = ((Manager) main()).query().prepare("SELECT * FROM `war_stats` WHERE `player_uuid`=?");
+            PreparedStatement stats = ((Manager) main()).query().prepare("SELECT * FROM `WarStats` WHERE `player_uuid`=?");
             stats.setString(1, event.getUniqueId().toString());
             ResultSet check = stats.executeQuery(); // Execute the check and get our result.
 
@@ -69,7 +63,7 @@ public class StatsListener extends WarModule implements Listener {
                         check.getInt("highestStreak"), check.getInt("matchesPlayed")));
             } else {
                 main().plugin().log("Creating statistics record for " + event.getName());
-                PreparedStatement newStats = ((Manager) main()).query().prepare("INSERT INTO `war_stats` (`player_uuid`) VALUES (?)");
+                PreparedStatement newStats = ((Manager) main()).query().prepare("INSERT INTO `WarStats` (`player_uuid`) VALUES (?)");
                 newStats.setString(1, event.getUniqueId().toString());
                 newStats.executeUpdate(); // Execute our insertion query.
                 newStats.close(); // Close the prepared statement.
@@ -78,7 +72,7 @@ public class StatsListener extends WarModule implements Listener {
             check.close(); // Close this one too.
         } catch (SQLException e) {
             event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-            event.setKickMessage(ChatColor.RED + "An error occurred logging you in.\nPlease try again later.");
+            event.setKickMessage(main()._("prelogin.error"));
             main().plugin().log("Unable to generate statistics for " + event.getUniqueId() + "!");
             e.printStackTrace();
         }
@@ -140,13 +134,13 @@ public class StatsListener extends WarModule implements Listener {
             Player target = event.getKiller().getPlayer();
             if (killer.getCurrentStreak() % 5 == 0) {
                 target.playSound(target.getLocation(), Sound.ENTITY_VEX_CHARGE, 1F, 1F);
-                target.sendMessage("You are running a killstreak of " + killer.getCurrentStreak());
+                target.sendMessage(main()._("killstreaks.status", killer.getCurrentStreak()));
             }
             if (killer.getCurrentStreak() == 10) {
                 target.playSound(target.getLocation(), Sound.ENTITY_PARROT_IMITATE_ENDERDRAGON, 1F, 1F);
                 target.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 5 * 20, 0));
                 target.setFireTicks(100);
-                Bukkit.broadcastMessage(target.getDisplayName() + " is on fire!");
+                target.sendMessage(main()._("killstreaks.onfire", target.getDisplayName()));
             }
             target.getWorld().spawnParticle(Particle.TOTEM, target.getLocation(), 70);
         }

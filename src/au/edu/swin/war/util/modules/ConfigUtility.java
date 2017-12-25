@@ -3,7 +3,11 @@ package au.edu.swin.war.util.modules;
 
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarModule;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.InputStreamReader;
 
 /**
  * This class handles all procedures or functions
@@ -21,6 +25,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class ConfigUtility extends WarModule {
 
     private final FileConfiguration config; // The configuration of config.yml in YAML.
+    private FileConfiguration messages; // The internal messages.yml file.
     /* For pretty code, values will be public in all caps. */
     public boolean WEBSTATS_ENABLED; // Are the stats enabled?
     public String WEBSTATS_ACTION; // Where should it HTTP POST to?
@@ -44,6 +49,13 @@ public class ConfigUtility extends WarModule {
         config = main.plugin().getConfig();
 
         try {
+            messages = YamlConfiguration.loadConfiguration(new InputStreamReader(main().plugin().getResource("messages.yml"), "UTF8"));
+        } catch (Exception any) {
+            main.plugin().log("The messages were not able to be loaded.");
+            Bukkit.shutdown();
+        }
+
+        try {
             WEBSTATS_ENABLED = config.getBoolean("webstats.enable");
             WEBSTATS_ACTION = config.getString("webstats.action");
             WEBSTATS_SECRET = config.getString("webstats.secret");
@@ -64,5 +76,15 @@ public class ConfigUtility extends WarModule {
         WEBSTATS_POS++; // Increment the local value.
         config.set("webstats.position", WEBSTATS_POS); // Set the new position in the config.
         main().plugin().saveConfig(); // Save the config.
+    }
+
+    /**
+     * Returns a message value from a selected key.
+     *
+     * @param key The key.
+     * @return The value.
+     */
+    public String getMessage(String key) {
+        return messages.getString(key);
     }
 }

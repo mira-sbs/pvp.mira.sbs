@@ -1,4 +1,5 @@
 name: War
 main: au.edu.swin.war.Main
 author: [ILavaYou]
+depend: [Skytopia]
 version: 1.1

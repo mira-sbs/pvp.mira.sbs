@@ -231,11 +231,11 @@ public class Match extends WarMatch {
             int time = voteTime; // Timer starts at 26.
 
             public void run() {
-                if (time == voteTime)
-                    for (WarPlayer online : main().getWarPlayers().values()) {
-                        online.getPlayer().spigot().sendMessage(new TextComponent("A vote is now being held.\nHover over a Gamemode for more information: "));
+                if (time == voteTime) {
+                    Bukkit.broadcastMessage(main()._("votes.starting"));
+                    for (WarPlayer online : main().getWarPlayers().values())
                         online.getPlayer().spigot().sendMessage(Gamemode.Mode.format(getRunningMap().getGamemodes(), main()));
-                    }
+                }
                 else if (time == 0) {
                     this.cancel();
                     continuePreMatch(); // Continue the pre-match cycle once the time is up.
@@ -269,10 +269,7 @@ public class Match extends WarMatch {
         voted.clear();
         setCurrentMode(main().cache().getGamemode(winningVote.getFullName()));
 
-        TextComponent comp = new TextComponent("The next match was " + getCurrentMode().getGrammar() + " ");
-        comp.addExtra(Gamemode.Mode.fromGamemode(getCurrentMode()).getDescriptionComponent(main(), false));
-        comp.addExtra(" at " + getCurrentMap() + "!");
-        main().broadcastSpigotMessage(comp);
+        Bukkit.broadcastMessage(main()._("vote.next", getCurrentMode().getGrammar(), getCurrentMode().getName(), getCurrentMap()));
 
         // Set the state to starting and perform starting logic.
         main().world().loadMap(getCurrentMap(), getRawRoundID());

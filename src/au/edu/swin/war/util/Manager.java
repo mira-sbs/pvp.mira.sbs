@@ -163,6 +163,24 @@ public class Manager extends WarManager {
     }
 
     /**
+     * Returns a message from a selected key, and then replaces
+     * the placeholders with relevant string data.
+     *
+     * @param key          Message key.
+     * @param replacements Replacement phrases.
+     * @return The resulting string.
+     */
+    public String _(String key, Object... replacements) {
+        int i = 0;
+        String result = conf().getMessage(key);
+        while (result.contains("{" + i + "}")) {
+            result = result.replaceAll("{" + i + "}", replacements[i].toString());
+            i++;
+        }
+        return result;
+    }
+
+    /**
      * Gives a targeted player the spectator kit.
      * This isn't needed, but it might be later.
      *
