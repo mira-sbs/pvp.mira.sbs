@@ -269,7 +269,7 @@ public class Match extends WarMatch {
         voted.clear();
         setCurrentMode(main().cache().getGamemode(winningVote.getFullName()));
 
-        Bukkit.broadcastMessage(main()._("vote.next", getCurrentMode().getGrammar(), getCurrentMode().getName(), getCurrentMap()));
+        Bukkit.broadcastMessage(main()._("votes.next", getCurrentMode().getGrammar(), getCurrentMode().getName(), getCurrentMap()));
 
         // Set the state to starting and perform starting logic.
         main().world().loadMap(getCurrentMap(), getRawRoundID());

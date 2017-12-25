@@ -50,7 +50,7 @@ public class Database {
     private void createTables() throws SQLException {
         DatabaseMetaData meta = connection.getMetaData();
 
-        // Check if the `war_stats` table exists, and then create it if not.
+        // Check if the `WarStats` table exists, and then create it if not.
         ResultSet check2 = meta.getTables(null, null, "WarStats", null);
         if (!check2.next()) {
             connection.prepareStatement(

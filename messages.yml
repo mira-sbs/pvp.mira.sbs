@@ -1,9 +1,9 @@
 prelogin:
     error: "&cAn error occurred logging you in.\nPlease try again later."
 killstreaks:
-    status: "You are running a killstreak of {0}".
+    status: "You are running a killstreak of {0}."
     onfire: "{0} is on fire!"
-vote:
+votes:
     starting: "A vote is now being held.\nHover over a Gamemode for more information:"
     next: "The next match was {0} {1} at {2}!"
 guard:

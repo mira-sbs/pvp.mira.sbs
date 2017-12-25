@@ -106,7 +106,7 @@ public class WarStats {
     }
 
     /**
-     * Quick function to update rows in the `war_stats` table for this player.
+     * Quick function to update rows in the `WarStats` table for this player.
      *
      * @param query SET ... WHERE, where ... is the query
      */
