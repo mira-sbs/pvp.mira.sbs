@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * An extension to WarManager.
@@ -172,9 +173,9 @@ public class Manager extends WarManager {
      */
     public String _(String key, Object... replacements) {
         int i = 0;
-        String result = conf().getMessage(key);
+        String result = ChatColor.translateAlternateColorCodes('&', conf().getMessage(key));
         while (result.contains("{" + i + "}")) {
-            result = result.replaceAll("{" + i + "}", replacements[i].toString());
+            result = result.replace("{" + i + "}", String.valueOf(replacements[i].toString()));
             i++;
         }
         return result;

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Handles all statistics commands.
+ * Handles all statistics modules.
  *
  * @author s101601828 @ Swin.
  * @version 1.1

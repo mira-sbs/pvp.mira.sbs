@@ -115,7 +115,8 @@ public class Guard extends WarModule implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+        if (event.getPlayer().getInventory().getItemInMainHand().getType() != Material.WRITTEN_BOOK && !event.getAction().toString().startsWith("RIGHT_CLICK"))
+            event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
     }
 
     @EventHandler

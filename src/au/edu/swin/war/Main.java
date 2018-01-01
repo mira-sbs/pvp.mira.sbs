@@ -33,7 +33,7 @@ public class Main extends WarPlugin {
         // The Manager handles most of the module initialisations.
         supercontroller = new Manager(this);
         registerCommandClass(CommandUtility.class); // Register the command class containing the @Commands.
-        registerCommandClass(StatsCommandUtility.class); // Register statistics commands.
+        registerCommandClass(StatsCommandUtility.class); // Register statistics modules.
         registerCommands(); // Finalise the registration of  all the classes we chose.
         ((Match) main().match()).firstMatch(); // Start the special first round procedure to kick off the cycle.
     }

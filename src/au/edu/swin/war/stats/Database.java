@@ -86,11 +86,7 @@ public class Database {
      * Reopen the connection if it was closed for any reason.
      */
     public void reopen() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        close();
         connection = open();
     }
 

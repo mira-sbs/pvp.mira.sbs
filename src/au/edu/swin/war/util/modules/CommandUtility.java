@@ -16,7 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * Handles all player commands.
+ * Handles all player modules.
  *
  * @author s101601828 @ Swin.
  * @version 1.0
@@ -47,7 +47,7 @@ public class CommandUtility extends WarModule {
             desc = "Join the match", // Brief description of the command.
             usage = "<preference>")
     public void join(CommandContext args, CommandSender sender) {
-        if (!(sender instanceof Player)) return; // Only players can join. Console can also execute commands.
+        if (!(sender instanceof Player)) return; // Only players can join. Console can also execute modules.
         WarPlayer wp = main().getWarPlayer(((Player) sender).getUniqueId());
         if (wp.isJoined()) {
             // Don't re-execute join logic if they are already joined.
@@ -94,7 +94,7 @@ public class CommandUtility extends WarModule {
             desc = "Leave the match",
             max = 0)
     public void leave(CommandContext args, CommandSender sender) {
-        if (!(sender instanceof Player)) return; // Only players can leave. Console can also execute commands.
+        if (!(sender instanceof Player)) return; // Only players can leave. Console can also execute modules.
         WarPlayer wp = main().getWarPlayer(((Player) sender).getUniqueId());
         if (!wp.isJoined()) {
             // Don't re-execute leave logic if they are not joined.
