@@ -192,13 +192,20 @@ public class BattleRoyale extends Map {
         Location loc = event.getBlock().getLocation();
         if (loc.getY() > 83) return;
         if (event.getBlockPlaced().getType() == Material.TNT) {
+            ItemStack offHand = event.getPlayer().getInventory().getItemInOffHand().clone();
             event.setCancelled(true); // Cancel to stop the warning message
-            event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT, 1));
+            if (offHand != null && offHand.getType().equals(Material.TNT)) {
+                offHand.setAmount(offHand.getAmount() - 1);
+                event.getPlayer().getInventory().setItemInOffHand(offHand);
+                event.getPlayer().updateInventory();
+            } else
+                event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT, 1));
             event.getPlayer().getWorld().playSound(loc, Sound.ENTITY_TNT_PRIMED, 1L, 1L);
 
             // Spawn the tnt and set the player as the source using reflections
             TNTPrimed tnt = loc.getWorld().spawn(loc, TNTPrimed.class);
             tnt.setFuseTicks(30);
+            tnt.setYield(2.25F);
             EntityLiving nmsEntityLiving = ((CraftLivingEntity) event.getPlayer()).getHandle();
             EntityTNTPrimed nmsTNT = ((CraftTNTPrimed) tnt).getHandle();
             try {

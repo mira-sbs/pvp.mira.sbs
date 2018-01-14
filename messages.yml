@@ -6,6 +6,9 @@ killstreaks:
 votes:
     starting: "A vote is now being held.\nHover over a Gamemode for more information:"
     next: "The next match was {0} {1} at {2}!"
+votifier:
+    self: "You voted and received a revive. Thank you!"
+    others: "{0} &fvoted and received a free revive! (/vote)"
 guard:
     building: "You cannot build on this map."
     border: "Build inside the map border!"

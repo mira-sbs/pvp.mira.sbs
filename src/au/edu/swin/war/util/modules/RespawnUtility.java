@@ -6,8 +6,11 @@ import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.util.Manager;
+import net.minecraft.server.v1_12_R1.DataWatcherObject;
+import net.minecraft.server.v1_12_R1.DataWatcherRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -87,8 +90,12 @@ public class RespawnUtility extends WarModule implements Listener {
                 info.get(entry.getKey()).timeUntilRespawn--; // Decrement the player's respawn time.
                 if (info.get(entry.getKey()).timeUntilRespawn == 0) { // Time to respawn?
                     info.remove(entry.getKey());
-                    if (main().match().getStatus() == WarMatch.Status.PLAYING) // Respawn them if the match is still playnig.
-                        Bukkit.getPluginManager().callEvent(new MatchPlayerRespawnEvent(main().getWarPlayer(entry.getKey())));
+                    if (main().match().getStatus() == WarMatch.Status.PLAYING) {
+                        // Respawn them if the match is still playing.
+                        WarPlayer respawn = main().getWarPlayer(entry.getKey());
+                        Bukkit.getPluginManager().callEvent(new MatchPlayerRespawnEvent(respawn));
+                        ((CraftPlayer) respawn.getPlayer()).getHandle().getDataWatcher().set(new DataWatcherObject<>(10, DataWatcherRegistry.b),0);
+                    }
                     break;
                 }
             }

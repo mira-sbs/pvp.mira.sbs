@@ -9,18 +9,22 @@ import au.edu.swin.war.util.modules.ConfigUtility;
 import au.edu.swin.war.util.modules.EntityUtility;
 import au.edu.swin.war.util.modules.QueryUtility;
 import au.edu.swin.war.util.modules.RespawnUtility;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * An extension to WarManager.
@@ -46,6 +50,8 @@ public class Manager extends WarManager {
     private final HashMap<UUID, WarStats> tempStats; // Holds statistics for a player until they log in.
 
     private ItemStack HANDBOOK; // Needs to be created in its own function because it's HELLA huge.
+    ItemStack VOTE;
+    ItemStack SKYBLOCK;
 
     /**
      * Creates an instance of this class.
@@ -70,7 +76,7 @@ public class Manager extends WarManager {
         // Task that allows players to receive a warning message every 3 seconds.
         // Clear warnings.
         Bukkit.getScheduler().runTaskTimer(plugin, warned::clear, 0L, 60L);
-        createBook();
+        createItems();
     }
 
     /**
@@ -192,13 +198,16 @@ public class Manager extends WarManager {
     public void giveSpectatorKit(WarPlayer wp) {
         wp.getPlayer().getInventory().setHeldItemSlot(4);
         wp.getPlayer().getInventory().setItem(4, HANDBOOK);
+        wp.getPlayer().getInventory().setItem(0, SKYBLOCK);
+        wp.getPlayer().getInventory().setItem(1, VOTE);
     }
 
     /**
      * Creates the handbook because the process of
      * doing so consumes lines like no tomorrow.
+     * All other items too why not.
      */
-    private void createBook() {
+    private void createItems() {
         HANDBOOK = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta bookMeta = (BookMeta) HANDBOOK.getItemMeta();
         bookMeta.setTitle(ChatColor.BOLD + "War: The Basics");
@@ -214,5 +223,23 @@ public class Manager extends WarManager {
         pages.add(ChatColor.translateAlternateColorCodes('&', "&oNow, go get 'em!\n\n&0We encourage players to use &4common sense &0whilst playing. Have a safe, sensible, and &dfun &cWar!\n\n&0- Administration\n\n\n\n\n                  X"));
         bookMeta.setPages(pages);
         HANDBOOK.setItemMeta(bookMeta);
+
+        SKYBLOCK = new ItemStack(Material.EYE_OF_ENDER);
+        ItemMeta sbMeta = SKYBLOCK.getItemMeta();
+        sbMeta.setDisplayName(ChatColor.BOLD + "To: Skyblock");
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GRAY + "Right click to return");
+        lore.add(ChatColor.GRAY + "to the Skyblock server!");
+        sbMeta.setLore(lore);
+        SKYBLOCK.setItemMeta(sbMeta);
+
+        VOTE = items().createPotion(PotionEffectType.HEAL, 0,0, 1);
+        ItemMeta voteMeta = VOTE.getItemMeta();
+        voteMeta.setDisplayName(ChatColor.BOLD + "Vote For Us!");
+        lore.clear();
+        lore.add(ChatColor.GRAY + "Right click to reaveal the");
+        lore.add(ChatColor.GRAY + "voting link. Earn rewards!");
+        voteMeta.setLore(lore);
+        VOTE.setItemMeta(voteMeta);
     }
 }

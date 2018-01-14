@@ -5,7 +5,6 @@ import au.edu.swin.war.framework.game.WarMap;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.game.Gamemode;
 import au.edu.swin.war.game.Map;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -235,8 +234,7 @@ public class Match extends WarMatch {
                     Bukkit.broadcastMessage(main()._("votes.starting"));
                     for (WarPlayer online : main().getWarPlayers().values())
                         online.getPlayer().spigot().sendMessage(Gamemode.Mode.format(getRunningMap().getGamemodes(), main()));
-                }
-                else if (time == 0) {
+                } else if (time == 0) {
                     this.cancel();
                     continuePreMatch(); // Continue the pre-match cycle once the time is up.
                 }
@@ -312,7 +310,8 @@ public class Match extends WarMatch {
             int time = startTime; // Wait some more time!
 
             public void run() {
-                time--;
+                if (Bukkit.getOnlinePlayers().size() > 0)
+                    time--;
                 for (Player online : Bukkit.getOnlinePlayers())
                     online.setScoreboard(gScore);
                 if (time == 0) {

@@ -91,9 +91,11 @@
             <version>1.9-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
-            <version>3.5.0</version>
+            <groupId>com.vexsoftware</groupId>
+            <artifactId>nuvotifier-universal</artifactId>
+            <version>2.3.1</version>
+            <systemPath>${project.basedir}/resources/votifier.jar</systemPath>
+            <scope>system</scope>
         </dependency>
     </dependencies>
 

@@ -30,6 +30,7 @@ public class Main extends WarPlugin {
      */
     public void onEnable() {
         log("War program has awoken!");
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         // The Manager handles most of the module initialisations.
         supercontroller = new Manager(this);
         registerCommandClass(CommandUtility.class); // Register the command class containing the @Commands.

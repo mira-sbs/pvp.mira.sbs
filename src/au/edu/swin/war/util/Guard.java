@@ -4,10 +4,21 @@ import au.edu.swin.war.framework.WarPlayer;
 import au.edu.swin.war.framework.util.WarManager;
 import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.v1_12_R1.EntityLiving;
 import net.minecraft.server.v1_12_R1.EntityTNTPrimed;
+import net.minecraft.server.v1_12_R1.PacketDataSerializer;
+import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftTNTPrimed;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -115,8 +126,39 @@ public class Guard extends WarModule implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getPlayer().getInventory().getItemInMainHand().getType() != Material.WRITTEN_BOOK && !event.getAction().toString().startsWith("RIGHT_CLICK"))
-            event.setCancelled(!main().match().canInteract(event.getPlayer(), true));
+        if (!main().match().canInteract(event.getPlayer(), true)) {
+            event.setCancelled(true);
+            if (event.getPlayer().getItemInHand().getType() == Material.WRITTEN_BOOK)
+                openBook(event.getPlayer());
+        }
+        if (event.getPlayer().getItemInHand().equals(((Manager) main()).SKYBLOCK)) {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF("skyblock");
+            event.getPlayer().sendPluginMessage(main().plugin(), "BungeeCord", out.toByteArray());
+        } else if (event.getPlayer().getItemInHand().equals(((Manager) main()).VOTE)) {
+            TextComponent cmp = new TextComponent("   \n    " + ChatColor.GREEN + "[Voting Link 1]");
+            cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("**click me**").create()));
+            cmp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://bit.ly/2CC6zF4"));
+            event.getPlayer().spigot().sendMessage(cmp);
+
+            cmp = new TextComponent("    " + ChatColor.GREEN + "[Voting Link 2]    \n   ");
+            cmp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("**click me**").create()));
+            cmp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://www.minecraftforum.net/servers/18359-war/vote"));
+            event.getPlayer().spigot().sendMessage(cmp);
+        }
+    }
+
+    /**
+     * Sends a packet to open a player's book in hand automatically.
+     */
+    private void openBook(Player p) {
+        ByteBuf buf = Unpooled.buffer(256);
+        buf.setByte(0, (byte) 0);
+        buf.writerIndex(1);
+        PacketPlayOutCustomPayload packet = new PacketPlayOutCustomPayload("MC|BOpen", new PacketDataSerializer(buf));
+        CraftPlayer cp = (CraftPlayer) p;
+        cp.getHandle().playerConnection.sendPacket(packet);
     }
 
     @EventHandler
@@ -252,8 +294,8 @@ public class Guard extends WarModule implements Listener {
                 WarPlayer pl = main().getWarPlayer(target.getUniqueId());
                 if (pl.isPlaying() && pl.getCurrentTeam().getTeamName().equals(source.getCurrentTeam().getTeamName()))
                     for (PotionEffect effect : event.getEntity().getEffects())
-                        if (!harmful.contains(effect.getType()))
-                            event.setIntensity(target, 0); // Add non harmful potion effects
+                        if (harmful.contains(effect.getType()))
+                            event.setIntensity(target, 0); // Block harmful effects
             }
     }
 

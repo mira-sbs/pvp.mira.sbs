@@ -17,7 +17,7 @@ public class WarStats {
     private final Manager main;
     private final UUID owner;
 
-    private int kills, deaths, highestStreak, currentStreak, matchesPlayed;
+    private int kills, deaths, highestStreak, currentStreak, matchesPlayed, revives;
 
     /**
      * Constructor for a returning player.
@@ -27,8 +27,9 @@ public class WarStats {
      * @param deaths        Deaths.
      * @param highestStreak Highest killstreak.
      * @param matchesWon    Current killstreak.
+     * @param revives       Amount of revives remaining.
      */
-    public WarStats(Manager main, UUID owner, int kills, int deaths, int highestStreak, int matchesWon) {
+    public WarStats(Manager main, UUID owner, int kills, int deaths, int highestStreak, int matchesWon, int revives) {
         this.main = main;
         this.owner = owner;
         this.kills = kills;
@@ -36,6 +37,7 @@ public class WarStats {
         this.highestStreak = highestStreak;
         this.currentStreak = 0;
         this.matchesPlayed = matchesWon;
+        this.revives = revives;
     }
 
     /**
@@ -51,6 +53,7 @@ public class WarStats {
         this.highestStreak = 0;
         this.currentStreak = 0;
         this.matchesPlayed = 0;
+        this.revives = 0;
     }
 
     /**
@@ -83,6 +86,22 @@ public class WarStats {
         updateQuery("`matchesPlayed`=" + matchesPlayed);
     }
 
+    /**
+     * Gives a revive to this player.
+     */
+    public void addRevive() {
+        revives++;
+        updateQuery("`revives`=" + revives);
+    }
+
+    /**
+     * Takes a revive from this player.
+     */
+    public void takeRevive() {
+        revives--;
+        updateQuery("`revives`=" + revives);
+    }
+
     /* Getters, do you really need javadoc? */
 
     public int getKills() {
@@ -103,6 +122,10 @@ public class WarStats {
 
     public int getMatchesPlayed() {
         return matchesPlayed;
+    }
+
+    public int getRevives() {
+        return revives;
     }
 
     /**

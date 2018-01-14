@@ -9,6 +9,7 @@ import au.edu.swin.war.framework.util.WarMatch;
 import au.edu.swin.war.framework.util.WarModule;
 import au.edu.swin.war.game.Map;
 import au.edu.swin.war.stats.WarStats;
+import com.vexsoftware.votifier.model.VotifierEvent;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -18,12 +19,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.UUID;
+
+import static org.bukkit.ChatColor.*;
 
 /**
  * This class handles player joins, statistics
@@ -31,13 +37,41 @@ import java.sql.SQLException;
  *
  * @author ILavaYou
  * @version 1.0
- * @since 1.1
+ * @since 1.0
  */
 public class StatsListener extends WarModule implements Listener {
 
     StatsListener(WarManager main) {
         super(main);
         main().plugin().getServer().getPluginManager().registerEvents(this, main().plugin());
+        this.votes = new HashMap<>();
+    }
+
+    @EventHandler
+    public void onServerList(ServerListPingEvent event) {
+        Map map = (Map) main().cache().getCurrentMap();
+        String state;
+        switch (main().match().getStatus()) {
+            case CYCLE:
+                state = map.getMapName() + GRAY + " (cycling)";
+                break;
+            case VOTING:
+                state = map.getMapName() + GRAY + " (in a vote)";
+                break;
+            case STARTING:
+                if (Bukkit.getOnlinePlayers().size() > 0)
+                    state = map.getMapName() + GRAY + " (starting)";
+                else
+                    state = map.getMapName() + GRAY + " (waiting for players)";
+                break;
+            case PLAYING:
+                state = map.getMapName() + GRAY + " (" + main().strings().getDigitalTime((int) (map.getMatchDuration() - main().match().getCurrentMode().getTimeElapsed())) + ") (" + main().match().getCurrentMode().getName() + ")";
+                break;
+            default:
+                state = RED + "Server is non-functional";
+                break;
+        }
+        event.setMotd(GREEN + "[War]" + DARK_GRAY + " - " + WHITE + state + "\n" + RED + "https://rpg.solar/ ❤");
     }
 
     /**
@@ -48,7 +82,8 @@ public class StatsListener extends WarModule implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) return; // Don't create anything in the database if they can't get on.
+        if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED)
+            return; // Don't create anything in the database if they can't get on.
         try {
 
             // Checks if the player has stats recorded already.
@@ -60,7 +95,8 @@ public class StatsListener extends WarModule implements Listener {
                 main().plugin().log(event.getName() + " had previous stats, retrieving...");
                 ((Manager) main()).putTempStats(event.getUniqueId(), new WarStats((Manager) main(), event.getUniqueId(),
                         check.getInt("kills"), check.getInt("deaths"),
-                        check.getInt("highestStreak"), check.getInt("matchesPlayed")));
+                        check.getInt("highestStreak"), check.getInt("matchesPlayed"),
+                        check.getInt("revives")));
             } else {
                 main().plugin().log("Creating statistics record for " + event.getName());
                 PreparedStatement newStats = ((Manager) main()).query().prepare("INSERT INTO `WarStats` (`player_uuid`) VALUES (?)");
@@ -84,11 +120,12 @@ public class StatsListener extends WarModule implements Listener {
      *
      * @param event An event called by Spigot.
      */
-    @EventHandler(priority = EventPriority.HIGHEST) // Highest priority denoting this one needs to be executed first.
+    @EventHandler(priority = EventPriority.LOWEST) // Highest priority denoting this one needs to be executed first.
     public void onJoin(PlayerJoinEvent event) {
         Player target = event.getPlayer(); // Get the player who connected.
         target.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(16); // 1.9 PVP
         WarPlayer wp = main().craftWarPlayer(target); // Creates their needed WarPlayer record.
+        wp.update(); // Update prefix n' shit.
 
         WarMatch.Status status = main().match().getStatus(); // Get the status of the match.
         // Clear the player's inventory and give them the spectator kit.
@@ -151,5 +188,49 @@ public class StatsListener extends WarModule implements Listener {
         for (WarPlayer pl : main().getWarPlayers().values())
             if (pl.isPlaying())
                 ((WarPlayerPlus) pl).stats().addMatchPlayed();
+    }
+
+    /* Voting storage and rewards. */
+
+    private HashMap<UUID, Integer> votes; // Stores offline votes.
+
+    @EventHandler
+    public void onVote(VotifierEvent event) {
+        Player target = Bukkit.getPlayer(event.getVote().getUsername()); // Determine the target.
+        if (target != null)
+            awardVote(target); // Give the reward if they're online.
+        else {
+            // Store the reward if they're offline.
+            OfflinePlayer target2 = Bukkit.getOfflinePlayer(event.getVote().getServiceName());
+            votes.put(target2.getUniqueId(), votes.getOrDefault(target2.getUniqueId(), 0) + 1); // Increment their votes.
+        }
+    }
+
+    @EventHandler
+    public void onVoteJoin(PlayerJoinEvent event) {
+        if (votes.containsKey(event.getPlayer().getUniqueId()))
+            // Delay the task so the MoTD runs first.
+            Bukkit.getScheduler().runTaskLater(main().plugin(), () -> {
+                // Run the amount of times they voted.
+                for (int i = 0; i < votes.get(event.getPlayer().getUniqueId()); i++)
+                    awardVote(event.getPlayer()); // Perform voting task now.
+                votes.remove(event.getPlayer().getUniqueId()); // Remove them from the list.
+            }, 20L);
+    }
+
+    /**
+     * Gives voting rewards to a player.
+     */
+    private void awardVote(Player target) {
+        // Do the broadcast. Don't broadcast how many times they voted, though.
+        for (Player online : Bukkit.getOnlinePlayers())
+            if (!online.equals(target))
+                online.sendMessage(main()._("votifier.others", target.getDisplayName()));
+            else
+                online.sendMessage(main()._("votifier.self"));
+
+        // Spawn a congratulatory firework.
+        ((Manager) main()).entity().spawnFirework(target.getLocation());
+        ((WarPlayerPlus) main().getWarPlayer(target)).stats().addRevive();
     }
 }

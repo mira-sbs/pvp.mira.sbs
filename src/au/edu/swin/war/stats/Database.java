@@ -60,6 +60,7 @@ public class Database {
                             "deaths INT(6) NOT NULL DEFAULT 0," +
                             "highestStreak INT(6) NOT NULL DEFAULT 0," +
                             "matchesPlayed INT(6) NOT NULL DEFAULT 0," +
+                            "revives INT(6) NOT NULL DEFAULT 0," +
                             "PRIMARY KEY (player_uuid)," +
                             "FOREIGN KEY (player_uuid) REFERENCES `Players`(player_uuid));"
             ).executeUpdate();
