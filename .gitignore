@@ -1,5 +1,5 @@
-#maven and IntelliJ
-target/
-*.iml
-dependency-reduced-pom.xml
+# begone.
 .idea/
+*.iml
+target/
+dependency-reduced-pom.xml
