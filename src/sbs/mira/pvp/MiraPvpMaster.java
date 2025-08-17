@@ -1,5 +1,6 @@
 package sbs.mira.pvp;
 
+import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.jetbrains.annotations.NotNull;
 import sbs.mira.pvp.framework.MiraPluginMaster;
 import sbs.mira.pvp.framework.MiraPlayer;
@@ -30,7 +31,7 @@ import java.util.*;
  * @see sbs.mira.pvp.framework.MiraPluginMaster
  * @since 1.0.0
  */
-public class MiraPvpMaster extends MiraPluginMaster {
+public class MiraPvpMaster extends MiraPluginMaster<MiraPvpPulse, MiraPvpPlayer> {
   
   
   /*private final Match matchutil; // An instance of the match controller.
@@ -137,7 +138,7 @@ public class MiraPvpMaster extends MiraPluginMaster {
    *
    * @param target The target to base the WarPlayer object on.
    */
-  public MiraPlayer declares(Player target) {
+  public MiraPvpPlayer declares(Player target) {
     WarStats stats = tempStats.getOrDefault(target.getUniqueId(), new WarStats(this, target.getUniqueId())); // Get their stats, or create new ones.
     tempStats.remove(target.getUniqueId()); // Remove their pre-login storage stats.
     MiraPlayer result = new MiraPvpPlayer(target, this, stats); // Create their instance.
@@ -163,7 +164,7 @@ public class MiraPvpMaster extends MiraPluginMaster {
    * @param wp The target player.
    * @since 1.0
    */
-  public void spectator(MiraPlayer wp) {
+  public void spectating(MiraPlayer wp) {
     wp.crafter().getInventory().setHeldItemSlot(4);
     wp.crafter().getInventory().setItem(4, HANDBOOK);
     wp.crafter().getInventory().setItem(0, SKYBLOCK);
@@ -214,5 +215,19 @@ public class MiraPvpMaster extends MiraPluginMaster {
   @Override
   public @NotNull Cache observe() {
     return cacheutil;
+  }
+  
+  @Override
+  public @NotNull
+  MiraPlayer<?> declares(CraftPlayer target)
+  {
+    return null;
+  }
+  
+  @Override
+  public
+  void spectating(MiraPvpPlayer wp)
+  {
+  
   }
 }

@@ -6,8 +6,6 @@ import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sbs.mira.pvp.framework.util.WarCache;
-import sbs.mira.pvp.framework.util.WarMatch;
 import sbs.mira.pvp.framework.util.modules.ItemUtility;
 import sbs.mira.pvp.framework.util.modules.StringUtility;
 import sbs.mira.pvp.framework.util.modules.WorldUtility;
@@ -24,34 +22,118 @@ import java.util.*;
  * @since 1.0.0
  */
 public abstract
-class MiraPluginMaster<M extends MiraPulse>
+class MiraPluginMaster<Pulse extends MiraPulse<?, ?>, Player extends MiraPlayer<?>>
+  implements Breather<Pulse>
 {
+  private @Nullable Pulse pulse;
   
-  private final M mira;
-  private final TreeMap<UUID, MiraPlayer<?>> players;
-  private final ItemUtility items;
-  private final StringUtility strings;
-  private final WorldUtility world;
-  private final Random rng;
+  private final @NotNull Random rng;
+  private final @NotNull TreeMap<UUID, Player> players;
+  private final @NotNull ItemUtility items;
+  private final @NotNull StringUtility strings;
+  private final @NotNull WorldUtility world;
   
   public
-  MiraPluginMaster(MiraPlugin plugin, MiraPulse mira, ItemUtility items, StringUtility strings, WorldUtility world)
+  MiraPluginMaster()
   {
-    this.mira = mira;
-    this.items = items;
-    this.strings = strings;
-    this.world = world;
-    this.players = new TreeMap<>();
-    /*this.items = new ItemUtility(this);
-    this.strings = new StringUtility(this);
-    this.world = new WorldUtility(this);*/
     this.rng = new Random(0xfdffdeadL);
+    this.players = new TreeMap<>();
+    this.items = new ItemUtility(this);
+    this.strings = new StringUtility(this);
+    this.world = new WorldUtility(this);
+  }
+  
+  
+  @Override
+  public @NotNull
+  Pulse pulse() throws FlatlineException
+  {
+    if (this.pulse != null)
+    {
+      return pulse;
+    }
+    else
+    {
+      throw new FlatlineException();
+    }
+  }
+  
+  @Override
+  public
+  void breathe(@NotNull Pulse pulse) throws IllegalStateException
+  {
+    if (this.pulse == null)
+    {
+      this.pulse = pulse;
+    }
+    else
+    {
+      throw new IllegalStateException("a breather may not have two pulses.");
+    }
   }
   
   public
-  M mira()
+  abstract
+  @NotNull
+  MiraPlayer<?> declares(CraftPlayer target);
+  
+  /**
+   * When called, this should clear a player's inventory
+   * and if applicable, give the player a spectator kit.
+   *
+   * @param wp The target player.
+   */
+  public
+  abstract
+  void spectating(Player wp);
+  
+  
+  public
+  void destroys(UUID victim)
   {
-    return mira;
+    players.remove(victim);
+  }
+  
+  public
+  @Nullable
+  Player player(UUID target)
+  {
+    return players.get(target);
+  }
+  
+  @Nullable
+  public
+  Player player(@Nullable Player target)
+  {
+    return target == null ? null : player(target.getUniqueId());
+  }
+  
+  public
+  @NotNull
+  Map<UUID, Player> players()
+  {
+    return players;
+  }
+  
+  public
+  @NotNull
+  ItemUtility items()
+  {
+    return items;
+  }
+  
+  public
+  @NotNull
+  StringUtility strings()
+  {
+    return strings;
+  }
+  
+  public
+  @NotNull
+  WorldUtility world()
+  {
+    return world;
   }
   
   /**
@@ -61,99 +143,18 @@ class MiraPluginMaster<M extends MiraPulse>
    * @param replacements replaces "{0}", "{1}" and so on with the provided.
    * @throws IllegalArgumentException message key does not exist.
    */
-  public @NotNull
+  public
+  @NotNull
   String message(String key, String... replacements) throws IllegalArgumentException
   {
     int i = 0;
-    String result = ChatColor.translateAlternateColorCodes('&', conf().getMessage(key));
+    String result = ChatColor.translateAlternateColorCodes('&', pulse().conf().getMessage(key));
     while (result.contains("{" + i + "}"))
     {
       result = result.replace("{%d}".formatted(i), replacements[i]);
       i++;
     }
     return result;
-  }
-  
-  @NotNull
-  public
-  ItemUtility items()
-  {
-    return itemutil;
-  }
-  
-  /**
-   * Returns an instance of StringUtility so that
-   * maps, gamemodes, etc. can quickly access functions
-   * that allow Strings to be manipulated.
-   *
-   * @NotNull public StringUtility strings() {
-   * return strutil;
-   * }
-   * <p>
-   * /**
-   * Returns an instance of WorldUtility so that
-   * maps, gamemodes, etc. can quickly access functions
-   * that allow world files to be manipulated.
-   * @NotNull public WorldUtility world() {
-   * return wrldutil;
-   * }
-   * <p>
-   * /**
-   * Returns a running instance of the match manager.
-   * This cannot be held in the framework, so you will
-   * need to create your own field and make this function
-   * return the manager.
-   * @NotNull public abstract WarMatch match();
-   * <p>
-   * /**
-   * Returns a running instance of the cache manager.
-   * This cannot be held in the framework, so you will
-   * need to create your own field and make this function
-   * return the cache.
-   * @NotNull public abstract WarCache cache();
-   * @see WarMatch
-   * @see WarCache
-   */
-  
-  @NotNull
-  public
-  Map<UUID, MiraPlayer<?>> players()
-  {
-    return players;
-  }
-  
-  @NotNull
-  public abstract
-  MiraPlayer<?> declares(CraftPlayer target);
-  
-  /**
-   * When called, this should clear a player's inventory
-   * and if applicable, give the player a spectator kit.
-   *
-   * @param wp The target player.
-   */
-  public abstract
-  void spectator(MiraPlayer wp);
-  
-  
-  public
-  void destroys(UUID victim)
-  {
-    players.remove(victim);
-  }
-  
-  @Nullable
-  public
-  MiraPlayer<?> player(UUID target)
-  {
-    return players.get(target);
-  }
-  
-  @Nullable
-  public
-  MiraPlayer<?> player(@Nullable Player target)
-  {
-    return target == null ? null : player(target.getUniqueId());
   }
   
   /**

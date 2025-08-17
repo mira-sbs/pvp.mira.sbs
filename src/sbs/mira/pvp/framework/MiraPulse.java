@@ -12,13 +12,32 @@ import org.jetbrains.annotations.NotNull;
  * @see MiraPlugin
  * @since 1.0.0
  */
-public abstract
-class MiraPulse
+public
+class MiraPulse<Plugin extends MiraPlugin, Master extends MiraPluginMaster>
 {
   @NotNull
-  public abstract
-  MiraPlugin plugin();
+  private final Plugin plugin;
+  @NotNull
+  private final Master master;
+  
+  public
+  MiraPulse(@NotNull Plugin plugin, @NotNull Master master)
+  {
+    this.plugin = plugin;
+    this.master = master;
+  }
   
   @NotNull
-  MiraPluginMaster master();
+  public
+  Plugin plugin()
+  {
+    return plugin;
+  }
+  
+  @NotNull
+  public
+  Master master()
+  {
+    return master;
+  }
 }

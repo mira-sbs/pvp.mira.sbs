@@ -9,6 +9,10 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
+import sbs.mira.pvp.MiraPvpMaster;
+import sbs.mira.pvp.MiraPvpPlugin;
+import sbs.mira.pvp.MiraPvpPulse;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -23,12 +27,14 @@ import java.util.logging.Level;
  * @since 1.0.0
  */
 public abstract
-class MiraPlugin<P extends MiraPulse>
+class MiraPlugin<Pulse extends MiraPulse<?, ?>>
   extends JavaPlugin
+  implements Breather<Pulse>
 {
   
-  @NotNull
-  protected P pulse;
+  @Nullable
+  private Pulse pulse;
+  
   @NotNull
   private final CommandsManager<CommandSender> commands_manager = new CommandsManager<>()
   {
@@ -48,10 +54,33 @@ class MiraPlugin<P extends MiraPulse>
   
   private final ArrayList<Class<? extends MiraModule>> module_classes = new ArrayList<>();
   
-  public
-  P pulse()
+  
+  @Override
+  public @NotNull
+  Pulse pulse() throws FlatlineException
   {
-    return pulse;
+    if (this.pulse != null)
+    {
+      return pulse;
+    }
+    else
+    {
+      throw new FlatlineException();
+    }
+  }
+  
+  @Override
+  public
+  void breathe(@NotNull Pulse pulse) throws IllegalStateException
+  {
+    if (this.pulse == null)
+    {
+      this.pulse = pulse;
+    }
+    else
+    {
+      throw new IllegalStateException("a breather may not have two pulses.");
+    }
   }
   
   /**
@@ -119,7 +148,7 @@ class MiraPlugin<P extends MiraPulse>
     catch (CommandPermissionsException e)
     {
       // No permission?
-      sender.sendMessage(mira.master().message("command.validation.error.permission"));
+      sender.sendMessage(pulse().master().message("command.validation.error.permission"));
     }
     catch (MissingNestedCommandException e)
     {

@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * an extension to gamemode to implement CTF.
+ * an extension to gamemode to implement ctf.
  * created on 2017-04-24.
  *
  * @author jj.mira.sbs
@@ -34,10 +34,10 @@ import java.util.Iterator;
  */
 public class CTF extends Gamemode {
 
-    private HashMap<String, CTFInfo> info; // Key/vaslue set of CTF Info for each team.
-    private HashMap<String, String> capture; // Key/value set of who's holding who's flag.
-    private boolean instantBreak; // Whether or not flags break on punching them or not.
-    private int interval = 1; // Interval at which fireworks shoot from the flags.
+    private HashMap<String, CTFInfo> info;
+    private HashMap<String, String> capture;
+    private boolean instantBreak;
+    private int interval = 1;
 
     public void reset() {
         if (capture != null)
@@ -71,13 +71,10 @@ public class CTF extends Gamemode {
     public void tick() {
         interval--;
         if (interval == 0) {
-            // Do fireworks every 4 seconds.
             interval = 4;
             doFireworks();
         }
-        // If the amount of time elapsed is 2.5 minutes times the amount of captures required to win,
         if (getTimeElapsed() > (150 * (Integer) map().attr().get("captureRequirement")) && !instantBreak) {
-            // Enable "instant break".
             instantBreak = true;
             Bukkit.broadcastMessage("This match is taking too long, Instant Break is now enabled!");
             logEvent("Instant break was enabled!");
@@ -138,63 +135,55 @@ public class CTF extends Gamemode {
     }
 
     /**
-     * Spawns fireworks at each flag or flag holder location.
+     * spawns fireworks at each flag or flag holder location.
      */
     private void doFireworks() {
         for (CTFInfo inf : info.values())
-            if (inf.getHolder() == null) // Spawn at flag.
+            if (inf.getHolder() == null)
                 ((MiraPvpMaster) main).entity().spawnFirework(inf.getFlag().clone().add(0.5, 1, 0.5), inf.getTeam().getTeamColor());
-            else // Spawn at holder.
+            else
                 ((MiraPvpMaster) main).entity().spawnFirework(Bukkit.getPlayer(inf.getHolder()).getLocation(), inf.getTeam().getTeamColor());
     }
 
     /**
-     * Restores any flags to their pedestals if
+     * restores any flags to their pedestals if
      * they are currently not being held.
      */
     private void restoreFlags() {
         for (CTFInfo inf : info.values())
-            if (inf.getHolder() == null) { // If this flag isn't being held...
-                Block flag = inf.flag.getBlock(); // Get the flag's block.
-                flag.setType(Material.WOOL); // Set it to wool.
-                flag.setData(WoolColor.fromChatColor(inf.target.getTeamColor()).getColor()); // Color the wool.
+            if (inf.getHolder() == null) {
+                Block flag = inf.flag.getBlock();
+                flag.setType(Material.WOOL);
+                flag.setData(WoolColor.fromChatColor(inf.target.getTeamColor()).getColor());
             }
     }
 
     public void updateScoreboard() {
-        // Get the "objective" on the scoreboard, where data goes.
         Objective obj = s().getObjective(DisplaySlot.SIDEBAR);
 
-        // The title of the scoreboard, which displays the map and gamemode playing this match.
         String dp = map().getMapName() + " (" + getName() + ")";
-        if (dp.length() > 32) dp = dp.substring(0, 32); // Titles cannot be longer than 32 characters.
-        obj.setDisplayName(dp); // Set the title of the scoreboard.
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
+        if (dp.length() > 32) dp = dp.substring(0, 32);
+        obj.setDisplayName(dp);
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        
+        obj.getScore(" ").setScore(info.size() + 2);
+        obj.getScore("  Captures").setScore(info.size() + 1);
 
-        // Format it pretty for the players.
-        obj.getScore(" ").setScore(info.size() + 2); // Top spacer.
-        obj.getScore("  Captures").setScore(info.size() + 1); // 'Points' denoter.
-
-        int rqmt = (int) map().attr().get("captureRequirement"); // The amount of captures required to win.
-        Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
-        for (int i = 0; i < info.size(); i++) { // Loop through each CTFInfo in the array.
+        int rqmt = (int) map().attr().get("captureRequirement");
+        Iterator<WarTeam> iterator = getTeams().iterator();
+        for (int i = 0; i < info.size(); i++) {
             CTFInfo inf = info.get(iterator.next().getTeamName());
             if (inf.getHolder() == null) {
-                // Are they holding the flag?
-                // If so, reset all other states the scoreboard can be in.
-                // Then, write the state the scoreboard is in.
                 obj.getScore(inf.getTeam().getTeamColor() + "    █ " + inf.getCaptures() + ChatColor.GRAY + "/" + rqmt).setScore(i + 1);
                 s().resetScores(inf.getTeam().getTeamColor() + "    ▓ " + inf.getCaptures() + ChatColor.GRAY + "/" + rqmt);
                 s().resetScores(inf.getTeam().getTeamColor() + "    █ " + (inf.getCaptures() - 1) + ChatColor.GRAY + "/" + rqmt);
                 s().resetScores(inf.getTeam().getTeamColor() + "    ▓ " + (inf.getCaptures() - 1) + ChatColor.GRAY + "/" + rqmt);
             } else {
-                // If someone is holding this flag, display it as stolen on the scoreboard.
-                // Reset the non-stolen state on the scoreboard.
                 obj.getScore(inf.getTeam().getTeamColor() + "    ▓ " + inf.getCaptures() + ChatColor.GRAY + "/" + rqmt).setScore(i + 1);
                 s().resetScores(inf.getTeam().getTeamColor() + "    █ " + inf.getCaptures() + ChatColor.GRAY + "/" + rqmt);
             }
         }
-        obj.getScore("  ").setScore(0); // Bottom spacer.
+        obj.getScore("  ").setScore(0);
     }
 
 
@@ -219,10 +208,10 @@ public class CTF extends Gamemode {
     }
 
     /**
-     * Check if a win has been attained after a capture.
-     * If there is a win, onEnd should be called.
+     * check if a win has been attained after a capture.
+     * if there is a win, onEnd should be called.
      *
-     * @return Whether or not any team has won.
+     * @return whether or not any team has won.
      */
     private boolean checkWin() {
         for (CTFInfo inf : info.values())
@@ -236,7 +225,7 @@ public class CTF extends Gamemode {
         if (event.getBlock().getType() == Material.BEDROCK) return;
         MiraPlayer wp = main.getWarPlayer(event.getPlayer());
         if (checkBreak(wp, event.getBlock()))
-            event.setCancelled(true); // Depending on the value the function returns, cancel the block breaking.
+            event.setCancelled(true);
     }
 
     @EventHandler
@@ -244,27 +233,26 @@ public class CTF extends Gamemode {
         if (event.getClickedBlock() == null) return;
         MiraPlayer wp = main.getWarPlayer(event.getPlayer().getUniqueId());
         if (capture.containsKey(wp.name()))
-            for (CTFInfo inf : info.values()) { // For every team's flag...
-                if (inf.flag.equals(event.getClickedBlock().getLocation())) { // Did they click a flag?
-                    if (inf.target.getTeamName().equals(wp.getCurrentTeam().getTeamName())) { // Is it their team's flag?
+            for (CTFInfo inf : info.values()) {
+                if (inf.flag.equals(event.getClickedBlock().getLocation())) {
+                    if (inf.target.getTeamName().equals(wp.getCurrentTeam().getTeamName())) {
                         if (inf.getHolder() == null) {
 
                             for (Player target : Bukkit.getOnlinePlayers())
-                                target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 1F); // Play a sound effect.
-                            capture.remove(wp.name()); // They are no longer holding the flag if they captured it.
-                            inf.addCapture(); // Increment their capture count.
-                            for (CTFInfo inf2 : info.values()) // Loop through every team's flag again...
-                                if (inf2.getHolder() != null) // Is someone holding their flag?
-                                    if (inf2.getHolder().equals(wp.name())) { // Was it their flag that just got captured?
-                                        // If no one is holding their flag, capture it!
+                                target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 1F);
+                            capture.remove(wp.name());
+                            inf.addCapture();
+                            for (CTFInfo inf2 : info.values())
+                                if (inf2.getHolder() != null)
+                                    if (inf2.getHolder().equals(wp.name())) {
                                         Bukkit.broadcastMessage(wp.display_name() + " captured " + inf2.getTeam().getDisplayName() + "'s flag!");
-                                        logEvent(wp.display_name() + " captured " + inf2.getTeam().getDisplayName() + "'s flag"); // Log the capture.
-                                        inf2.setHolder(null); // No one is holding their flag anymore as it got captured.
+                                        logEvent(wp.display_name() + " captured " + inf2.getTeam().getDisplayName() + "'s flag");
+                                        inf2.setHolder(null);
                                         break;
                                     }
-                            restoreFlags(); // Restore the flags.
-                            updateScoreboard(); // Update the scoreboard.
-                            if (checkWin()) { // Was this a winning capture?
+                            restoreFlags();
+                            updateScoreboard();
+                            if (checkWin()) {
                                 onEnd();
                                 break;
                             }
@@ -281,40 +269,37 @@ public class CTF extends Gamemode {
     }
 
     /**
-     * Checks if a block broken was a flag.
-     * This also applies to instant capture mode.
+     * checks if a block broken was a flag.
+     * this also applies to instant capture mode.
      *
-     * @param wp     The player who broke a block.
-     * @param broken The block broken.
-     * @return Whether the event needs to be cancelled or not.
+     * @param wp     the player who broke a block.
+     * @param broken the block broken.
+     * @return whether the event needs to be cancelled or not.
      */
     private boolean checkBreak(MiraPlayer wp, Block broken) {
         if (!wp.is_member_of_team()) return false;
-        for (CTFInfo inf : info.values()) { // For every team's flag..
-            if (inf.flag.equals(broken.getLocation())) { // Did they break a flag?
+        for (CTFInfo inf : info.values()) {
+            if (inf.flag.equals(broken.getLocation())) {
                 if (capture.containsKey(wp.name())) {
-                    // Are they already holding a flag?
                     main.warn(wp.crafter(), "You can't steal more than one flag at once!");
                     return true;
                 }
                 if (wp.getCurrentTeam().getTeamName().equals(inf.target.getTeamName())) {
-                    // Are they trying to steal their own flag?
                     main.warn(wp.crafter(), "You can't steal your own flag! Defend it!");
                     return true;
                 }
-                // Otherwise,
-                inf.setHolder(wp.name()); // Set the holder as this player.
+                inf.setHolder(wp.name());
 
-                capture.put(wp.name(), inf.target.getTeamColor() + inf.target.getTeamName()); // Register the player as a flag holder.
-                info.get(wp.getCurrentTeam().getTeamName()).addAttempt(); // Record the steal as an attempt.
+                capture.put(wp.name(), inf.target.getTeamColor() + inf.target.getTeamName());
+                info.get(wp.getCurrentTeam().getTeamName()).addAttempt();
 
-                Bukkit.broadcastMessage(wp.display_name() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag!"); // Broadcast it!
-                logEvent(wp.display_name() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag"); // Log the steal.
+                Bukkit.broadcastMessage(wp.display_name() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag!");
+                logEvent(wp.display_name() + " has stolen " + inf.getTeam().getDisplayName() + "'s flag");
 
                 for (Player target : Bukkit.getOnlinePlayers())
-                    target.playSound(target.getLocation(), Sound.ENTITY_ARROW_HIT, 1F, 1F); // Play a sound effect.
-                broken.setType(Material.BEDROCK); // Turn it to bedrock so it can't be broken.
-                updateScoreboard(); // Update the scoreboard.
+                    target.playSound(target.getLocation(), Sound.ENTITY_ARROW_HIT, 1F, 1F);
+                broken.setType(Material.BEDROCK);
+                updateScoreboard();
                 return true;
             }
         }
@@ -324,7 +309,6 @@ public class CTF extends Gamemode {
     @EventHandler
     public void onPickup(EntityPickupItemEvent event) {
         if (event.getItem().getItemStack().getType() == Material.WOOL) {
-            // Don't allow wool to be picked up.
             event.setCancelled(true);
             event.getItem().remove();
         }
@@ -339,13 +323,13 @@ public class CTF extends Gamemode {
     }
 
     /**
-     * Private record to hold a list of CTF information for a team.
-     * This class holds:
-     * -> The team associated with it.
-     * -> The location of their flag.
-     * -> The holder of their flag, if any.
-     * -> The amount of captures they've made.
-     * -> The amount of flag steals they've made.
+     * private record to hold a list of CTF information for a team.
+     * this class holds:
+     * -> the team associated with it.
+     * -> the location of their flag.
+     * -> the holder of their flag, if any.
+     * -> the amount of captures they've made.
+     * -> the amount of flag steals they've made.
      */
     private class CTFInfo {
         final WarTeam target;

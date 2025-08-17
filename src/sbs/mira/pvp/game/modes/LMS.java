@@ -16,41 +16,36 @@ import java.util.HashMap;
 import java.util.UUID;
 
 /**
- * An extension to gamemode to implement LMS.
- * Last Man Standing objectives have been defined
- * in my design brief, so I will assume you
- * know what you are expecting to look at here.
+ * an extension to gamemode to implement lms.
+ * created on 2017-04-26.
  *
- * @author s101601828 @ Swin.
- * @version 1.0
+ * @author jj.mira.sbs
+ * @author jd.mira.sbs
+ * @version 1.0.1
  * @see MiraPulse
- * <p>
- * Created by Josh on 26/04/2017.
- * @since 1.0
+ * @since 1.0.0
  */
 public class LMS extends Gamemode {
 
-    private ArrayList<UUID> participated; // Keep a list of people who participated.
-    private ArrayList<UUID> alive; // Who is currently alive in the match?
+    private ArrayList<UUID> participated;
+    private ArrayList<UUID> alive;
 
     public void reset() {
         if (participated != null)
             while (participated.size() > 0) {
                 MiraPlayer wp = main.getWarPlayer(participated.get(0));
                 if (wp != null)
-                    wp.setJoined(true); // Re-set this player as joined, since they participated.
-                participated.remove(participated.get(0)); // We can remove this player from the list now.
+                    wp.setJoined(true);
+                participated.remove(participated.get(0));
             }
-        participated = null; // Remove instance of this list.
-
-        // Clear and reset the list of alive players.
+        participated = null;
+        
         if (alive != null)
             alive.clear();
         alive = null;
     }
 
     public void initialize() {
-        // Initialize array lists first!
         alive = new ArrayList<>();
         participated = new ArrayList<>();
 
@@ -62,31 +57,28 @@ public class LMS extends Gamemode {
             return;
         }
 
-        for (WarTeam team : getTeams()) // Since this is LMS, allow friendly fire.
+        for (WarTeam team : getTeams())
             team.getBukkitTeam().setAllowFriendlyFire(true);
 
         autoAssign();
 
-        // Mark playing players are participated.
         for (MiraPlayer check : main.getWarPlayers().values())
             if (check.is_member_of_team()) {
                 alive.add(check.crafter().getUniqueId());
                 participated.add(check.crafter().getUniqueId());
             }
 
-        permaDeath = true; // Set permanent death to true for the duration of the match.
+        permaDeath = true;
 
-        // Assign objective to scoreboard for this gamemode.
         Objective obj = s().registerNewObjective("gm", "dummy");
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Display it in sidebar. Pretty.
-        updateScoreboard(); // Update the scoreboard to put all the default values on it.
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        updateScoreboard();
 
         for (Player online : Bukkit.getOnlinePlayers())
-            online.setScoreboard(s()); // Everyone online needs to see this scoreboard.
+            online.setScoreboard(s());
     }
 
     public void tick() {
-        //Nothing needed here.
     }
 
     public void onKill(MiraPlayer killed, MiraPlayer killer) {
@@ -98,19 +90,16 @@ public class LMS extends Gamemode {
     }
 
     /**
-     * Common code is shared by onKill and onDeath,
+     * common code is shared by onKill and onDeath,
      * both call to this procedure to prevent duplication.
      *
-     * @param dead The player who died.
+     * @param dead the player who died.
      */
     private void dead(MiraPlayer dead) {
-        // Remove their state as 'alive'.
         alive.remove(dead.crafter().getUniqueId());
 
-        // Update scoreboard
         updateScoreboard();
 
-        // Kick them out of the match as this is permanent death.
         dead.setJoined(false);
         entryHandle(dead);
 
@@ -119,7 +108,7 @@ public class LMS extends Gamemode {
 
     public void decideWinner() {
         if (alive.size() == 1) {
-            MiraPlayer winner = main.getWarPlayer(alive.get(0)); // Get the only player in the array.
+            MiraPlayer winner = main.getWarPlayer(alive.get(0));
             if (winner != null) {
                 tempWinner = winner.display_name();
                 Bukkit.broadcastMessage(winner.display_name() + " is the last man standing!");
@@ -151,51 +140,46 @@ public class LMS extends Gamemode {
     }
 
     public void onLeave(MiraPlayer left) {
-        // If they died, we should not re-remove them as this is pointless.
-        // They are forced to leave if they die.
         if (!alive.contains(left.crafter().getUniqueId())) return;
 
-        alive.remove(left.crafter().getUniqueId()); // They left, so they're no longer alive.
+        alive.remove(left.crafter().getUniqueId());
 
-        // Do the usual stuff!
         updateScoreboard();
         checkWin();
     }
 
     public void updateScoreboard() {
-        // Get the "objective" on the scoreboard, where data goes.
         Objective obj = s().getObjective(DisplaySlot.SIDEBAR);
 
-        // The title of the scoreboard, which displays the map and gamemode playing this match.
         String dp = map().getMapName() + " (" + getName() + ")";
-        if (dp.length() > 32) dp = dp.substring(0, 32); // Titles cannot be longer than 32 characters.
-        obj.setDisplayName(dp); // Set the title of the scoreboard.
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
+        if (dp.length() > 32) dp = dp.substring(0, 32);
+        obj.setDisplayName(dp);
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        obj.getScore(" ").setScore(3); // Top spacer.
-        obj.getScore("  Still Standing").setScore(2); // A label!
-        obj.getScore("    " + alive.size() + "/" + participated.size()).setScore(1); // The amount of standing players!
-        obj.getScore("  ").setScore(0); // Bottom spacer.
-        s().resetScores("    " + (alive.size() + 1) + "/" + participated.size()); // Reset old score.
+        obj.getScore(" ").setScore(3);
+        obj.getScore("  Still Standing").setScore(2);
+        obj.getScore("    " + alive.size() + "/" + participated.size()).setScore(1);
+        obj.getScore("  ").setScore(0);
+        s().resetScores("    " + (alive.size() + 1) + "/" + participated.size());
 
     }
 
     /**
-     * If there is 1 or less players remaining,
+     * if there is 1 or less players remaining,
      * the match is over since it is a last man
      * standing match.
      */
     private void checkWin() {
-        if (alive.size() <= 1 && active)  // Make sure this can only be called once a true round ends.
+        if (alive.size() <= 1 && active)
             onEnd();
     }
 
     /**
-     * Sneaking is a strategy often used to hide
+     * sneaking is a strategy often used to hide
      * on maps, so sneaking will not allow you to
      * hide your name tag behind walls.
      *
-     * @param event An event called by Spigot.
+     * @param event an event called by Spigot.
      */
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {

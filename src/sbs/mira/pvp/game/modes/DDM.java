@@ -23,21 +23,18 @@ import java.util.Iterator;
 import java.util.Random;
 
 /**
- * An extension to gamemode to implement DDM.
- * District Death Match objectives have been defined
- * in my design brief, so I will assume you
- * know what you are expecting to look at here.
+ * an extension to gamemode to implement ddm.
+ * created on 2017-04-26.
  *
- * @author s101601828 @ Swin.
- * @version 1.0
+ * @author jj.mira.sbs
+ * @author jd.mira.sbs
+ * @version 1.0.1
  * @see MiraPulse
- * <p>
- * Created by Josh on 26/04/2017.
- * @since 1.0
+ * @since 1.0.0
  */
 public class DDM extends Gamemode {
 
-    private HashMap<String, Integer> scores; // Keeps the team's scores.
+    private HashMap<String, Integer> scores;
 
     public void reset() {
         if (scores != null)
@@ -46,24 +43,21 @@ public class DDM extends Gamemode {
     }
 
     public void initialize() {
-        scores = new HashMap<>(); // Initialize key/value set for scores.
+        scores = new HashMap<>();
 
-        for (WarTeam team : getTeams()) // For every team, assign their scores to 3 x the amount of players online.
+        for (WarTeam team : getTeams())
             scores.put(team.getTeamName(), Bukkit.getOnlinePlayers().size() * 3);
-
         autoAssign();
-
-        // Assign objective to scoreboard for this gamemode.
+        
         Objective obj = s().registerNewObjective("gm", "dummy");
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Display it in sidebar. Pretty.
-        updateScoreboard(); // Update the scoreboard to put all the default values on it.
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        updateScoreboard();
 
         for (Player online : Bukkit.getOnlinePlayers())
-            online.setScoreboard(s()); // Everyone online needs to see this scoreboard.
+            online.setScoreboard(s());
     }
 
     public void tick() {
-        //Nothing needed here.
     }
 
     public void onKill(MiraPlayer killed, MiraPlayer killer) {
@@ -73,7 +67,6 @@ public class DDM extends Gamemode {
     }
 
     public void onLeave(MiraPlayer left) {
-        //Nothing happens when a player leaves on DDM.
     }
 
     public String getOffensive() {
@@ -97,22 +90,16 @@ public class DDM extends Gamemode {
     }
 
     public void decideWinner() {
-        int lowest = 999; // Lowest is higher than 80 x 3 since teams start off as 3 x the amount of players.
+        int lowest = 999;
         ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
 
         for (WarTeam team : getTeams()) {
-            // For each team, check their scores.
             int count = scores.get(team.getTeamName());
             if (count == lowest)
-                // If they're equal to the current lowest points, add them to the list of winners.
                 winners.add(team);
             else if (count < lowest) {
-                // If they're below the current lowest points,
-                // lowezt the new lowest points,
                 lowest = count;
-                // Clear the current list of winners as they have more points than this team,
                 winners.clear();
-                // Then add this team to the list of winners.
                 winners.add(team);
             }
         }
@@ -120,29 +107,23 @@ public class DDM extends Gamemode {
     }
 
     public void updateScoreboard() {
-        // Get the "objective" on the scoreboard, where data goes.
         Objective obj = s().getObjective(DisplaySlot.SIDEBAR);
 
-        // The title of the scoreboard, which displays the map and gamemode playing this match.
         String dp = map().getMapName() + " (" + getName() + ")";
-        if (dp.length() > 32) dp = dp.substring(0, 32); // Titles cannot be longer than 32 characters.
-        obj.setDisplayName(dp); // Set the title of the scoreboard.
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
+        if (dp.length() > 32) dp = dp.substring(0, 32);
+        obj.setDisplayName(dp);
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        // Format it pretty for the players.
-        obj.getScore(" ").setScore(scores.size() + 2); // Top spacer.
-        obj.getScore("  Run-ins Remaining").setScore(scores.size() + 1); // 'Points' denoter.
+        obj.getScore(" ").setScore(scores.size() + 2);
+        obj.getScore("  Run-ins Remaining").setScore(scores.size() + 1);
 
-        Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
-        for (int i = 0; i < getTeams().size(); i++) { // Only iterate the number of teams needed.
-            // For each team, display their their points colored respectively.
-            WarTeam target = iterator.next(); // Get the next team to be iterated.
-            // Set the new score value.
+        Iterator<WarTeam> iterator = getTeams().iterator();
+        for (int i = 0; i < getTeams().size(); i++) {
+            WarTeam target = iterator.next();
             obj.getScore(target.getTeamColor() + "    " + scores.get(target.getTeamName())).setScore(i + 1);
-            // Remove the old value from the board since it is not needed.
             s().resetScores(target.getTeamColor() + "    " + (scores.get(target.getTeamName()) + 1));
         }
-        obj.getScore("  ").setScore(0); // Bottom spacer.
+        obj.getScore("  ").setScore(0);
     }
 
     @Override
@@ -153,7 +134,7 @@ public class DDM extends Gamemode {
     }
 
     /**
-     * A territory is a cuboid, in which if an
+     * a territory is a cuboid, in which if an
      * opposing player runs into, scores a lot
      * of points for their team on DDM. Alongside
      * killing enemy players, they must also
@@ -170,42 +151,40 @@ public class DDM extends Gamemode {
         final MiraPulse main;
 
         public Territory(int x1, int y1, int z1, int x2, int y2, int z2, WarTeam belongsTo, MiraPulse main) {
-            // Defines the bottom-left and top-right regions of this cuboid.
             this.x1 = Math.min(x1, x2);
             this.y1 = Math.min(y1, y2);
             this.z1 = Math.min(z1, z2);
             this.x2 = Math.max(x1, x2);
             this.y2 = Math.max(y1, y2);
             this.z2 = Math.max(z1, z2);
-            this.belongsTo = belongsTo.getDisplayName(); // Who does this territory belong to?
+            this.belongsTo = belongsTo.getDisplayName();
             this.main = main;
         }
 
         /**
-         * Awaken this Territory Cuboid for the match.
+         * awaken this territory cuboid for the match.
          */
         public void activate() {
             if (!main.match().getCurrentMode().getFullName().equals("District Death Match"))
-                // Don't enable if DDM isn't being played.
                 return;
 
             main.plugin().getServer().getPluginManager().registerEvents(this, main.plugin());
         }
 
         /**
-         * Put this Territory Cuboid to sleep until it is needed again.
+         * put this territory cuboid to sleep until it is needed again.
          */
         public void deactivate() {
             HandlerList.unregisterAll(this);
         }
 
         /**
-         * Checks if a location is inside the cuboid.
-         * This is used to check if a player has entered
+         * checks if a location is inside the cuboid.
+         * this is used to check if a player has entered
          * this territory and needs to be acted upon.
          *
-         * @param loc The location to compare.
-         * @return Are they inside the territory?
+         * @param loc the location to compare.
+         * @return are they inside the territory?
          */
         boolean isInside(Location loc) {
             return loc.getBlockX() >= x1 && loc.getBlockX() <= x2 && loc.getBlockY() >= y1 && loc.getBlockY() <= y2 && loc.getBlockZ() >= z1 && loc.getBlockZ() <= z2;
@@ -213,34 +192,32 @@ public class DDM extends Gamemode {
 
         @EventHandler
         public void nmv(PlayerMoveEvent event) {
-            if (isInside(event.getTo()) && !event.getPlayer().isDead()) { // Are they inside the territory?t
-                if (!event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) return; // Are they in survival mode?
-                MiraPlayer wp = main.getWarPlayer(event.getPlayer()); // Get their WarPlayer implement.
-                if (wp.getCurrentTeam() == null) return; // Cancel if they aren't on any team.
+            if (isInside(event.getTo()) && !event.getPlayer().isDead()) {
+                if (!event.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) return;
+                MiraPlayer wp = main.getWarPlayer(event.getPlayer());
+                if (wp.getCurrentTeam() == null) return;
 
-                WarTeam target = wp.getCurrentTeam(); // Get their current team otherwise!
-                if (!target.getDisplayName().equals(belongsTo)) { // Is this not their own territory?
-                    DDM ddm = (DDM) main.cache().getGamemode("District Death Match"); // Get the running instance of DDM again.
-                    for (MiraPlayer wp2 : main.getWarPlayers().values()) { // Loop through each player.
-                        if (wp2.getCurrentTeam() == null) continue; // Ignore if they're not on a team.
-                        if (!wp2.getCurrentTeam().getTeamName().equals(target.getTeamName())) // Play a bad sound effect.
+                WarTeam target = wp.getCurrentTeam();
+                if (!target.getDisplayName().equals(belongsTo)) {
+                    DDM ddm = (DDM) main.cache().getGamemode("District Death Match");
+                    for (MiraPlayer wp2 : main.getWarPlayers().values()) {
+                        if (wp2.getCurrentTeam() == null) continue;
+                        if (!wp2.getCurrentTeam().getTeamName().equals(target.getTeamName()))
                             wp2.crafter().playSound(wp2.crafter().getLocation(), Sound.ENTITY_GHAST_SCREAM, 1F, 1F);
-                        else // Play a good sound effect!
+                        else
                             wp2.crafter().playSound(wp2.crafter().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 1F);
                     }
 
-                    // Broadcast that they got in.
                     Bukkit.broadcastMessage(wp.display_name() + " scored a point");
                     ddm.logEvent(wp.display_name() + " scored a point");
 
-                    // Record their current captures remaining, and decrement it.
                     int capsToGo = ddm.scores.get(target.getTeamName());
                     ddm.scores.put(target.getTeamName(), capsToGo - 1);
 
-                    ddm.updateScoreboard(); // Update the scoreboard.
-                    if (capsToGo == 1) // Is this their last capture?
-                        ddm.onEnd(); // End the match.
-                    else // Other teleport the player back to a random spawn.
+                    ddm.updateScoreboard();
+                    if (capsToGo == 1)
+                        ddm.onEnd();
+                    else
                         event.setTo(ddm.map().getTeamSpawns(target.getTeamName()).get(new Random().nextInt(ddm
                                 .map().getTeamSpawns(target.getTeamName()).size())).toLocation(main.match().getCurrentWorld(), true));
                 } else {

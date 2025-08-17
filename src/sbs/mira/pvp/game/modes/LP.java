@@ -14,44 +14,38 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * An extension to gamemode to implement LP.
- * Lifepool objectives have been defined
- * in my design brief, so I will assume you
- * know what you are expecting to look at here.
+ * an extension to gamemode to implement lp.
+ * created on 2017-04-21.
  *
- * @author s101601828 @ Swin.
- * @version 1.0
+ * @author jj.mira.sbs
+ * @author jd.mira.sbs
+ * @version 1.0.1
  * @see MiraPulse
- * <p>
- * Created by Josh on 21/04/2017.
- * @since 1.0
+ * @since 1.0.0
  */
 public class LP extends Gamemode {
 
-    private final HashMap<String, Integer> lives = new HashMap<>(); // Key/value set to hold teams' lives.
+    private final HashMap<String, Integer> lives = new HashMap<>();
 
     public void reset() {
-        // Clears the "lives" key/value set for next time a LP is played.
         lives.clear();
     }
 
     public void initialize() {
-        for (WarTeam team : getTeams()) // Give every participating team a finite amount of lives.
+        for (WarTeam team : getTeams())
             lives.put(team.getTeamName(), (Bukkit.getOnlinePlayers().size() * 5) + 3);
 
         autoAssign();
 
-        // Assign objective to scoreboard for this gamemode.
         Objective obj = s().registerNewObjective("gm", "dummy");
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Display it in sidebar. Pretty.
-        updateScoreboard(); // Update the scoreboard to put all the default values on it.
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        updateScoreboard();
 
         for (Player online : Bukkit.getOnlinePlayers())
-            online.setScoreboard(s()); // Everyone online needs to see this scoreboard.
+            online.setScoreboard(s());
     }
 
     public void tick() {
-        //Nothing needed here.
     }
 
     public void onKill(MiraPlayer killed, MiraPlayer killer) {
@@ -63,37 +57,31 @@ public class LP extends Gamemode {
     }
 
     /**
-     * Procedure that handles death within a round.
-     * A life is decremented from the dead player's
+     * procedure that handles death within a round.
+     * a life is decremented from the dead player's
      * team's life pool.
      *
-     * @param killed Player who died.
+     * @param killed player who died.
      */
     private void death(MiraPlayer killed) {
-        int lives = this.lives.get(killed.getCurrentTeam().getTeamName()); // Check their current team's lives.
-        if (lives == 0) return; // They've already lost, there's no point continuing.
+        int lives = this.lives.get(killed.getCurrentTeam().getTeamName());
+        if (lives == 0) return;
         this.lives.put(killed.getCurrentTeam().getTeamName(), lives - 1);
-        updateScoreboard(); // Reflect the change on the scoreboard.
+        updateScoreboard();
         checkWin();
     }
 
     public void decideWinner() {
-        int highest = -1; // Highest is lower than zero since teams start off as zero.
-        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
+        int highest = -1;
+        ArrayList<WarTeam> winners = new ArrayList<>();
 
         for (WarTeam team : getTeams()) {
-            // For each team, check their kills.
             int count = lives.get(team.getTeamName());
             if (count == highest)
-                // If they're equal to the current highest points, add them to the list of winners.
                 winners.add(team);
             else if (count > highest) {
-                // If they're above the current highest points,
-                // Set the new highst points,
                 highest = count;
-                // Clear the current list of winners as they have less points than this team,
                 winners.clear();
-                // Then add this team to the list of winners.
                 winners.add(team);
             }
         }
@@ -101,11 +89,11 @@ public class LP extends Gamemode {
     }
 
     private void checkWin() {
-        int aliveTeams = 0; // Record how many teams have more than 0 lives remaining.
+        int aliveTeams = 0;
         for (WarTeam team : getTeams())
             if (lives.get(team.getTeamName()) >= 1)
-                aliveTeams++; // This team has more than 0 lives.
-        if (aliveTeams <= 1) // Is there one or less teams remaining?
+                aliveTeams++;
+        if (aliveTeams <= 1)
             onEnd();
     }
 
@@ -130,34 +118,26 @@ public class LP extends Gamemode {
     }
 
     public void onLeave(MiraPlayer left) {
-        //Nothing happens when a player leaves on TDM.
-        // Everything is handled automatically. Yay!
     }
 
     public void updateScoreboard() {
-        // Get the "objective" on the scoreboard, where data goes.
         Objective obj = s().getObjective(DisplaySlot.SIDEBAR);
 
-        // The title of the scoreboard, which displays the map and gamemode playing this match.
         String dp = map().getMapName() + " (" + getName() + ")";
-        if (dp.length() > 32) dp = dp.substring(0, 32); // Titles cannot be longer than 32 characters.
-        obj.setDisplayName(dp); // Set the title of the scoreboard.
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
+        if (dp.length() > 32) dp = dp.substring(0, 32);
+        obj.setDisplayName(dp);
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        // Format it pretty for the players.
-        obj.getScore(" ").setScore(lives.size() + 2); // Top spacer.
-        obj.getScore("  Lives Remaining").setScore(lives.size() + 1); // 'Points' denoter.
+        obj.getScore(" ").setScore(lives.size() + 2);
+        obj.getScore("  Lives Remaining").setScore(lives.size() + 1);
 
-        Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
-        for (int i = 0; i < lives.size(); i++) { // Only iterate the number of teams needed.
-            // For each team, display their their points colored respectively.
-            WarTeam target = iterator.next(); // Get the next team to be iterated.
-            // Set the new score value.
+        Iterator<WarTeam> iterator = getTeams().iterator();
+        for (int i = 0; i < lives.size(); i++) {
+            WarTeam target = iterator.next();
             obj.getScore(target.getTeamColor() + "    " + lives.get(target.getTeamName())).setScore(i + 1);
-            // Remove the old value from the board since it is not needed.
             s().resetScores(target.getTeamColor() + "    " + (lives.get(target.getTeamName()) + 1));
         }
-        obj.getScore("  ").setScore(0); // Bottom spacer.
+        obj.getScore("  ").setScore(0);
     }
 
     @Override

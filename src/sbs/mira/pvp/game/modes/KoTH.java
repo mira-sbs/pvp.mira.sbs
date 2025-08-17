@@ -21,25 +21,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * An extension to gamemode to implement KoTH.
- * King of The Hill objectives have been defined
- * in my design brief, so I will assume you
- * know what you are expecting to look at here.
+ * an extension to gamemode to implement koth.
+ * created on 2017-04-23.
  *
- * @author s101601828 @ Swin.
- * @version 1.0
+ * @author jj.mira.sbs
+ * @author jd.mira.sbs
+ * @version 1.0.1
  * @see MiraPulse
- * <p>
- * Created by Josh on 23/04/2017.
- * @since 1.0
+ * @since 1.0.0
  */
 public class KoTH extends Gamemode {
 
-    private WarTeam holder; // The current team holding the flag. Null if there is no team.
-    private HashMap<String, Integer> captureTime; // The capture time remaining for each team.
-    private HashMap<String, Integer> captures; // The amount of captures made by each team.
-    private Location flag; // The block location of the flag.
-    private int interval; // Interval at which fireworks shoot from the flag.
+    private WarTeam holder;
+    private HashMap<String, Integer> captureTime;
+    private HashMap<String, Integer> captures;
+    private Location flag;
+    private int interval;
 
     public void reset() {
         flag = null;
@@ -50,83 +47,69 @@ public class KoTH extends Gamemode {
     }
 
     public void initialize() {
-        interval = 1; // Reset the interval if applicable.
+        interval = 1;
         captureTime = new HashMap<>();
         captures = new HashMap<>();
         flag = ((SerializedLocation) map().attr().get("kothFlag")).toLocation(main.match().getCurrentWorld(), false);
 
-        for (WarTeam team : getTeams()) { // Give every participating team default values.
+        for (WarTeam team : getTeams()) {
             captureTime.put(team.getTeamName(), (Integer) map().attr().get("captureTime"));
             captures.put(team.getTeamName(), 0);
         }
 
-        // Defines the block at which the flag is located.
         main.match().getCurrentWorld().getBlockAt(flag).setType(Material.WOOL);
 
         autoAssign();
 
-        // Assign objective to scoreboard for this gamemode.
         Objective obj = s().registerNewObjective("gm", "dummy");
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Display it in sidebar. Pretty.
-        updateScoreboard(); // Update the scoreboard to put all the default values on it.
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        updateScoreboard();
 
         for (Player online : Bukkit.getOnlinePlayers())
-            online.setScoreboard(s()); // Everyone online needs to see this scoreboard.
+            online.setScoreboard(s());
     }
 
     public void tick() {
-        // This is all called every second.
         if (holder != null) {
-            int holdTime = captureTime.get(holder.getTeamName()); // Get the team's current hold time.
-            captureTime.put(holder.getTeamName(), holdTime - 1); // Subtract by 1 and push back into key/value set.
-            updateScoreboard(); // Update the scoreboard!
-            holdTime--; // Subtract the holdTime field we just made.
+            int holdTime = captureTime.get(holder.getTeamName());
+            captureTime.put(holder.getTeamName(), holdTime - 1);
+            updateScoreboard();
+            holdTime--;
             if (holdTime == 5) {
-                logEvent(holder.getDisplayName() + " will win in 5 seconds!"); // Log event.
-                Bukkit.broadcastMessage(holder.getDisplayName() + " will win in 5 seconds!"); // They're gonna win!
+                logEvent(holder.getDisplayName() + " will win in 5 seconds!");
+                Bukkit.broadcastMessage(holder.getDisplayName() + " will win in 5 seconds!");
             } else if (holdTime == 0) {
-                // They won.
                 onEnd();
                 return;
             }
         }
         interval--;
         if (interval == 0) {
-            // Do a firework every 4 seconds.
             interval = 4;
             doFireworks();
         }
     }
 
     public void onKill(MiraPlayer killed, MiraPlayer killer) {
-        // Unneeded in this gamemode.
     }
 
     public void onLeave(MiraPlayer left) {
-        // Unneeded in this gamemode.
     }
 
     public void onDeath(MiraPlayer killed) {
-        // Unneeded in this gamemode.
     }
 
     public void decideWinner() {
-        int lowest = 999; // Lowest is higher than the initial time.
-        ArrayList<WarTeam> winners = new ArrayList<>(); // Keep a temporary list of winners.
+        int lowest = 999;
+        ArrayList<WarTeam> winners = new ArrayList<>();
 
         for (WarTeam team : getTeams()) {
-            // For each team, check their capture time.
             int time = captureTime.get(team.getTeamName());
             if (time == lowest)
-                // If they're equal to the current lowest time, add them to the list of winners.
                 winners.add(team);
             else if (time < lowest) {
-                // If they're above the current lowest time,
-                // Set the new lowest time,
                 lowest = time;
-                // Clear the current list of winners as they have more time than this team,
                 winners.clear();
-                // Then add this team to the list of winners.
                 winners.add(team);
             }
         }
@@ -134,41 +117,35 @@ public class KoTH extends Gamemode {
     }
 
     /**
-     * KoTH-specific procedure to spawn a firework at the flag.
-     * If no one is holding it, spawn a white firework.
-     * If a team is holding it, spawn a holding-team-colored firework.
+     * koth-specific procedure to spawn a firework at the flag.
+     * if no one is holding it, spawn a white firework.
+     * if a team is holding it, spawn a holding-team-colored firework.
      */
     private void doFireworks() {
         if (holder == null) // Spawn white.
             ((MiraPvpMaster) main).entity().spawnFirework(flag.clone().add(0.5, 1, 0.5), ChatColor.WHITE);
-        else // Spawn team-colored.
+        else
             ((MiraPvpMaster) main).entity().spawnFirework(flag.clone().add(0.5, 1, 0.5), holder.getTeamColor());
     }
 
     public void updateScoreboard() {
-        // Get the "objective" on the scoreboard, where data goes.
         Objective obj = s().getObjective(DisplaySlot.SIDEBAR);
 
-        // The title of the scoreboard, which displays the map and gamemode playing this match.
         String dp = map().getMapName() + " (" + getName() + ")";
-        if (dp.length() > 32) dp = dp.substring(0, 32); // Titles cannot be longer than 32 characters.
-        obj.setDisplayName(dp); // Set the title of the scoreboard.
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR); // Ensure it is on the sidebar.
+        if (dp.length() > 32) dp = dp.substring(0, 32);
+        obj.setDisplayName(dp);
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        // Format it pretty for the players.
-        obj.getScore(" ").setScore(captureTime.size() + 2); // Top spacer.
-        obj.getScore("  Time Remaining").setScore(captureTime.size() + 1); // 'Points' denoter.
+        obj.getScore(" ").setScore(captureTime.size() + 2);
+        obj.getScore("  Time Remaining").setScore(captureTime.size() + 1);
 
-        Iterator<WarTeam> iterator = getTeams().iterator(); // An iterator to iterate through the teams.
-        for (int i = 0; i < captureTime.size(); i++) { // Only iterate the number of teams needed.
-            // For each team, display their their times colored respectively.
-            WarTeam target = iterator.next(); // Get the next team to be iterated.
-            // Set the new score value.
+        Iterator<WarTeam> iterator = getTeams().iterator();
+        for (int i = 0; i < captureTime.size(); i++) {
+            WarTeam target = iterator.next();
             obj.getScore(target.getTeamColor() + "    " + main.strings().getDigitalTime(captureTime.get(target.getTeamName()))).setScore(i + 1);
-            // Remove the old value from the board since it is not needed.
             s().resetScores(target.getTeamColor() + "    " + main.strings().getDigitalTime(captureTime.get(target.getTeamName()) + 1));
         }
-        obj.getScore("  ").setScore(0); // Bottom spacer.
+        obj.getScore("  ").setScore(0);
     }
 
     public String getOffensive() {
@@ -193,28 +170,26 @@ public class KoTH extends Gamemode {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        MiraPlayer wp = main.getWarPlayer(event.getPlayer()); // Get their WarPlayer implement.
-        if (event.getBlock().getLocation().equals(flag)) { // Did they berak the flag?
-            event.setCancelled(true); // Cancel the breaking of the flag.
-            WarTeam target = wp.getCurrentTeam(); // Get their team.
-            if (target == null) return; // Was it a spectator?
-            if (holder == target) // Are they already in control of the flag?
+        MiraPlayer wp = main.getWarPlayer(event.getPlayer());
+        if (event.getBlock().getLocation().equals(flag)) {
+            event.setCancelled(true);
+            WarTeam target = wp.getCurrentTeam();
+            if (target == null) return;
+            if (holder == target)
                 wp.crafter().sendMessage("You already have control of the flag!");
             else {
                 Bukkit.broadcastMessage(wp.display_name() + " took the flag for " + target.getDisplayName() + "!");
-                // Log first capture and additional captures!
                 if (holder == null)
                     logEvent(wp.display_name() + " captured the flag first!");
                 else
                     logEvent(wp.display_name() + " captured the flag for " + target.getDisplayName());
-                holder = target; // Broadcast the taking of the flag and reflect the change.
+                holder = target;
 
                 for (Player online : Bukkit.getOnlinePlayers())
-                    online.playSound(online.getLocation(), Sound.ENTITY_ENDERDRAGON_HURT, 1F, 1F); // Play a sound effect.
-                updateScoreboard(); // Update the scoreboard.
-                captures.put(target.getTeamName(), captures.get(target.getTeamName()) + 1); // Increment captures.
+                    online.playSound(online.getLocation(), Sound.ENTITY_ENDERDRAGON_HURT, 1F, 1F);
+                updateScoreboard();
+                captures.put(target.getTeamName(), captures.get(target.getTeamName()) + 1);
 
-                // Update the wool.
                 event.getBlock().getLocation().getBlock().setType(Material.WOOL);
                 event.getBlock().getLocation().getBlock().setData(WoolColor.fromChatColor(target.getTeamColor()).getColor());
             }
@@ -223,7 +198,6 @@ public class KoTH extends Gamemode {
 
     @EventHandler
     public void onExplode(EntityExplodeEvent event) {
-        // Don't allow the flag to be exploded.
         event.blockList().remove(flag.getBlock());
     }
 
