@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0.0
  */
 public
-class MiraPulse<Plugin extends MiraPlugin, Master extends MiraPluginMaster>
+class MiraPulse<Plugin extends MiraPlugin<MiraPulse<?, ?>>, Master extends MiraPluginMaster<?, ?>>
 {
   @NotNull
   private final Plugin plugin;

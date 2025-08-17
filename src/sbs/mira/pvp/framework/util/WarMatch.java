@@ -104,7 +104,7 @@ public abstract class WarMatch extends MiraModule {
      */
     public boolean canInteract(Entity pl, boolean adminBypass) {
         MiraPlayer wp = mira().getWarPlayer(pl.getUniqueId());
-        return wp == null || (wp.is_member_of_team() || adminBypass && mira().plugin().hasPermission(pl, "war.admin"));
+        return wp == null || (wp.is_member_of_team() || adminBypass && mira().plugin().has_permission(pl, "war.admin"));
     }
 
     /**

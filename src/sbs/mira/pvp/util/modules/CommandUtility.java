@@ -58,7 +58,7 @@ public class CommandUtility extends MiraModule {
         // Does the player have a team preference?
         WarTeam preference = null;
         if (args.argsLength() > 0) {
-            if (!mira().plugin().hasPermission(sender, "war.preference")) {
+            if (!mira().plugin().has_permission(sender, "war.preference")) {
                 sender.sendMessage(ChatColor.RED + "You may not pick your team preference.");
                 return;
             }
@@ -342,7 +342,7 @@ public class CommandUtility extends MiraModule {
      */
     private void warnStaff(String message) {
         for (Player online : Bukkit.getOnlinePlayers())
-            if (mira().plugin().hasPermission(online, "war.staff"))
+            if (mira().plugin().has_permission(online, "war.staff"))
                 online.sendMessage(ChatColor.YELLOW + "Staff: " + message);
         Bukkit.getConsoleSender().sendMessage(message);
     }
@@ -357,7 +357,7 @@ public class CommandUtility extends MiraModule {
      */
     private void warnNonStaff(String message) {
         for (Player online : Bukkit.getOnlinePlayers())
-            if (!mira().plugin().hasPermission(online, "war.staff"))
+            if (!mira().plugin().has_permission(online, "war.staff"))
                 online.sendMessage(ChatColor.YELLOW + "Warning: " + message);
         Bukkit.getConsoleSender().sendMessage(message); // Also writes message to console as well.
     }

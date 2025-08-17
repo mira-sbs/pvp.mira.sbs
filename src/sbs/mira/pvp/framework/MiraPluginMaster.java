@@ -3,12 +3,12 @@ package sbs.mira.pvp.framework;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sbs.mira.pvp.framework.util.modules.ItemUtility;
 import sbs.mira.pvp.framework.util.modules.StringUtility;
 import sbs.mira.pvp.framework.util.modules.WorldUtility;
+import sbs.mira.pvp.framework.util.MiraConfiguration;
 
 import java.util.*;
 
@@ -29,6 +29,8 @@ class MiraPluginMaster<Pulse extends MiraPulse<?, ?>, Player extends MiraPlayer<
   
   private final @NotNull Random rng;
   private final @NotNull TreeMap<UUID, Player> players;
+  
+  private final @NotNull MiraConfiguration config;
   private final @NotNull ItemUtility items;
   private final @NotNull StringUtility strings;
   private final @NotNull WorldUtility world;
@@ -38,6 +40,7 @@ class MiraPluginMaster<Pulse extends MiraPulse<?, ?>, Player extends MiraPlayer<
   {
     this.rng = new Random(0xfdffdeadL);
     this.players = new TreeMap<>();
+    this.config = new MiraConfiguration(this);
     this.items = new ItemUtility(this);
     this.strings = new StringUtility(this);
     this.world = new WorldUtility(this);

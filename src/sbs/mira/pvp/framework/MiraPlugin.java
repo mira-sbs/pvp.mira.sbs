@@ -1,6 +1,5 @@
 package sbs.mira.pvp.framework;
 
-import org.jetbrains.annotations.NotNull;
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
 import com.sk89q.minecraft.util.commands.*;
 import org.bukkit.command.Command;
@@ -9,10 +8,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sbs.mira.pvp.MiraPvpMaster;
-import sbs.mira.pvp.MiraPvpPlugin;
-import sbs.mira.pvp.MiraPvpPulse;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -178,5 +175,11 @@ class MiraPlugin<Pulse extends MiraPulse<?, ?>>
       sender.sendMessage(pulse().master().message("command.validation.error.generic", e.getMessage()));
     }
     return true;
+  }
+  
+  public
+  boolean has_permission(@NotNull CommandSender sender, @NotNull String perm)
+  {
+    return commands_manager.hasPermission(sender, perm);
   }
 }

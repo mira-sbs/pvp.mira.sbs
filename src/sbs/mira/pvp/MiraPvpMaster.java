@@ -1,170 +1,196 @@
 package sbs.mira.pvp;
 
-import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
-import org.jetbrains.annotations.NotNull;
-import sbs.mira.pvp.framework.MiraPluginMaster;
-import sbs.mira.pvp.framework.MiraPlayer;
-import sbs.mira.pvp.stats.WarStats;
-import sbs.mira.pvp.util.Cache;
-import sbs.mira.pvp.util.Match;
-import sbs.mira.pvp.util.modules.ConfigUtility;
-import sbs.mira.pvp.util.modules.EntityUtility;
-import sbs.mira.pvp.util.modules.QueryUtility;
-import sbs.mira.pvp.util.modules.RespawnUtility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+import sbs.mira.pvp.framework.MiraPlayer;
+import sbs.mira.pvp.framework.MiraPluginMaster;
+import sbs.mira.pvp.stats.WarStats;
+import sbs.mira.pvp.util.Cache;
+import sbs.mira.pvp.util.Match;
+import sbs.mira.pvp.framework.util.MiraConfiguration;
+import sbs.mira.pvp.util.modules.EntityUtility;
+import sbs.mira.pvp.util.modules.QueryUtility;
+import sbs.mira.pvp.util.modules.RespawnUtility;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * [wit.]
  * created on 2017-03-20.
  *
  * @author jj.mira.sbs
+ * @author jd.mira.sbs
  * @version 1.0.1
- * @see sbs.mira.pvp.framework.MiraPluginMaster
+ * @see sbs.mira.pvp.framework
  * @since 1.0.0
  */
-public class MiraPvpMaster extends MiraPluginMaster<MiraPvpPulse, MiraPvpPlayer> {
+public
+class MiraPvpMaster
+  extends MiraPluginMaster<MiraPvpPulse, MiraPvpPlayer>
+{
   
-  
-  /*private final Match matchutil; // An instance of the match controller.
-  private final Cache cacheutil; // An instance of the cache.
-  private final RespawnUtility respawnutil; // An instance of the respawning utility.
-  private final EntityUtility entiutil; // An instance of the entity utility.
-  private final ConfigUtility confutil; // An instance of the configuration utility.
-  private final QueryUtility qryutil; // An instance of the database utility.
+  private final Match match;
+  private final Cache cache;
+  private final RespawnUtility respawn;
+  private final EntityUtility entities;
+  private final MiraConfiguration config;
+  private final QueryUtility db;
   
   private final ArrayList<UUID> warned; // Keeps track of warning messages for players.
-  private final HashMap<UUID, WarStats> tempStats; // Holds statistics for a player until they log in.
+  private final HashMap<UUID, WarStats> tempStats;
   
-  private ItemStack HANDBOOK; // Needs to be created in its own function because it's HELLA huge.
+  private ItemStack HANDBOOK;
   ItemStack VOTE;
-  ItemStack SKYBLOCK;*/
+  ItemStack SKYBLOCK;
   
-  public MiraPvpMaster(MiraPvpPlugin plugin) {
-    super(plugin);
-    /*this.cacheutil = new Cache(this);
-    this.matchutil = new Match(this);
+  public
+  MiraPvpMaster(MiraPvpPlugin plugin)
+  {
+    this.match = new Match(this);
+    this.cacheutil = new Cache(this);
     this.respawnutil = new RespawnUtility(this);
     this.entiutil = new EntityUtility(this);
-    this.confutil = new ConfigUtility(this);
     this.qryutil = new QueryUtility(this, plugin.getConfig().getBoolean("database.enabled"));
-    new Guard(this); // Guard does not need a reference so just initialize it.
-    new StatsListener(this); // Stats Listener does not need a reference so just initialize it.*/
+    new Guard(this);
+    new StatsListener(this);
     
     warned = new ArrayList<>();
     tempStats = new HashMap<>();
-    // Task that allows players to receive a warning message every 3 seconds.
-    // Clear warnings.
     Bukkit.getScheduler().runTaskTimer(plugin, warned::clear, 0L, 60L);
     createItems();
   }
   
   /**
-   * Returns a running instance of the extended Match manager.
+   * returns a running instance of the extended Match manager.
    *
-   * @return Match manager.
+   * @return match manager.
    */
-  public Match match() {
+  public
+  Match match()
+  {
     return matchutil;
   }
   
   /**
-   * Returns a running instance of the extended Cache.
+   * returns a running instance of the extended Cache.
    *
-   * @return Cache.
+   * @return cache.
    */
-  public Cache cache() {
+  public
+  Cache cache()
+  {
     return cacheutil;
   }
   
   /**
-   * Returns a running instance of the respawn utility.
+   * returns a running instance of the respawn utility.
    *
-   * @return Respawn utility.
+   * @return respawn utility.
    */
-  public RespawnUtility respawn() {
+  public
+  RespawnUtility respawn()
+  {
     return respawnutil;
   }
   
   /**
-   * Returns a running instance of the entity utility.
+   * returns a running instance of the entity utility.
    *
-   * @return Entity utility.
+   * @return entity utility.
    */
-  public EntityUtility entity() {
+  public
+  EntityUtility entity()
+  {
     return entiutil;
   }
   
   /**
-   * Returns a running instance of the configuration utility.
+   * returns a running instance of the configuration utility.
    *
-   * @return Configuration utility.
+   * @return configuration utility.
    */
-  public ConfigUtility conf() {
+  public
+  MiraConfiguration conf()
+  {
     return confutil;
   }
   
   /**
-   * Returns a running instance of the query utility.
+   * returns a running instance of the query utility.
    *
-   * @return Query utility.
+   * @return query utility.
    */
-  public QueryUtility query() {
+  public
+  QueryUtility query()
+  {
     return qryutil;
   }
   
   /**
-   * Temporarily holds onto a player's statistics
+   * temporarily holds onto a player's statistics
    * without necessarily having a WarPlayerPlus
    * instance created yet. (pre login)
    *
-   * @param uuid      UUID associated with the stats.
-   * @param tempStats Actual stats.
+   * @param uuid      uuid associated with the stats.
+   * @param tempStats actual stats.
    */
-  void putTempStats(UUID uuid, WarStats tempStats) {
+  void putTempStats(UUID uuid, WarStats tempStats)
+  {
     this.tempStats.put(uuid, tempStats);
   }
   
   /**
-   * Creates an instance of a WarPlayer for a player.
+   * creates an instance of a WarPlayer for a player.
    *
-   * @param target The target to base the WarPlayer object on.
+   * @param target the target to base the WarPlayer object on.
    */
-  public MiraPvpPlayer declares(Player target) {
-    WarStats stats = tempStats.getOrDefault(target.getUniqueId(), new WarStats(this, target.getUniqueId())); // Get their stats, or create new ones.
+  public
+  MiraPvpPlayer declares(Player target)
+  {
+    WarStats stats = tempStats.getOrDefault(target.getUniqueId(), new WarStats(this, target.getUniqueId()));
     tempStats.remove(target.getUniqueId()); // Remove their pre-login storage stats.
-    MiraPlayer result = new MiraPvpPlayer(target, this, stats); // Create their instance.
+    MiraPlayer result = new MiraPvpPlayer(target.getHan, this, stats); // Create their instance.
     players().put(target.getUniqueId(), result); // Put it in the key/value set!
     return result;
   }
   
   /**
-   * Checks if a player can be warned, and then warns them.
+   * checks if a player can be warned, and then warns them.
    *
-   * @param whoWasWarned Who was warned. (lol)
+   * @param whoWasWarned who was warned.
    */
-  public void warn(Player whoWasWarned, String warning) {
-    if (warned.contains(whoWasWarned.getPlayer().getUniqueId())) return;
+  public
+  void warn(Player whoWasWarned, String warning)
+  {
+    if (warned.contains(whoWasWarned.getPlayer().getUniqueId()))
+    {
+      return;
+    }
     warned.add(whoWasWarned.getPlayer().getUniqueId());
     whoWasWarned.sendMessage("TIP: " + warning);
   }
   
   /**
-   * Gives a targeted player the spectator kit.
-   * This isn't needed, but it might be later.
+   * gives a targeted player the spectator kit.
+   * this isn't needed, but it might be later.
    *
-   * @param wp The target player.
+   * @param wp the target player.
    * @since 1.0
    */
-  public void spectating(MiraPlayer wp) {
+  public
+  void spectating(MiraPlayer wp)
+  {
     wp.crafter().getInventory().setHeldItemSlot(4);
     wp.crafter().getInventory().setItem(4, HANDBOOK);
     wp.crafter().getInventory().setItem(0, SKYBLOCK);
@@ -172,11 +198,13 @@ public class MiraPvpMaster extends MiraPluginMaster<MiraPvpPulse, MiraPvpPlayer>
   }
   
   /**
-   * Creates the handbook because the process of
+   * creates the handbook because the process of
    * doing so consumes lines like no tomorrow.
-   * All other items too why not.
+   * all other items too why not.
    */
-  private void createItems() {
+  private
+  void createItems()
+  {
     HANDBOOK = new ItemStack(Material.WRITTEN_BOOK);
     BookMeta bookMeta = (BookMeta) HANDBOOK.getItemMeta();
     bookMeta.setTitle(ChatColor.BOLD + "War: The Basics");
@@ -184,12 +212,30 @@ public class MiraPvpMaster extends MiraPluginMaster<MiraPvpPulse, MiraPvpPlayer>
     bookMeta.setGeneration(BookMeta.Generation.TATTERED);
     
     List<String> pages = new ArrayList<>();
-    pages.add(ChatColor.translateAlternateColorCodes('&', "&lWar: The Basics\n&0Hey there, player!\n\nBook Contents:\n&ci.&0 Overview\n&9ii.&0 Commands\n&6iii.&0 Players\n&aiv.&0 Rules\n\nIf you're &cnew&0, read through me and then\n       &nHAVE FUN!\n\n&0  »»»"));
-    pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart I. An Overview\n&0Welcome to War!\n\nThis is a &5team-based &0strategy PvP server!\nWork with your &4team mates &0to win matches.\n\nThere's a &agamemode &0tosuit everyone's play style!\n\n\n&0     »»»"));
-    pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart II. Commands\n\nStart Playing!\n&c/join &0- &9/leave\n&0What's up next?\n&4/rotation\n&0Have your say!\n&a/vote &0<gamemode>\nStatistics!\n&6/stats &0+ &7/leaderboard\n\n&0Or, &n/? War\n\n&0        »»»"));
-    pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart III. Players\n&0You'll see these people online!\n\n&oStaff:\n&6@&8Administrator\n&5@&8Moderator\n\n&0&oOther Ranks:\n&a#&8Donator\n&e#&8DonatorPlus\n&4#&8MapCreator\n\n&0           »»»"));
-    pages.add(ChatColor.translateAlternateColorCodes('&', "&oPart IV. Rules\n&0Follow these!\n\n&ci. &0Don't be a dick.\n&9ii. &0Play the game.\n&4iii. &0Don't cheat.\n&6iv. &0Don't combat log.\n&2v. &0Be a good sport.\n&5vi. &0Don't spawncamp.\n&8vii. &0Listen to @Staff\n&7viii. &0Have fun!\n\n\n&0              »»»"));
-    pages.add(ChatColor.translateAlternateColorCodes('&', "&oNow, go get 'em!\n\n&0We encourage players to use &4common sense &0whilst playing. Have a safe, sensible, and &dfun &cWar!\n\n&0- Administration\n\n\n\n\n                  X"));
+    pages.add(ChatColor.translateAlternateColorCodes(
+      '&',
+      "&lWar: The Basics\n&0Hey there, player!\n\nBook Contents:\n&ci.&0 Overview\n&9ii.&0 Commands\n&6iii.&0 Players\n&aiv.&0 Rules\n\nIf you're &cnew&0, read through me and then\n       &nHAVE FUN!\n\n&0  »»»"
+    ));
+    pages.add(ChatColor.translateAlternateColorCodes(
+      '&',
+      "&oPart I. An Overview\n&0Welcome to War!\n\nThis is a &5team-based &0strategy PvP server!\nWork with your &4team mates &0to win matches.\n\nThere's a &agamemode &0tosuit everyone's play style!\n\n\n&0     »»»"
+    ));
+    pages.add(ChatColor.translateAlternateColorCodes(
+      '&',
+      "&oPart II. Commands\n\nStart Playing!\n&c/join &0- &9/leave\n&0What's up next?\n&4/rotation\n&0Have your say!\n&a/vote &0<gamemode>\nStatistics!\n&6/stats &0+ &7/leaderboard\n\n&0Or, &n/? War\n\n&0        »»»"
+    ));
+    pages.add(ChatColor.translateAlternateColorCodes(
+      '&',
+      "&oPart III. Players\n&0You'll see these people online!\n\n&oStaff:\n&6@&8Administrator\n&5@&8Moderator\n\n&0&oOther Ranks:\n&a#&8Donator\n&e#&8DonatorPlus\n&4#&8MapCreator\n\n&0           »»»"
+    ));
+    pages.add(ChatColor.translateAlternateColorCodes(
+      '&',
+      "&oPart IV. Rules\n&0Follow these!\n\n&ci. &0Don't be a dick.\n&9ii. &0Play the game.\n&4iii. &0Don't cheat.\n&6iv. &0Don't combat log.\n&2v. &0Be a good sport.\n&5vi. &0Don't spawncamp.\n&8vii. &0Listen to @Staff\n&7viii. &0Have fun!\n\n\n&0              »»»"
+    ));
+    pages.add(ChatColor.translateAlternateColorCodes(
+      '&',
+      "&oNow, go get 'em!\n\n&0We encourage players to use &4common sense &0whilst playing. Have a safe, sensible, and &dfun &cWar!\n\n&0- Administration\n\n\n\n\n                  X"
+    ));
     bookMeta.setPages(pages);
     HANDBOOK.setItemMeta(bookMeta);
     
@@ -213,7 +259,9 @@ public class MiraPvpMaster extends MiraPluginMaster<MiraPvpPulse, MiraPvpPlayer>
   }
   
   @Override
-  public @NotNull Cache observe() {
+  public @NotNull
+  Cache observe()
+  {
     return cacheutil;
   }
   

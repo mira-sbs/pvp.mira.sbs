@@ -2,6 +2,8 @@ package sbs.mira.pvp.framework;
 
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * oh look another mira stan.
@@ -12,24 +14,59 @@ import org.bukkit.entity.Player;
  * @version 1.0.1
  * @since 1.0.0
  */
-public abstract class MiraPlayer<M extends MiraPulse> {
+public abstract
+class MiraPlayer<Pulse extends MiraPulse<?, ?>>
+  implements Breather<Pulse>
+{
   
-  protected final M mira;
-  protected final CraftPlayer player;
+  private @Nullable Pulse pulse;
+  protected final @NotNull CraftPlayer player;
   
   /**
    * @param player is for me?
-   * @param mira   anchorrr.
+   * @param pulse  anchorrr.
    */
-  public MiraPlayer(CraftPlayer player, M mira) {
-    this.mira = mira;
+  public
+  MiraPlayer(@NotNull CraftPlayer player, @NotNull Pulse pulse)
+  {
+    this.pulse = pulse;
     this.player = player;
+  }
+  
+  @Override
+  public @NotNull
+  Pulse pulse() throws FlatlineException
+  {
+    if (this.pulse != null)
+    {
+      return pulse;
+    }
+    else
+    {
+      throw new FlatlineException();
+    }
+  }
+  
+  @Override
+  public
+  void breathe(@NotNull Pulse pulse) throws IllegalStateException
+  {
+    if (this.pulse == null)
+    {
+      this.pulse = pulse;
+    }
+    else
+    {
+      throw new IllegalStateException("a breather may not have two pulses.");
+    }
   }
   
   /**
    * @see org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer
    */
-  public CraftPlayer crafter() {
+  public @NotNull
+  CraftPlayer crafter()
+  {
     return player;
   }
   
@@ -37,7 +74,9 @@ public abstract class MiraPlayer<M extends MiraPulse> {
    * @param message The message to send to the player.
    * @see Player#sendMessage(String)
    */
-  public void dm(String message) {
+  public
+  void dm(String message)
+  {
     player.sendMessage(message);
   }
   
@@ -45,7 +84,9 @@ public abstract class MiraPlayer<M extends MiraPulse> {
    * @return the current in game name of this mira stan.
    * @see Player#getName()
    */
-  public String name() {
+  public
+  String name()
+  {
     return player.getName();
   }
   
@@ -53,7 +94,9 @@ public abstract class MiraPlayer<M extends MiraPulse> {
    * @return formatted "display" name with formatting enabled+encouraged.
    * @see org.bukkit.entity.Player#getName()
    */
-  public String display_name() {
+  public
+  String display_name()
+  {
     return player.getDisplayName();
   }
 }
