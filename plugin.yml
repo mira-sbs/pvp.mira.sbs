@@ -1,5 +1,5 @@
-name: War
-main: au.edu.swin.war.Main
-author: [ILavaYou]
+name: pvp.mira.sbs
+main: sbs.mira.pvp.Main
+author: [Kawi]
 depend: [Skytopia]
 version: 1.1
