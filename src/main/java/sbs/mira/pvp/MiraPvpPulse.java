@@ -1,7 +1,7 @@
 package sbs.mira.pvp;
 
 import org.jetbrains.annotations.NotNull;
-import sbs.mira.pvp.framework.MiraPulse;
+import sbs.mira.core.MiraPulse;
 
 public
 final

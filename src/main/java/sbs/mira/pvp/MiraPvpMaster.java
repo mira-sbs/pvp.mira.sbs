@@ -10,12 +10,10 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
-import sbs.mira.pvp.framework.MiraPlayer;
-import sbs.mira.pvp.framework.MiraPluginMaster;
+import sbs.mira.core.MiraPluginMaster;
 import sbs.mira.pvp.stats.WarStats;
 import sbs.mira.pvp.util.Cache;
 import sbs.mira.pvp.util.Match;
-import sbs.mira.pvp.framework.util.MiraConfiguration;
 import sbs.mira.pvp.util.modules.EntityUtility;
 import sbs.mira.pvp.util.modules.QueryUtility;
 import sbs.mira.pvp.util.modules.RespawnUtility;
@@ -32,7 +30,7 @@ import java.util.UUID;
  * @author jj.mira.sbs
  * @author jd.mira.sbs
  * @version 1.0.1
- * @see sbs.mira.pvp.framework
+ * @see sbs.mira.core
  * @since 1.0.0
  */
 public

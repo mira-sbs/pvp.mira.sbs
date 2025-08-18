@@ -3,8 +3,8 @@ package sbs.mira.pvp;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.jetbrains.annotations.Nullable;
-import sbs.mira.pvp.framework.MiraPlayer;
-import sbs.mira.pvp.framework.game.WarTeam;
+import sbs.mira.core.MiraPlayer;
+import sbs.mira.core.game.WarTeam;
 import sbs.mira.pvp.stats.WarStats;
 
 /**

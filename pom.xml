@@ -2,16 +2,26 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <organization>
+    <name>may i reflect again?</name>
+    <url>https://mira.sbs</url>
+  </organization>
+
   <parent>
     <groupId>sbs.mira</groupId>
-    <artifactId>mira-core</artifactId>
+    <artifactId>mira</artifactId>
     <version>1.0.0</version>
   </parent>
-  <artifactId>mira-pvp</artifactId>
-  <version>1.0.1</version>
-  <description>custom minecraft pvp with soul.</description>
 
+  <artifactId>pvp</artifactId>
+  <version>1.0.1</version>
   <packaging>jar</packaging>
+
+  <name>pvp.mira.sbs</name>
+  <description>custom minecraft pvp with soul.</description>
+  <url>https://pvp.mira.sbs/</url>
+
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,6 +69,7 @@
               <artifactSet>
                 <includes>
                   <include>com.sk89q:command-framework-bukkit</include>
+                  <include>sbs.mira:core</include>
                 </includes>
               </artifactSet>
             </configuration>
@@ -68,41 +79,24 @@
     </plugins>
   </build>
 
-  <repositories>
-    <repository>
-      <id>spigot-repo</id>
-      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-    </repository>
-  </repositories>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/mira-sbs/pvp.mira.sbs/issues</url>
+  </issueManagement>
+
+  <scm>
+    <tag>HEAD</tag>
+    <connection>scm:git:git://github.com/mira-sbs/pvp.mira.sbs.git</connection>
+    <url>https://github.com/mira-sbs/pvp.mira.sbs</url>
+    <developerConnection>scm:git:ssh://git@github.com:mira-sbs/pvp.mira.sbs.git</developerConnection>
+  </scm>
 
   <dependencies>
     <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot</artifactId>
-      <version>1.21.8-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
-      <version>1.21.8-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.sk89q</groupId>
-      <artifactId>command-framework-bukkit</artifactId>
-      <version>1.9-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains</groupId>
-      <artifactId>annotations</artifactId>
-      <version>RELEASE</version>
+      <groupId>sbs.mira</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0.1</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
-
-  <issueManagement>
-    <system>GitHub</system>
-    <url>https://github.com/mira-sbs/pvp.mira.sbs</url>
-  </issueManagement>
 </project>

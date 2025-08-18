@@ -2,7 +2,7 @@ package sbs.mira.pvp;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import sbs.mira.pvp.framework.MiraPlugin;
+import sbs.mira.core.MiraPlugin;
 import sbs.mira.pvp.util.modules.CommandUtility;
 import sbs.mira.pvp.util.modules.StatsCommandUtility;
 
@@ -12,19 +12,18 @@ import sbs.mira.pvp.util.modules.StatsCommandUtility;
  *
  * @author jj.mira.sbs
  * @version 1.0.1
- * @see sbs.mira.pvp.framework.MiraPlugin
+ * @see sbs.mira.core.MiraPlugin
  * @since 1.0.0
  */
 public
 class MiraPvpPlugin
   extends MiraPlugin<MiraPvpPulse>
 {
-  
-  
   /**
    * required method by WarPlugin.
    * acts as the program's "Main()".
    */
+  @Override
   public
   void onEnable()
   {
