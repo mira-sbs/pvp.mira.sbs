@@ -265,14 +265,14 @@ class MiraPvpMaster
   
   @Override
   public @NotNull
-  MiraPlayer<?> declares(CraftPlayer target)
+  MiraPlayer<?> declares(@NotNull CraftPlayer target)
   {
     return null;
   }
   
   @Override
   public
-  void spectating(MiraPvpPlayer wp)
+  void spectating(@NotNull MiraPvpPlayer wp)
   {
   
   }

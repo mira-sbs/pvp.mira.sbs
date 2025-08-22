@@ -4,7 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.jetbrains.annotations.Nullable;
 import sbs.mira.core.MiraPlayer;
-import sbs.mira.core.game.WarTeam;
+import sbs.mira.pvp.game.WarTeam;
 import sbs.mira.pvp.stats.WarStats;
 
 /**

@@ -53,7 +53,7 @@ class MiraPvpPlugin
     {
       online.kickPlayer(getServer().getShutdownMessage());
     }
-    pulse().master().world().restoreMap(pulse()
+    pulse().master().world().forgets(pulse()
                                           .master()
                                           .match()
                                           .getRawRoundID() + ""); // Delete the current match world on shutdown.
